@@ -63,8 +63,13 @@ function addSchedule(jsonData) {
         }
     }
 }
-addSchedule(jsonData);
-// addDay(jsonData["tuesday"], "tuesday")
-// addTimeSlot(jsonData["tuesday"]["fourth"], "fourth")
-//addPair(jsonData["tuesday"]["fourth"], "fourth")
-console.log("Ok");
+function closeSvgHandler() {
+    const groupInput = document.querySelector(".group-input");
+    groupInput.value = "";
+}
+window.onload = function () {
+    addSchedule(jsonData);
+    const closeSvg = document.querySelector(".close-svg");
+    if (closeSvg)
+        closeSvg.onclick = closeSvgHandler;
+};

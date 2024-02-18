@@ -1,16 +1,21 @@
 ::-webkit-scrollbar
-  width: 0
+    width: 0
 
-@font-face 
+// input["date"]::-webkit-inner-spin-button,
+// input["date"]::-webkit-calendar-picker-indicator 
+//     display: none
+//     -webkit-appearance: none
+
+@font-face
     font-family: 'Verdana'
     src: url('../fonts/Verdana.ttf') format('opentype')
     font-weight: 300
-@font-face 
+@font-face
     font-family: 'Verdana'
     src: url('../fonts/Verdana-Bold.ttf') format('opentype')
     font-weight: 700
 
-::selection 
+::selection
     background-color: #6E6E6E
     color: #ffffff
 
@@ -39,7 +44,7 @@ body
         .content
             margin: 3vh 4vw 2vh 4vw
             display: flex
-            flex-direction: column 
+            flex-direction: column
             // height: 100vh
             // display: grid
             // grid-template-rows: 70px auto
@@ -126,7 +131,7 @@ body
                     background-color: #dddddd
                     margin: 10px
                     padding: 10px
-                    max-height: 130px
+                    max-height: 170px
                     border-radius: 15px
                     display: flex
                     flex-direction: column
@@ -197,7 +202,7 @@ body
                 .seventh
                     .time
                         background-color: #FF8787
-    footer 
+    footer
         display: grid
         grid-template-rows: 1fr 25px
         color: #fffefe
@@ -221,14 +226,14 @@ body
             text-align: center
             color: #bbbbbb
 
-@media (max-width: 500px) 
+@media (max-width: 500px)
     .sidebar
         display: none
     .day
         max-height: calc(100vh - 200px - 70px - 160px - 3vh - 2vh - 20px - 10px)
     .schedule
         max-width: calc(100vw - 4vw - 4vw)
-        
+
 @media (min-width: 501px)
     .sidebar
         display: grid
