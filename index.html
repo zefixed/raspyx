@@ -24,11 +24,20 @@
 </head>
 
 <body>
+    <div class="main-preloader-container" id="mainPreloaderContainer">
+        <div class="main-preloader"><img src="./images/on_black/mospolytech-logo-white.png" alt="logo"></div>
+    </div>
+    
     <header>
     </header>
     <main>
         <div class="sidebar">
-            <a href=""><img src="images/on_black/burger.svg" class="burger_svg" alt="burger" /></a>
+            <!-- <a type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas-main"
+                aria-controls="offcanvasScrolling"><img src="images/on_black/burger.svg" class="burger_svg"
+                    alt="burger" /></a> -->
+            <a class="burger-menu mx-auto closed" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvas-main"
+                aria-controls="offcanvasScrolling"><span></span><span></span><span></span></a>
             <div class="space"></div>
             <a href=""><img src="images/on_black/bigsearch.svg" class="find_svg" alt="find" /></a>
             <a href=""><img src="images/on_black/man.svg" class="human_svg" alt="human" /></a>
@@ -37,6 +46,38 @@
             <a href=""><img src="images/on_black/eye.svg" class="eye_svg" alt="eye" /></a>
             <a href=""><img src="images/on_black/En.svg" class="en_svg" alt="en" /></a>
             <a href=""><img src="images/on_black/mospolytech-logo.svg" class="polykek_svg" alt="polykek" /></a>
+        </div>
+
+        <div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1"
+            id="offcanvas-main" aria-labelledby="offcanvasScrollingLabel">
+            <div class="offcanvas-header d-flex flex-row-reverse">
+                <button type="button" class="btn-close btn-close-white burger-menu-close" data-bs-dismiss="offcanvas"
+                    aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div class="fs-5 fw-semibold mt-5">
+                    <div class="d-flex flex-column">
+                        <a class="text-decoration-none text-reset" href="">поступающим</a>
+                        <a class="text-decoration-none text-reset my-2" href="">обучающимся</a>
+                        <a class="text-decoration-none text-reset" href="">работникам</a>
+                    </div>
+                    <div class="d-flex flex-column my-3">
+                        <a class="text-decoration-none text-reset" href="">личный кабинет</a>
+                        <a class="text-decoration-none text-reset my-2" href="">ссылка на сдо</a>
+                        <a class="text-decoration-none text-reset" href="">ссылка на мосполитех</a>
+                    </div>
+                    <div class="d-flex flex-column">
+                        <a class="text-decoration-none text-reset" href="">требования преподавателей</a>
+                        <a class="text-decoration-none text-reset my-2" href="">расписание</a>
+                        <a class="text-decoration-none text-reset" href=""></a>
+                    </div>
+                    <div class="d-flex flex-column my-3">
+                        <a class="text-decoration-none text-reset" href="">полезные ссылки</a>
+                        <a class="text-decoration-none text-reset my-2" href="">общежития</a>
+                        <a class="text-decoration-none text-reset my-2" href=""></a>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="content">
             <div class="top">
@@ -60,8 +101,8 @@
                         <span class="input-group-text" id="" style="border: none;"><img
                                 src="images/on_white/people_blue.svg" class="people_svg left" alt="people"></span>
                         <input type="text" class="form-control group-input" aria-label="Sizing example input"
-                            aria-describedby=""
-                            style="background-color: #f8f8f8; border: none; text-align: center;" placeholder="Група">
+                            aria-describedby="" style="background-color: #f8f8f8; border: none; text-align: center;"
+                            placeholder="Група">
                         <span class="input-group-text" style="border: none;"><img src="images/on_white/close.svg"
                                 class="close-svg right" alt="close"></span>
                     </div>

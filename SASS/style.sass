@@ -19,6 +19,34 @@
     background-color: #6E6E6E
     color: #ffffff
 
+$offcanvas-horizontal-width: 100px
+
+@keyframes rotate
+    to
+        transform: rotate(360deg)
+
+@keyframes fadeOut
+    to
+        opacity: 0
+    display: none
+
+.main-preloader-container
+    position: fixed
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    background-color: #1e1e1e
+    display: flex
+    align-items: center
+    justify-content: center
+    z-index: 100000
+
+.main-preloader
+    width: 150px
+    height: 150px
+    animation: rotate 1.6s cubic-bezier(0.645, 0.045, 0.355, 1) 0s infinite normal forwards
+
 body
     display: flex
     flex-direction: column
@@ -32,6 +60,7 @@ body
         // display: grid
         // grid-template-columns: 70px 1fr
         .sidebar
+            z-index: 10000
             align-items: center
             text-align: center
             color: #fffefe
@@ -41,6 +70,24 @@ body
             a
                 color: inherit
                 text-decoration: none
+            .burger-menu
+                span
+                    margin-bottom: 6px
+                    display: block
+                    background-color: white
+                    width: 2rem
+                    height: 1px
+                    transition: transform .3s ease,opacity .3s ease,top .3s ease,-webkit-transform .3s ease
+                first-span-opened
+                    transform: translateY(6px) rotate(45deg)
+                second-span-opened
+                    opacity: 0
+                tgird-span-opened
+                    transform: translateY(-8px) rotate(-45deg)
+        #offcanvas-main
+            color: #fffefe
+            background-color: #1e1e1e
+            padding-left: 70px
         .content
             margin: 3vh 4vw 2vh 4vw
             display: flex

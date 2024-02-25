@@ -64,8 +64,6 @@ function addDay(dayData: { [key: string]: any }, dayName: string): HTMLDivElemen
 
 function addSchedule(jsonData: { [key: string]: object }): void {
     for (const data in jsonData) {
-        console.log(data);
-
         const day = addDay(jsonData[data], data)
         for (const pair of day) {
             document.getElementById(data)?.appendChild(pair);
@@ -78,8 +76,48 @@ function closeSvgHandler() {
     groupInput.value = ""
 
 }
+
+function burgerMenuHandler() {
+    let target = document.querySelector('.burger-menu');
+    if (!target) return
+    if (target.classList.contains("closed")) {
+        target.classList.remove("closed")
+        target.classList.add("shown")
+        const firstChild = target.children[0] as HTMLElement;
+        const secondChild = target.children[1] as HTMLElement;
+        const thirdChild = target.children[2] as HTMLElement;
+        firstChild.style.transform = 'translateY(6px) rotate(45deg)'
+        secondChild.style.opacity = '0'
+        thirdChild.style.transform = 'translateY(-8px) rotate(-45deg)'
+    }
+    else {
+        target.classList.remove("shown")
+        target.classList.add("closed")
+        const firstChild = target.children[0] as HTMLElement;
+        const secondChild = target.children[1] as HTMLElement;
+        const thirdChild = target.children[2] as HTMLElement;
+        firstChild.style.transform = 'translateY(0px) rotate(0deg)'
+        secondChild.style.opacity = '1'
+        thirdChild.style.transform = 'translateY(0px) rotate(0deg)'
+    }
+}
+
 window.onload = function () {
     addSchedule(jsonData)
+
+    const preloaderContainer = document.querySelector(".main-preloader-container") as HTMLElement
+    
+    setTimeout(preloaderContainer.style.animation = "fadeOut 1s cubic-bezier(0.645, 0.045, 0.355, 1) 1.6s forwards", 1)
+    preloaderContainer.addEventListener('animationend', function () {
+        preloaderContainer.style.display = 'none' 
+    })
+
     const closeSvg = document.querySelector(".close-svg") as HTMLInputElement
     if (closeSvg) closeSvg.onclick = closeSvgHandler
+
+    const burgerMenu = document.querySelector(".burger-menu") as HTMLInputElement
+    if (burgerMenu) burgerMenu.onclick = burgerMenuHandler
+
+    const burgerMenuClose = document.querySelector(".burger-menu-close") as HTMLInputElement
+    if (burgerMenuClose) burgerMenuClose.onclick = burgerMenuHandler
 }

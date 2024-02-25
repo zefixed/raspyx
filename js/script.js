@@ -56,7 +56,6 @@ function addDay(dayData, dayName) {
 function addSchedule(jsonData) {
     var _a;
     for (const data in jsonData) {
-        console.log(data);
         const day = addDay(jsonData[data], data);
         for (const pair of day) {
             (_a = document.getElementById(data)) === null || _a === void 0 ? void 0 : _a.appendChild(pair);
@@ -67,9 +66,45 @@ function closeSvgHandler() {
     const groupInput = document.querySelector(".group-input");
     groupInput.value = "";
 }
+function burgerMenuHandler() {
+    let target = document.querySelector('.burger-menu');
+    if (!target)
+        return;
+    if (target.classList.contains("closed")) {
+        target.classList.remove("closed");
+        target.classList.add("shown");
+        const firstChild = target.children[0];
+        const secondChild = target.children[1];
+        const thirdChild = target.children[2];
+        firstChild.style.transform = 'translateY(6px) rotate(45deg)';
+        secondChild.style.opacity = '0';
+        thirdChild.style.transform = 'translateY(-8px) rotate(-45deg)';
+    }
+    else {
+        target.classList.remove("shown");
+        target.classList.add("closed");
+        const firstChild = target.children[0];
+        const secondChild = target.children[1];
+        const thirdChild = target.children[2];
+        firstChild.style.transform = 'translateY(0px) rotate(0deg)';
+        secondChild.style.opacity = '1';
+        thirdChild.style.transform = 'translateY(0px) rotate(0deg)';
+    }
+}
 window.onload = function () {
     addSchedule(jsonData);
+    const preloaderContainer = document.querySelector(".main-preloader-container");
+    setTimeout(preloaderContainer.style.animation = "fadeOut 1s cubic-bezier(0.645, 0.045, 0.355, 1) 1.6s forwards", 1);
+    preloaderContainer.addEventListener('animationend', function () {
+        preloaderContainer.style.display = 'none';
+    });
     const closeSvg = document.querySelector(".close-svg");
     if (closeSvg)
         closeSvg.onclick = closeSvgHandler;
+    const burgerMenu = document.querySelector(".burger-menu");
+    if (burgerMenu)
+        burgerMenu.onclick = burgerMenuHandler;
+    const burgerMenuClose = document.querySelector(".burger-menu-close");
+    if (burgerMenuClose)
+        burgerMenuClose.onclick = burgerMenuHandler;
 };
