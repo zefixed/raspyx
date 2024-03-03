@@ -102,14 +102,55 @@ function burgerMenuHandler() {
     }
 }
 
+function setDate(date: string) {
+    const dateRegexp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/
+    const dateInput = document.querySelector(".date-input") as HTMLInputElement
+
+    if (dateRegexp.test(date)) dateInput.value = date
+    else {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        const dd = String(today.getDate()).padStart(2, '0');
+        dateInput.value = yyyy + "-" + mm + "-" + dd
+    }
+    dateInputHandler()
+}
+
+function dateInputHandler() {
+    const dateRegexp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/
+    const dateInput = document.querySelector(".date-input") as HTMLInputElement
+
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    const dd = String(today.getDate()).padStart(2, '0');
+
+    if (dateRegexp.test(dateInput.value) && dateInput.value >= yyyy + "-" + mm + "-" + dd) {
+        const selectedDate = new Date(dateInput.value)
+        const dates = document.getElementsByClassName("month-date")
+        let dayNum = 0
+        for (const date of dates) {
+            let dayDate = selectedDate
+            dayDate.setDate(selectedDate.getDate() + 1 + dayNum - (selectedDate.getDay() == 0 ? 6 : selectedDate.getDay()))
+            date.textContent = String(dayDate.getDate())
+            dayNum++
+        }
+    }
+    else {
+        setDate("")     
+    }
+}
+
 window.onload = function () {
     addSchedule(jsonData)
+    setDate("")
 
     const preloaderContainer = document.querySelector(".main-preloader-container") as HTMLElement
-    
-    setTimeout(preloaderContainer.style.animation = "fadeOut 1s cubic-bezier(0.645, 0.045, 0.355, 1) 1.6s forwards", 1)
+
+    setTimeout(() => { preloaderContainer.style.animation = "fadeOut 1s cubic-bezier(0.645, 0.045, 0.355, 1) 0.5s forwards"; }, 1);
     preloaderContainer.addEventListener('animationend', function () {
-        preloaderContainer.style.display = 'none' 
+        preloaderContainer.style.display = 'none'
     })
 
     const closeSvg = document.querySelector(".close-svg") as HTMLInputElement
@@ -120,4 +161,7 @@ window.onload = function () {
 
     const burgerMenuClose = document.querySelector(".burger-menu-close") as HTMLInputElement
     if (burgerMenuClose) burgerMenuClose.onclick = burgerMenuHandler
+
+    const dateInput = document.querySelector(".date-input") as HTMLInputElement
+    if (dateInput) dateInput.onchange = dateInputHandler
 }
