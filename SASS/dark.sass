@@ -1,11 +1,6 @@
 ::-webkit-scrollbar
     width: 0
 
-// input["date"]::-webkit-inner-spin-button,
-// input["date"]::-webkit-calendar-picker-indicator 
-//     display: none
-//     -webkit-appearance: none
-
 @font-face
     font-family: 'Verdana'
     src: url('../fonts/Verdana.ttf') format('opentype')
@@ -50,22 +45,21 @@ $offcanvas-horizontal-width: 100px
 body
     display: flex
     flex-direction: column
-    // display: grid
-    // grid-template-rows: auto 1fr auto
     margin: 0
     height: 100vh
     font-family: Verdana
+    background-color: #2f2e2e
+    color: #ffffff
+
     main
         display: flex
-        // display: grid
-        // grid-template-columns: 70px 1fr
+        margin-left: 0px
         .sidebar
             z-index: 1050
             align-items: center
             text-align: center
-            color: #fffefe
+            color: #ffffff
             background-color: #1e1e1e
-            margin-top: 0
             min-width: 70px
             a
                 color: inherit
@@ -77,7 +71,7 @@ body
                     background-color: white
                     width: 2rem
                     height: 1px
-                    transition: transform .3s ease,opacity .3s ease,top .3s ease,-webkit-transform .3s ease
+                    transition: transform .3s ease, opacity .3s ease, top .3s ease, -webkit-transform .3s ease
                 first-span-opened
                     transform: translateY(6px) rotate(45deg)
                 second-span-opened
@@ -85,26 +79,20 @@ body
                 tgird-span-opened
                     transform: translateY(-8px) rotate(-45deg)
         #offcanvas-main
-            color: #fffefe
+            color: #ffffff
             background-color: #1e1e1e
             padding-left: 70px
         .content
             margin: 3vh 4vw 2vh 4vw
             display: flex
             flex-direction: column
-            // height: 100vh
-            // display: grid
-            // grid-template-rows: 70px auto
+
             .top
                 display: flex
                 justify-content: space-between
-                // display: grid
-                // grid-template-columns: 1fr 1fr
                 margin-bottom: 20px
                 .t-links
                     display: flex
-                    // display: grid
-                    // grid-template-columns: 300px 300px 1fr
                     a
                         margin-right: clamp(10px, 3vw, 100px)
                         color: inherit
@@ -113,19 +101,23 @@ body
                         max-height: 40px
                         display: flex
                         align-items: center
-                .date-input, .group-input
-                    background-color: #f8f8f8
-                    border: none
-                    text-align: center
+
+                .date-input, .group-input, .people-svg, .close-svg
+                     background-color: #525252
+                     color: #f8f8f8
+                     border: none
+                     text-align: center
+                
+
+
             .schedule
-                //min-width: 1200px
-                //max-width: calc(100vw - 70px - 4vw - 4vw)
                 overflow-x: auto
+                background-color: #333333
             .days
                 display: grid
                 grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr
-                background-color: #f8f8f8
-                color: #333333
+                background-color: #525252
+                color: #ffffff
                 border-radius: 15px
                 justify-items: center
                 text-align: center
@@ -136,17 +128,14 @@ body
             .pairs
                 display: flex
                 flex-direction: row
-                // display: grid
-                // grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr
+                background-color: #2f2e2e
                 .day
                     flex: 1 1 0px
-                    background-color: #f8f8f8
+                    background-color: #505050
                     border-radius: 15px
                     overflow-y: auto
                     margin: 10px 5px 10px 0px
                     align-self: start
-                    //max-height: calc(100vh - 200px - 70px - 40px - 3vh - 2vh - 20px - 10px)
-                    // min-height: 165px
                 .m-all
                     margin: 10px 5px 10px 5px
                 .m-right
@@ -154,7 +143,7 @@ body
                 .mn-wdth
                     min-width: 170px
                 .pair
-                    background-color: #dddddd
+                    background-color: #686666
                     margin: 10px
                     padding: 10px
                     max-height: 170px
@@ -231,7 +220,7 @@ body
     footer
         display: grid
         grid-template-rows: 1fr 25px
-        color: #fffefe
+        color: #ffffff
         background-color: #1e1e1e
         height: 200px
         .ft-links
@@ -247,10 +236,12 @@ body
                 font-size: 18px
                 white-space: nowrap
                 overflow: hidden
-                text-overflow: ellipsis
         .copyright
             text-align: center
             color: #bbbbbb
+    .modal
+        .modal-content
+            background-color: #1E1E1E
 
 @media (max-width: 500px)
     .sidebar
@@ -264,7 +255,7 @@ body
     .sidebar
         display: grid
     .day
-        max-height: calc(100vh - 200px - 70px - 40px - 3vh - 2vh - 20px - 10px - 100px) // last 100 px is unknown where
+        max-height: calc(100vh - 200px - 70px - 40px - 3vh - 2vh - 20px - 10px - 100px)
     .schedule
         max-width: calc(100vw - 70px - 4vw - 4vw)
 

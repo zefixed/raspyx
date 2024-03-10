@@ -118,7 +118,7 @@ function dateInputHandler() {
         let dayNum = 0;
         for (const date of dates) {
             let dayDate = selectedDate;
-            dayDate.setDate(selectedDate.getDate() + 1 + dayNum - (selectedDate.getDay() == 0 ? 6 : selectedDate.getDay()));
+            dayDate.setDate(selectedDate.getDate() + 1 + dayNum - (selectedDate.getDay() == 0 ? 7 : selectedDate.getDay()));
             date.textContent = String(dayDate.getDate());
             dayNum++;
         }
@@ -127,9 +127,49 @@ function dateInputHandler() {
         setDate("");
     }
 }
+function setVersion(version) {
+    const settingsModalFooter = document.querySelector(".settingsModalFooter");
+    settingsModalFooter.textContent = `v${version}`;
+}
+function switchDarkThemeHandler() {
+    var _a, _b, _c;
+    const switchTheme = document.querySelector("#flexSwitchCheckDarkTheme");
+    const oldlink = document.getElementsByTagName("link").item(4);
+    let theme = "";
+    // Set css file
+    let newlink = document.createElement("link");
+    newlink === null || newlink === void 0 ? void 0 : newlink.setAttribute("rel", "stylesheet");
+    newlink === null || newlink === void 0 ? void 0 : newlink.setAttribute("type", "text/css");
+    if (switchTheme.checked)
+        theme = "dark";
+    else
+        theme = "style";
+    newlink === null || newlink === void 0 ? void 0 : newlink.setAttribute("href", `css/${theme}.css`);
+    if (oldlink)
+        (_a = document === null || document === void 0 ? void 0 : document.getElementsByTagName("head").item(0)) === null || _a === void 0 ? void 0 : _a.replaceChild(newlink, oldlink);
+    // Set data-bs-theme
+    const html = document.getElementsByTagName("html").item(0);
+    html === null || html === void 0 ? void 0 : html.setAttribute("data-bs-theme", theme);
+    // Set icons
+    const peopleSvg = (_b = document.querySelector(".people-svg")) === null || _b === void 0 ? void 0 : _b.children[0];
+    const closeSvg = (_c = document.querySelector(".close-svg")) === null || _c === void 0 ? void 0 : _c.children[0];
+    if (theme == "style") {
+        peopleSvg === null || peopleSvg === void 0 ? void 0 : peopleSvg.setAttribute("src", "images/on_white/people_blue.svg");
+        closeSvg === null || closeSvg === void 0 ? void 0 : closeSvg.setAttribute("src", "images/on_white/close.svg");
+    }
+    else {
+        peopleSvg === null || peopleSvg === void 0 ? void 0 : peopleSvg.setAttribute("src", "images/on_black/bluePeople.svg");
+        closeSvg === null || closeSvg === void 0 ? void 0 : closeSvg.setAttribute("src", "images/on_black/Exit.svg");
+    }
+}
 window.onload = function () {
     addSchedule(jsonData);
     setDate("");
+    switchDarkThemeHandler();
+    setVersion("1.24.10");
+    const groupInput = document.querySelector(".group-input");
+    if (groupInput)
+        groupInput.value = "";
     const preloaderContainer = document.querySelector(".main-preloader-container");
     setTimeout(() => { preloaderContainer.style.animation = "fadeOut 1s cubic-bezier(0.645, 0.045, 0.355, 1) 0.5s forwards"; }, 1);
     preloaderContainer.addEventListener('animationend', function () {
@@ -147,4 +187,7 @@ window.onload = function () {
     const dateInput = document.querySelector(".date-input");
     if (dateInput)
         dateInput.onchange = dateInputHandler;
+    const switchDarkTheme = document.querySelector("#flexSwitchCheckDarkTheme");
+    if (switchDarkTheme)
+        switchDarkTheme.onclick = switchDarkThemeHandler;
 };

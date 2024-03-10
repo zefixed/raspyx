@@ -132,19 +132,66 @@ function dateInputHandler() {
         let dayNum = 0
         for (const date of dates) {
             let dayDate = selectedDate
-            dayDate.setDate(selectedDate.getDate() + 1 + dayNum - (selectedDate.getDay() == 0 ? 6 : selectedDate.getDay()))
+            dayDate.setDate(selectedDate.getDate() + 1 + dayNum - (selectedDate.getDay() == 0 ? 7 : selectedDate.getDay()))
             date.textContent = String(dayDate.getDate())
             dayNum++
         }
     }
     else {
-        setDate("")     
+        setDate("")
+    }
+}
+
+function setVersion(version: string) {
+    const settingsModalFooter = document.querySelector(".settingsModalFooter") as HTMLInputElement
+    settingsModalFooter.textContent = `v${version}`
+}
+
+function switchDarkThemeHandler() {
+    const switchTheme = document.querySelector("#flexSwitchCheckDarkTheme") as HTMLInputElement
+    const oldlink = document.getElementsByTagName("link").item(4);
+    let theme = ""
+
+
+    // Set css file
+    let newlink = document.createElement("link");
+    newlink?.setAttribute("rel", "stylesheet");
+    newlink?.setAttribute("type", "text/css");
+    if (switchTheme.checked) theme = "dark"
+    else theme = "style"
+    newlink?.setAttribute("href", `css/${theme}.css`);
+
+    if (oldlink)
+        document?.getElementsByTagName("head").item(0)?.replaceChild(newlink, oldlink);
+
+
+    // Set data-bs-theme
+    const html = document.getElementsByTagName("html").item(0) as HTMLElement
+    html?.setAttribute("data-bs-theme", theme)
+
+
+    // Set icons
+    const peopleSvg = document.querySelector(".people-svg")?.children[0] as HTMLElement
+    const closeSvg = document.querySelector(".close-svg")?.children[0] as HTMLElement
+    
+    if (theme == "style") {
+        peopleSvg?.setAttribute("src", "images/on_white/people_blue.svg")
+        closeSvg?.setAttribute("src", "images/on_white/close.svg")
+    }
+    else {
+        peopleSvg?.setAttribute("src", "images/on_black/bluePeople.svg")
+        closeSvg?.setAttribute("src", "images/on_black/Exit.svg")
     }
 }
 
 window.onload = function () {
     addSchedule(jsonData)
     setDate("")
+    switchDarkThemeHandler()
+    setVersion("1.24.10")
+
+    const groupInput = document.querySelector(".group-input") as HTMLInputElement
+    if (groupInput) groupInput.value = ""
 
     const preloaderContainer = document.querySelector(".main-preloader-container") as HTMLElement
 
@@ -164,4 +211,7 @@ window.onload = function () {
 
     const dateInput = document.querySelector(".date-input") as HTMLInputElement
     if (dateInput) dateInput.onchange = dateInputHandler
+
+    const switchDarkTheme = document.querySelector("#flexSwitchCheckDarkTheme") as HTMLInputElement
+    if (switchDarkTheme) switchDarkTheme.onclick = switchDarkThemeHandler
 }

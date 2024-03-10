@@ -57,17 +57,19 @@ body {
   margin: 0;
   height: 100vh;
   font-family: Verdana;
+  background-color: #2f2e2e;
+  color: #ffffff;
 }
 body main {
   display: flex;
+  margin-left: 0px;
 }
 body main .sidebar {
   z-index: 1050;
   align-items: center;
   text-align: center;
-  color: #fffefe;
+  color: #ffffff;
   background-color: #1e1e1e;
-  margin-top: 0;
   min-width: 70px;
 }
 body main .sidebar a {
@@ -92,7 +94,7 @@ body main .sidebar .burger-menu tgird-span-opened {
   transform: translateY(-8px) rotate(-45deg);
 }
 body main #offcanvas-main {
-  color: #fffefe;
+  color: #ffffff;
   background-color: #1e1e1e;
   padding-left: 70px;
 }
@@ -118,19 +120,21 @@ body main .content .top .t-links a {
   display: flex;
   align-items: center;
 }
-body main .content .top .date-input, body main .content .top .group-input {
-  background-color: #f8f8f8;
+body main .content .top .date-input, body main .content .top .group-input, body main .content .top .people-svg, body main .content .top .close-svg {
+  background-color: #525252;
+  color: #f8f8f8;
   border: none;
   text-align: center;
 }
 body main .content .schedule {
   overflow-x: auto;
+  background-color: #333333;
 }
 body main .content .days {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-  background-color: #f8f8f8;
-  color: #333333;
+  background-color: #525252;
+  color: #ffffff;
   border-radius: 15px;
   justify-items: center;
   text-align: center;
@@ -143,10 +147,11 @@ body main .content .days .month-date {
 body main .content .pairs {
   display: flex;
   flex-direction: row;
+  background-color: #2f2e2e;
 }
 body main .content .pairs .day {
   flex: 1 1 0px;
-  background-color: #f8f8f8;
+  background-color: #505050;
   border-radius: 15px;
   overflow-y: auto;
   margin: 10px 5px 10px 0px;
@@ -162,7 +167,7 @@ body main .content .pairs .mn-wdth {
   min-width: 170px;
 }
 body main .content .pairs .pair {
-  background-color: #dddddd;
+  background-color: #686666;
   margin: 10px;
   padding: 10px;
   max-height: 170px;
@@ -247,7 +252,7 @@ body main .content .pairs .seventh .time {
 body footer {
   display: grid;
   grid-template-rows: 1fr 25px;
-  color: #fffefe;
+  color: #ffffff;
   background-color: #1e1e1e;
   height: 200px;
 }
@@ -266,11 +271,13 @@ body footer .ft-links a {
   font-size: 18px;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 body footer .copyright {
   text-align: center;
   color: #bbbbbb;
+}
+body .modal .modal-content {
+  background-color: #1E1E1E;
 }
 
 @media (max-width: 500px) {
@@ -319,4 +326,4 @@ body footer .copyright {
   .day {
     max-height: calc(100vh - 200px - 70px - 40px - 3vh - 2vh - 20px - 10px);
   }
-}/*# sourceMappingURL=style.css.map */
+}/*# sourceMappingURL=dark.css.map */
