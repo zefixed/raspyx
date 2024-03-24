@@ -162,32 +162,63 @@ function switchDarkThemeHandler() {
         closeSvg === null || closeSvg === void 0 ? void 0 : closeSvg.setAttribute("src", "images/on_black/Exit.svg");
     }
 }
+function switchFooterHandler() {
+    var _a, _b;
+    const footer = document.querySelector(".footer");
+    const switchFooter = document.querySelector("#flexSwitchCheckFooter");
+    const pairs = document.querySelector(".pairs");
+    if (switchFooter.checked) {
+        footer.style.display = "none";
+        for (const day of (_a = pairs === null || pairs === void 0 ? void 0 : pairs.children) !== null && _a !== void 0 ? _a : []) {
+            day.classList.remove("day-with-footer");
+            day.classList.add("day-without-footer");
+        }
+    }
+    else {
+        footer.style.display = "grid";
+        for (const day of (_b = pairs === null || pairs === void 0 ? void 0 : pairs.children) !== null && _b !== void 0 ? _b : []) {
+            day.classList.remove("day-without-footer");
+            day.classList.add("day-with-footer");
+        }
+    }
+}
 window.onload = function () {
     addSchedule(jsonData);
     setDate("");
     switchDarkThemeHandler();
-    setVersion("1.24.10");
+    setVersion("1.24.12");
+    // Clearing the group's input 
     const groupInput = document.querySelector(".group-input");
     if (groupInput)
         groupInput.value = "";
+    // Preloader
     const preloaderContainer = document.querySelector(".main-preloader-container");
     setTimeout(() => { preloaderContainer.style.animation = "fadeOut 1s cubic-bezier(0.645, 0.045, 0.355, 1) 0.5s forwards"; }, 1);
     preloaderContainer.addEventListener('animationend', function () {
         preloaderContainer.style.display = 'none';
     });
+    // Group input clean
     const closeSvg = document.querySelector(".close-svg");
     if (closeSvg)
         closeSvg.onclick = closeSvgHandler;
+    // Burger menu open
     const burgerMenu = document.querySelector(".burger-menu");
     if (burgerMenu)
         burgerMenu.onclick = burgerMenuHandler;
+    // Burger menu close
     const burgerMenuClose = document.querySelector(".burger-menu-close");
     if (burgerMenuClose)
         burgerMenuClose.onclick = burgerMenuHandler;
+    // Date input
     const dateInput = document.querySelector(".date-input");
     if (dateInput)
         dateInput.onchange = dateInputHandler;
+    // Dark theme switch
     const switchDarkTheme = document.querySelector("#flexSwitchCheckDarkTheme");
     if (switchDarkTheme)
         switchDarkTheme.onclick = switchDarkThemeHandler;
+    // Show footer switch
+    const switchFooter = document.querySelector("#flexSwitchCheckFooter");
+    if (switchFooter)
+        switchFooter.onclick = switchFooterHandler;
 };

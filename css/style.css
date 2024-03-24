@@ -29,8 +29,8 @@
 @keyframes fadeOut {
   to {
     opacity: 0;
+    display: none;
   }
-  display: none;
 }
 .main-preloader-container {
   position: fixed;
@@ -144,7 +144,7 @@ body main .content .pairs {
   display: flex;
   flex-direction: row;
 }
-body main .content .pairs .day {
+body main .content .pairs .day-with-footer, body main .content .pairs .day-without-footer {
   flex: 1 1 0px;
   background-color: #f8f8f8;
   border-radius: 15px;
@@ -277,8 +277,11 @@ body footer .copyright {
   .sidebar {
     display: none;
   }
-  .day {
+  .day-with-footer {
     max-height: calc(100vh - 200px - 70px - 160px - 3vh - 2vh - 20px - 10px);
+  }
+  .day-without-footer {
+    max-height: calc(100vh - 70px - 160px - 3vh - 2vh - 20px - 10px);
   }
   .schedule {
     max-width: 92vw;
@@ -288,8 +291,11 @@ body footer .copyright {
   .sidebar {
     display: grid;
   }
-  .day {
+  .day-with-footer {
     max-height: calc(100vh - 200px - 70px - 40px - 3vh - 2vh - 20px - 10px - 100px);
+  }
+  .day-without-footer {
+    max-height: calc(100vh - 70px - 40px - 3vh - 2vh - 20px - 10px - 100px);
   }
   .schedule {
     max-width: calc(100vw - 70px - 4vw - 4vw);
@@ -316,7 +322,10 @@ body footer .copyright {
   .t-inputs a {
     margin-left: 20px;
   }
-  .day {
+  .day-with-footer {
     max-height: calc(100vh - 200px - 70px - 40px - 3vh - 2vh - 20px - 10px);
+  }
+  .day-without-footer {
+    max-height: calc(100vh - 70px - 40px - 3vh - 2vh - 20px - 10px - 1px);
   }
 }/*# sourceMappingURL=style.css.map */

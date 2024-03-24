@@ -29,8 +29,8 @@
 @keyframes fadeOut {
   to {
     opacity: 0;
+    display: none;
   }
-  display: none;
 }
 .main-preloader-container {
   position: fixed;
@@ -149,7 +149,7 @@ body main .content .pairs {
   flex-direction: row;
   background-color: #2f2e2e;
 }
-body main .content .pairs .day {
+body main .content .pairs .day-with-footer, body main .content .pairs .day-without-footer {
   flex: 1 1 0px;
   background-color: #505050;
   border-radius: 15px;
@@ -284,8 +284,11 @@ body .modal .modal-content {
   .sidebar {
     display: none;
   }
-  .day {
+  .day-with-footer {
     max-height: calc(100vh - 200px - 70px - 160px - 3vh - 2vh - 20px - 10px);
+  }
+  .day-without-footer {
+    max-height: calc(100vh - 70px - 160px - 3vh - 2vh - 20px - 10px);
   }
   .schedule {
     max-width: 92vw;
@@ -295,8 +298,11 @@ body .modal .modal-content {
   .sidebar {
     display: grid;
   }
-  .day {
+  .day-with-footer {
     max-height: calc(100vh - 200px - 70px - 40px - 3vh - 2vh - 20px - 10px - 100px);
+  }
+  .day-without-footer {
+    max-height: calc(100vh - 70px - 40px - 3vh - 2vh - 20px - 10px - 100px);
   }
   .schedule {
     max-width: calc(100vw - 70px - 4vw - 4vw);
@@ -323,7 +329,10 @@ body .modal .modal-content {
   .t-inputs a {
     margin-left: 20px;
   }
-  .day {
+  .day-with-footer {
     max-height: calc(100vh - 200px - 70px - 40px - 3vh - 2vh - 20px - 10px);
+  }
+  .day-without-footer {
+    max-height: calc(100vh - 70px - 40px - 3vh - 2vh - 20px - 10px - 2px);
   }
 }/*# sourceMappingURL=dark.css.map */

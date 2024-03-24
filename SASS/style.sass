@@ -28,7 +28,7 @@ $offcanvas-horizontal-width: 100px
 @keyframes fadeOut
     to
         opacity: 0
-    display: none
+        display: none
 
 .main-preloader-container
     position: fixed
@@ -138,7 +138,7 @@ body
                 flex-direction: row
                 // display: grid
                 // grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr
-                .day
+                .day-with-footer, .day-without-footer
                     flex: 1 1 0px
                     background-color: #f8f8f8
                     border-radius: 15px
@@ -255,16 +255,20 @@ body
 @media (max-width: 500px)
     .sidebar
         display: none
-    .day
+    .day-with-footer
         max-height: calc(100vh - 200px - 70px - 160px - 3vh - 2vh - 20px - 10px)
+    .day-without-footer
+        max-height: calc(100vh - 70px - 160px - 3vh - 2vh - 20px - 10px)
     .schedule
         max-width: calc(100vw - 4vw - 4vw)
 
 @media (min-width: 501px)
     .sidebar
         display: grid
-    .day
+    .day-with-footer
         max-height: calc(100vh - 200px - 70px - 40px - 3vh - 2vh - 20px - 10px - 100px) // last 100 px is unknown where
+    .day-without-footer
+        max-height: calc(100vh - 70px - 40px - 3vh - 2vh - 20px - 10px - 100px) // last 100 px is unknown where
     .schedule
         max-width: calc(100vw - 70px - 4vw - 4vw)
 
@@ -285,5 +289,7 @@ body
     .t-inputs
         a
             margin-left: 20px
-    .day
+    .day-with-footer
         max-height: calc(100vh - 200px - 70px - 40px - 3vh - 2vh - 20px - 10px)
+    .day-without-footer
+        max-height: calc(100vh - 70px - 40px - 3vh - 2vh - 20px - 10px - 1px) // last 1 px is unknown where

@@ -173,7 +173,7 @@ function switchDarkThemeHandler() {
     // Set icons
     const peopleSvg = document.querySelector(".people-svg")?.children[0] as HTMLElement
     const closeSvg = document.querySelector(".close-svg")?.children[0] as HTMLElement
-    
+
     if (theme == "style") {
         peopleSvg?.setAttribute("src", "images/on_white/people_blue.svg")
         closeSvg?.setAttribute("src", "images/on_white/close.svg")
@@ -184,34 +184,66 @@ function switchDarkThemeHandler() {
     }
 }
 
+function switchFooterHandler() {
+    const footer = document.querySelector(".footer") as HTMLElement
+    const switchFooter = document.querySelector("#flexSwitchCheckFooter") as HTMLInputElement
+    const pairs = document.querySelector(".pairs")
+
+    if (switchFooter.checked) {
+        footer.style.display = "none"
+        for (const day of pairs?.children ?? []) {
+            day.classList.remove("day-with-footer")
+            day.classList.add("day-without-footer")
+        }
+    }
+    else {
+        footer.style.display = "grid"
+        for (const day of pairs?.children ?? []) {
+            day.classList.remove("day-without-footer")
+            day.classList.add("day-with-footer")
+        }
+    }
+}
+
 window.onload = function () {
     addSchedule(jsonData)
     setDate("")
     switchDarkThemeHandler()
-    setVersion("1.24.10")
+    setVersion("1.24.12")
 
+
+    // Clearing the group's input 
     const groupInput = document.querySelector(".group-input") as HTMLInputElement
     if (groupInput) groupInput.value = ""
 
+    // Preloader
     const preloaderContainer = document.querySelector(".main-preloader-container") as HTMLElement
-
     setTimeout(() => { preloaderContainer.style.animation = "fadeOut 1s cubic-bezier(0.645, 0.045, 0.355, 1) 0.5s forwards"; }, 1);
     preloaderContainer.addEventListener('animationend', function () {
         preloaderContainer.style.display = 'none'
     })
 
+    // Group input clean
     const closeSvg = document.querySelector(".close-svg") as HTMLInputElement
     if (closeSvg) closeSvg.onclick = closeSvgHandler
 
+    // Burger menu open
     const burgerMenu = document.querySelector(".burger-menu") as HTMLInputElement
     if (burgerMenu) burgerMenu.onclick = burgerMenuHandler
 
+    // Burger menu close
     const burgerMenuClose = document.querySelector(".burger-menu-close") as HTMLInputElement
     if (burgerMenuClose) burgerMenuClose.onclick = burgerMenuHandler
 
+    // Date input
     const dateInput = document.querySelector(".date-input") as HTMLInputElement
     if (dateInput) dateInput.onchange = dateInputHandler
 
+    // Dark theme switch
     const switchDarkTheme = document.querySelector("#flexSwitchCheckDarkTheme") as HTMLInputElement
     if (switchDarkTheme) switchDarkTheme.onclick = switchDarkThemeHandler
+
+    // Show footer switch
+    const switchFooter = document.querySelector("#flexSwitchCheckFooter") as HTMLInputElement
+    if (switchFooter) switchFooter.onclick = switchFooterHandler
 }
