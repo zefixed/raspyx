@@ -132,28 +132,60 @@ function setVersion(version) {
     settingsModalFooter.textContent = `v${version}`;
 }
 function switchDarkThemeHandler() {
-    var _a, _b, _c;
+    var _a, _b;
     const switchTheme = document.querySelector("#flexSwitchCheckDarkTheme");
-    const oldlink = document.getElementsByTagName("link").item(4);
-    let theme = "";
-    // Set css file
-    let newlink = document.createElement("link");
-    newlink === null || newlink === void 0 ? void 0 : newlink.setAttribute("rel", "stylesheet");
-    newlink === null || newlink === void 0 ? void 0 : newlink.setAttribute("type", "text/css");
+    // Set theme
+    let theme = "light";
     if (switchTheme.checked)
         theme = "dark";
-    else
-        theme = "style";
-    newlink === null || newlink === void 0 ? void 0 : newlink.setAttribute("href", `css/${theme}.css`);
-    if (oldlink)
-        (_a = document === null || document === void 0 ? void 0 : document.getElementsByTagName("head").item(0)) === null || _a === void 0 ? void 0 : _a.replaceChild(newlink, oldlink);
+    const nodes = {
+        body: document.querySelector(".body"),
+        dateInput: document.querySelector(".date-input"),
+        groupInput: document.querySelector(".group-input"),
+        peopleSvg: document.querySelector(".people-svg"),
+        closeSvg: document.querySelector(".close-svg"),
+        days: document.querySelector(".days"),
+        pairs: document.querySelector(".pairs"),
+        day: document.getElementsByClassName("day"),
+        pair: document.getElementsByClassName("pair"),
+        modalContent: document.querySelector(".modal-content"),
+    };
+    // Remove/set dark classes
+    if (theme == "light") {
+        nodes["body"].classList.remove("body-dark");
+        nodes["dateInput"].classList.remove("date-input-dark");
+        nodes["groupInput"].classList.remove("group-input-dark");
+        nodes["peopleSvg"].classList.remove("people-svg-dark");
+        nodes["closeSvg"].classList.remove("close-svg-dark");
+        nodes["days"].classList.remove("days-dark");
+        nodes["pairs"].classList.remove("pairs-dark");
+        for (const node of nodes["day"])
+            node.classList.remove("day-dark");
+        for (const node of nodes["pair"])
+            node.classList.remove("pair-dark");
+        nodes["modalContent"].classList.remove("modal-content-dark");
+    }
+    else {
+        nodes["body"].classList.add("body-dark");
+        nodes["dateInput"].classList.add("date-input-dark");
+        nodes["groupInput"].classList.add("group-input-dark");
+        nodes["peopleSvg"].classList.add("people-svg-dark");
+        nodes["closeSvg"].classList.add("close-svg-dark");
+        nodes["days"].classList.add("days-dark");
+        nodes["pairs"].classList.add("pairs-dark");
+        for (const node of nodes["day"])
+            node.classList.add("day-dark");
+        for (const node of nodes["pair"])
+            node.classList.add("pair-dark");
+        nodes["modalContent"].classList.add("modal-content-dark");
+    }
     // Set data-bs-theme
     const html = document.getElementsByTagName("html").item(0);
     html === null || html === void 0 ? void 0 : html.setAttribute("data-bs-theme", theme);
     // Set icons
-    const peopleSvg = (_b = document.querySelector(".people-svg")) === null || _b === void 0 ? void 0 : _b.children[0];
-    const closeSvg = (_c = document.querySelector(".close-svg")) === null || _c === void 0 ? void 0 : _c.children[0];
-    if (theme == "style") {
+    const peopleSvg = (_a = document.querySelector(".people-svg")) === null || _a === void 0 ? void 0 : _a.children[0];
+    const closeSvg = (_b = document.querySelector(".close-svg")) === null || _b === void 0 ? void 0 : _b.children[0];
+    if (theme == "light") {
         peopleSvg === null || peopleSvg === void 0 ? void 0 : peopleSvg.setAttribute("src", "images/on_white/people_blue.svg");
         closeSvg === null || closeSvg === void 0 ? void 0 : closeSvg.setAttribute("src", "images/on_white/close.svg");
     }
@@ -186,7 +218,7 @@ window.onload = function () {
     addSchedule(jsonData);
     setDate("");
     switchDarkThemeHandler();
-    setVersion("1.24.12");
+    setVersion("1.24.13");
     // Clearing the group's input 
     const groupInput = document.querySelector(".group-input");
     if (groupInput)

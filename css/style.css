@@ -14,11 +14,11 @@
 }
 ::-moz-selection {
   background-color: #6E6E6E;
-  color: #ffffff;
+  color: #fffefe;
 }
 ::selection {
   background-color: #6E6E6E;
-  color: #ffffff;
+  color: #fffefe;
 }
 
 @keyframes rotate {
@@ -51,17 +51,17 @@
   animation: rotate 1.6s cubic-bezier(0.645, 0.045, 0.355, 1) 0s infinite normal forwards;
 }
 
-body {
+.body {
   display: flex;
   flex-direction: column;
   margin: 0;
   height: 100vh;
   font-family: Verdana;
 }
-body main {
+.body .main {
   display: flex;
 }
-body main .sidebar {
+.body .main .sidebar {
   z-index: 1050;
   align-items: center;
   text-align: center;
@@ -70,11 +70,11 @@ body main .sidebar {
   margin-top: 0;
   min-width: 70px;
 }
-body main .sidebar a {
+.body .main .sidebar a {
   color: inherit;
   text-decoration: none;
 }
-body main .sidebar .burger-menu span {
+.body .main .sidebar .burger-menu span {
   margin-bottom: 6px;
   display: block;
   background-color: white;
@@ -82,34 +82,34 @@ body main .sidebar .burger-menu span {
   height: 1px;
   transition: transform 0.3s ease, opacity 0.3s ease, top 0.3s ease;
 }
-body main .sidebar .burger-menu first-span-opened {
+.body .main .sidebar .burger-menu first-span-opened {
   transform: translateY(6px) rotate(45deg);
 }
-body main .sidebar .burger-menu second-span-opened {
+.body .main .sidebar .burger-menu second-span-opened {
   opacity: 0;
 }
-body main .sidebar .burger-menu tgird-span-opened {
+.body .main .sidebar .burger-menu tgird-span-opened {
   transform: translateY(-8px) rotate(-45deg);
 }
-body main #offcanvas-main {
+.body .main #offcanvas-main {
   color: #fffefe;
   background-color: #1e1e1e;
   padding-left: 70px;
 }
-body main .content {
+.body .main .content {
   margin: 3vh 4vw 2vh 4vw;
   display: flex;
   flex-direction: column;
 }
-body main .content .top {
+.body .main .content .top {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
 }
-body main .content .top .t-links {
+.body .main .content .top .t-links {
   display: flex;
 }
-body main .content .top .t-links a {
+.body .main .content .top .t-links a {
   margin-right: clamp(10px, 3vw, 100px);
   color: inherit;
   text-decoration: none;
@@ -118,15 +118,19 @@ body main .content .top .t-links a {
   display: flex;
   align-items: center;
 }
-body main .content .top .date-input, body main .content .top .group-input {
+.body .main .content .top .date-input, .body .main .content .top .group-input, .body .main .content .top .people-svg, .body .main .content .top .close-svg {
   background-color: #f8f8f8;
   border: none;
   text-align: center;
 }
-body main .content .schedule {
+.body .main .content .top .date-input-dark, .body .main .content .top .group-input-dark, .body .main .content .top .people-svg-dark, .body .main .content .top .close-svg-dark {
+  background-color: #505050;
+  color: #fffefe;
+}
+.body .main .content .schedule {
   overflow-x: auto;
 }
-body main .content .days {
+.body .main .content .days {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
   background-color: #f8f8f8;
@@ -137,14 +141,18 @@ body main .content .days {
   font-weight: 600;
   min-width: 1070px;
 }
-body main .content .days .month-date {
+.body .main .content .days-dark {
+  background-color: #505050;
+  color: #fffefe;
+}
+.body .main .content .month-date {
   font-weight: 400;
 }
-body main .content .pairs {
+.body .main .content .pairs {
   display: flex;
   flex-direction: row;
 }
-body main .content .pairs .day-with-footer, body main .content .pairs .day-without-footer {
+.body .main .content .pairs .day {
   flex: 1 1 0px;
   background-color: #f8f8f8;
   border-radius: 15px;
@@ -152,16 +160,16 @@ body main .content .pairs .day-with-footer, body main .content .pairs .day-witho
   margin: 10px 5px 10px 0px;
   align-self: start;
 }
-body main .content .pairs .m-all {
+.body .main .content .pairs .m-all {
   margin: 10px 5px 10px 5px;
 }
-body main .content .pairs .m-right {
+.body .main .content .pairs .m-right {
   margin: 10px 0px 10px 5px;
 }
-body main .content .pairs .mn-wdth {
+.body .main .content .pairs .mn-wdth {
   min-width: 170px;
 }
-body main .content .pairs .pair {
+.body .main .content .pairs .pair {
   background-color: #dddddd;
   margin: 10px;
   padding: 10px;
@@ -171,15 +179,15 @@ body main .content .pairs .pair {
   flex-direction: column;
   font-size: 13px;
 }
-body main .content .pairs .pair .date-time {
+.body .main .content .pairs .pair .date-time {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 5px;
 }
-body main .content .pairs .pair .date-time .time {
-  color: #ffffff;
+.body .main .content .pairs .pair .date-time .time {
+  color: white;
   font-weight: 700;
   font-size: 14px;
   padding: 5px 10px 5px;
@@ -188,7 +196,7 @@ body main .content .pairs .pair .date-time .time {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-body main .content .pairs .pair .date-time .date {
+.body .main .content .pairs .pair .date-time .date {
   font-size: 11px;
   text-align: right;
   display: -webkit-box;
@@ -196,11 +204,11 @@ body main .content .pairs .pair .date-time .date {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-body main .content .pairs .pair .rooms {
+.body .main .content .pairs .pair .rooms {
   display: flex;
   flex-direction: row;
 }
-body main .content .pairs .pair .rooms .room {
+.body .main .content .pairs .pair .rooms .room {
   margin-right: 10px;
   text-decoration: underline;
   font-size: 14px;
@@ -208,7 +216,7 @@ body main .content .pairs .pair .rooms .room {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-body main .content .pairs .pair .discipline {
+.body .main .content .pairs .pair .discipline {
   margin: 10px 0 5px;
   font-weight: 600;
   display: -webkit-box;
@@ -216,50 +224,59 @@ body main .content .pairs .pair .discipline {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-body main .content .pairs .pair .teacher {
+.body .main .content .pairs .pair .teacher {
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
-body main .content .pairs .first .time {
+.body .main .content .pairs .first .time {
   background-color: #9987FF;
 }
-body main .content .pairs .second .time {
+.body .main .content .pairs .second .time {
   background-color: #FF87FF;
 }
-body main .content .pairs .third .time {
+.body .main .content .pairs .third .time {
   background-color: #86e673;
 }
-body main .content .pairs .fourth .time {
+.body .main .content .pairs .fourth .time {
   background-color: #6fa0ee;
 }
-body main .content .pairs .fifth .time {
+.body .main .content .pairs .fifth .time {
   background-color: #fabc71;
 }
-body main .content .pairs .sixth .time {
+.body .main .content .pairs .sixth .time {
   background-color: #3ccedb;
 }
-body main .content .pairs .seventh .time {
+.body .main .content .pairs .seventh .time {
   background-color: #FF8787;
 }
-body footer {
+.body .main .content .pairs-dark {
+  background-color: #2f2e2e;
+}
+.body .main .content .pairs-dark .day-dark {
+  background-color: #505050;
+}
+.body .main .content .pairs-dark .pair-dark {
+  background-color: #686666;
+}
+.body footer {
   display: grid;
   grid-template-rows: 1fr 25px;
   color: #fffefe;
   background-color: #1e1e1e;
   height: 200px;
 }
-body footer .ft-links {
+.body footer .ft-links {
   padding: 30px;
   display: grid;
   grid-template-columns: 10vw 1fr 1fr 1fr 1fr 0;
 }
-body footer .ft-links section {
+.body footer .ft-links section {
   display: grid;
 }
-body footer .ft-links a {
+.body footer .ft-links a {
   color: inherit;
   font-weight: 600;
   text-decoration: none;
@@ -268,9 +285,17 @@ body footer .ft-links a {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-body footer .copyright {
+.body footer .copyright {
   text-align: center;
   color: #bbbbbb;
+}
+.body .modal-content-dark {
+  background-color: #1e1e1e;
+}
+
+.body-dark {
+  background-color: #2f2e2e;
+  color: #fffefe;
 }
 
 @media (max-width: 500px) {

@@ -128,12 +128,12 @@ body main .content .top .date-input, body main .content .top .group-input, body 
 }
 body main .content .schedule {
   overflow-x: auto;
-  background-color: #333333;
+  background-color: #2F2E2E;
 }
 body main .content .days {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-  background-color: #525252;
+  background-color: #505050;
   color: #ffffff;
   border-radius: 15px;
   justify-items: center;

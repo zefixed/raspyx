@@ -1,3 +1,22 @@
+$light-selection-bg-color: #6E6E6E
+$light-add-font-color: #fffefe
+$light-bg-color-darker: #f8f8f8
+$light-bg-color-darker-daker: #dddddd
+$light-days-color: #333333
+$light-copyright-color: #bbbbbb
+$light-purple: #9987FF
+$light-pink: #FF87FF
+$light-green: #86e673
+$light-blue: #6fa0ee
+$light-orange: #fabc71
+$light-cyan: #3ccedb
+$light-red: #FF8787
+$add-bg-color: #1e1e1e
+
+$dark-bg-color: #2f2e2e
+$dark-bg-color-lighter: #505050
+$dark-bg-color-lighter-lighter: #686666
+
 ::-webkit-scrollbar
     width: 0
 
@@ -16,8 +35,8 @@
     font-weight: 700
 
 ::selection
-    background-color: #6E6E6E
-    color: #ffffff
+    background-color: $light-selection-bg-color
+    color: $light-add-font-color
 
 $offcanvas-horizontal-width: 100px
 
@@ -36,7 +55,7 @@ $offcanvas-horizontal-width: 100px
     left: 0
     width: 100%
     height: 100%
-    background-color: #1e1e1e
+    background-color: $add-bg-color
     display: flex
     align-items: center
     justify-content: center
@@ -47,7 +66,7 @@ $offcanvas-horizontal-width: 100px
     height: 150px
     animation: rotate 1.6s cubic-bezier(0.645, 0.045, 0.355, 1) 0s infinite normal forwards
 
-body
+.body
     display: flex
     flex-direction: column
     // display: grid
@@ -55,7 +74,7 @@ body
     margin: 0
     height: 100vh
     font-family: Verdana
-    main
+    .main
         display: flex
         // display: grid
         // grid-template-columns: 70px 1fr
@@ -63,8 +82,8 @@ body
             z-index: 1050
             align-items: center
             text-align: center
-            color: #fffefe
-            background-color: #1e1e1e
+            color: $light-add-font-color
+            background-color: $add-bg-color
             margin-top: 0
             min-width: 70px
             a
@@ -85,8 +104,8 @@ body
                 tgird-span-opened
                     transform: translateY(-8px) rotate(-45deg)
         #offcanvas-main
-            color: #fffefe
-            background-color: #1e1e1e
+            color: $light-add-font-color
+            background-color: $add-bg-color
             padding-left: 70px
         .content
             margin: 3vh 4vw 2vh 4vw
@@ -113,10 +132,13 @@ body
                         max-height: 40px
                         display: flex
                         align-items: center
-                .date-input, .group-input
-                    background-color: #f8f8f8
+                .date-input, .group-input, .people-svg, .close-svg
+                    background-color: $light-bg-color-darker
                     border: none
                     text-align: center
+                .date-input-dark, .group-input-dark, .people-svg-dark, .close-svg-dark
+                    background-color: $dark-bg-color-lighter
+                    color: $light-add-font-color
             .schedule
                 //min-width: 1200px
                 //max-width: calc(100vw - 70px - 4vw - 4vw)
@@ -124,23 +146,26 @@ body
             .days
                 display: grid
                 grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr
-                background-color: #f8f8f8
-                color: #333333
+                background-color: $light-bg-color-darker
+                color: $light-days-color
                 border-radius: 15px
                 justify-items: center
                 text-align: center
                 font-weight: 600
                 min-width: 1070px
-                .month-date
-                    font-weight: 400
+            .days-dark
+                background-color: $dark-bg-color-lighter
+                color: $light-add-font-color
+            .month-date
+                font-weight: 400
             .pairs
                 display: flex
                 flex-direction: row
                 // display: grid
                 // grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr
-                .day-with-footer, .day-without-footer
+                .day
                     flex: 1 1 0px
-                    background-color: #f8f8f8
+                    background-color: $light-bg-color-darker
                     border-radius: 15px
                     overflow-y: auto
                     margin: 10px 5px 10px 0px
@@ -154,7 +179,7 @@ body
                 .mn-wdth
                     min-width: 170px
                 .pair
-                    background-color: #dddddd
+                    background-color: $light-bg-color-darker-daker
                     margin: 10px
                     padding: 10px
                     max-height: 170px
@@ -169,7 +194,7 @@ body
                         align-items: center
                         margin-bottom: 5px
                         .time
-                            color: #ffffff
+                            color: white
                             font-weight: 700
                             font-size: 14px
                             padding: 5px 10px 5px
@@ -209,30 +234,36 @@ body
                         -webkit-box-orient: vertical
                 .first
                     .time
-                        background-color: #9987FF
+                        background-color: $light-purple
                 .second
                     .time
-                        background-color: #FF87FF
+                        background-color: $light-pink
                 .third
                     .time
-                        background-color: #86e673
+                        background-color: $light-green
                 .fourth
                     .time
-                        background-color: #6fa0ee
+                        background-color: $light-blue
                 .fifth
                     .time
-                        background-color: #fabc71
+                        background-color: $light-orange
                 .sixth
                     .time
-                        background-color: #3ccedb
+                        background-color: $light-cyan
                 .seventh
                     .time
-                        background-color: #FF8787
+                        background-color: $light-red
+            .pairs-dark
+                background-color: $dark-bg-color
+                .day-dark
+                    background-color: $dark-bg-color-lighter
+                .pair-dark
+                    background-color: $dark-bg-color-lighter-lighter
     footer
         display: grid
         grid-template-rows: 1fr 25px
-        color: #fffefe
-        background-color: #1e1e1e
+        color: $light-add-font-color
+        background-color: $add-bg-color
         height: 200px
         .ft-links
             padding: 30px
@@ -250,7 +281,12 @@ body
                 text-overflow: ellipsis
         .copyright
             text-align: center
-            color: #bbbbbb
+            color: $light-copyright-color
+    .modal-content-dark
+        background-color: $add-bg-color
+.body-dark
+    background-color: $dark-bg-color
+    color: $light-add-font-color
 
 @media (max-width: 500px)
     .sidebar

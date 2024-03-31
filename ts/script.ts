@@ -149,32 +149,57 @@ function setVersion(version: string) {
 
 function switchDarkThemeHandler() {
     const switchTheme = document.querySelector("#flexSwitchCheckDarkTheme") as HTMLInputElement
-    const oldlink = document.getElementsByTagName("link").item(4);
-    let theme = ""
 
-
-    // Set css file
-    let newlink = document.createElement("link");
-    newlink?.setAttribute("rel", "stylesheet");
-    newlink?.setAttribute("type", "text/css");
+    // Set theme
+    let theme = "light"
     if (switchTheme.checked) theme = "dark"
-    else theme = "style"
-    newlink?.setAttribute("href", `css/${theme}.css`);
 
-    if (oldlink)
-        document?.getElementsByTagName("head").item(0)?.replaceChild(newlink, oldlink);
+    const nodes = {
+        body: document.querySelector(".body") as HTMLElement,
+        dateInput: document.querySelector(".date-input") as HTMLElement,
+        groupInput: document.querySelector(".group-input") as HTMLElement,
+        peopleSvg: document.querySelector(".people-svg") as HTMLElement,
+        closeSvg: document.querySelector(".close-svg") as HTMLElement,
+        days: document.querySelector(".days") as HTMLElement,
+        pairs: document.querySelector(".pairs") as HTMLElement,
+        day: document.getElementsByClassName("day") as HTMLCollectionOf<HTMLElement>,
+        pair: document.getElementsByClassName("pair") as HTMLCollectionOf<HTMLElement>,
+        modalContent: document.querySelector(".modal-content") as HTMLElement,
+    }
 
+    // Remove/set dark classes
+    if (theme == "light") {
+        nodes["body"].classList.remove("body-dark")
+        nodes["dateInput"].classList.remove("date-input-dark")
+        nodes["groupInput"].classList.remove("group-input-dark")
+        nodes["peopleSvg"].classList.remove("people-svg-dark")
+        nodes["closeSvg"].classList.remove("close-svg-dark")
+        nodes["days"].classList.remove("days-dark")
+        nodes["pairs"].classList.remove("pairs-dark")
+        for (const node of nodes["day"]) node.classList.remove("day-dark")
+        for (const node of nodes["pair"]) node.classList.remove("pair-dark")
+        nodes["modalContent"].classList.remove("modal-content-dark")
+    } else {
+        nodes["body"].classList.add("body-dark")
+        nodes["dateInput"].classList.add("date-input-dark")
+        nodes["groupInput"].classList.add("group-input-dark")
+        nodes["peopleSvg"].classList.add("people-svg-dark")
+        nodes["closeSvg"].classList.add("close-svg-dark")
+        nodes["days"].classList.add("days-dark")
+        nodes["pairs"].classList.add("pairs-dark")
+        for (const node of nodes["day"]) node.classList.add("day-dark")
+        for (const node of nodes["pair"]) node.classList.add("pair-dark")
+        nodes["modalContent"].classList.add("modal-content-dark")
+    }
 
     // Set data-bs-theme
     const html = document.getElementsByTagName("html").item(0) as HTMLElement
     html?.setAttribute("data-bs-theme", theme)
 
-
     // Set icons
     const peopleSvg = document.querySelector(".people-svg")?.children[0] as HTMLElement
     const closeSvg = document.querySelector(".close-svg")?.children[0] as HTMLElement
-
-    if (theme == "style") {
+    if (theme == "light") {
         peopleSvg?.setAttribute("src", "images/on_white/people_blue.svg")
         closeSvg?.setAttribute("src", "images/on_white/close.svg")
     }
@@ -209,7 +234,7 @@ window.onload = function () {
     addSchedule(jsonData)
     setDate("")
     switchDarkThemeHandler()
-    setVersion("1.24.12")
+    setVersion("1.24.13")
 
 
     // Clearing the group's input 
