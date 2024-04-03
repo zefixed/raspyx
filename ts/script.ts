@@ -102,19 +102,14 @@ function burgerMenuHandler() {
     }
 }
 
-function setDate(date: string) {
-    const dateRegexp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/
-    const dateInput = document.querySelector(".date-input") as HTMLInputElement
+function setDate(newDate: string): void {
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    const dateInput = document.querySelector(".date-input") as HTMLInputElement;
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
 
-    if (dateRegexp.test(date)) dateInput.value = date
-    else {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-        const dd = String(today.getDate()).padStart(2, '0');
-        dateInput.value = yyyy + "-" + mm + "-" + dd
-    }
-    dateInputHandler()
+    dateInput.value = datePattern.test(newDate) ? newDate : formattedDate;
+    dateInputHandler();
 }
 
 function dateInputHandler() {

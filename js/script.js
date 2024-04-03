@@ -91,18 +91,12 @@ function burgerMenuHandler() {
         thirdChild.style.transform = 'translateY(0px) rotate(0deg)';
     }
 }
-function setDate(date) {
-    const dateRegexp = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
+function setDate(newDate) {
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
     const dateInput = document.querySelector(".date-input");
-    if (dateRegexp.test(date))
-        dateInput.value = date;
-    else {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-        const dd = String(today.getDate()).padStart(2, '0');
-        dateInput.value = yyyy + "-" + mm + "-" + dd;
-    }
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+    dateInput.value = datePattern.test(newDate) ? newDate : formattedDate;
     dateInputHandler();
 }
 function dateInputHandler() {
