@@ -2,6 +2,11 @@
   width: 0;
 }
 
+:root {
+  --light-selection-bg-color: #6E6E6E;
+  --light-add-font-color: #fffefe;
+}
+
 @font-face {
   font-family: "Verdana";
   src: url("../fonts/Verdana.ttf") format("opentype");
@@ -13,12 +18,12 @@
   font-weight: 700;
 }
 ::-moz-selection {
-  background-color: #6E6E6E;
-  color: #fffefe;
+  background-color: var(--light-selection-bg-color);
+  color: var(--light-add-font-color);
 }
 ::selection {
-  background-color: #6E6E6E;
-  color: #fffefe;
+  background-color: var(--light-selection-bg-color);
+  color: var(--light-add-font-color);
 }
 
 @keyframes rotate {

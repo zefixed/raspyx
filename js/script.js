@@ -158,6 +158,8 @@ function switchDarkThemeHandler() {
         for (const node of nodes["pair"])
             node.classList.remove("pair-dark");
         nodes["modalContent"].classList.remove("modal-content-dark");
+        document.body.style.setProperty('--light-selection-bg-color', "#6E6E6E");
+        document.body.style.setProperty('--light-add-font-color', "#fffefe");
     }
     else {
         nodes["body"].classList.add("body-dark");
@@ -172,6 +174,8 @@ function switchDarkThemeHandler() {
         for (const node of nodes["pair"])
             node.classList.add("pair-dark");
         nodes["modalContent"].classList.add("modal-content-dark");
+        document.body.style.setProperty('--light-selection-bg-color', "#fffefe");
+        document.body.style.setProperty('--light-add-font-color', "#6E6E6E");
     }
     // Set data-bs-theme
     const html = document.getElementsByTagName("html").item(0);
@@ -212,7 +216,7 @@ window.onload = function () {
     addSchedule(jsonData);
     setDate("");
     switchDarkThemeHandler();
-    setVersion("1.24.13");
+    setVersion("1.24.14");
     // Clearing the group's input 
     const groupInput = document.querySelector(".group-input");
     if (groupInput)
