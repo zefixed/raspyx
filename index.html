@@ -27,7 +27,7 @@
 
     <header>
     </header>
-    <main class="main">
+    <main class="main flex-grow-1">
         <div class="sidebar user-select-none">
             <!-- <a type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas-main"
                 aria-controls="offcanvasScrolling"><img src="images/on_black/burger.svg" class="burger_svg"
@@ -73,7 +73,8 @@
                     </div>
                     <div class="d-flex flex-column my-3">
                         <div>
-                            <a class="text-decoration-none text-reset" href="https://e.mospolytech.ru">личный кабинет</a>
+                            <a class="text-decoration-none text-reset" href="https://e.mospolytech.ru">личный
+                                кабинет</a>
                         </div>
                         <div>
                             <a class="text-decoration-none text-reset my-2" href="https://lms.mospolytech.ru/">ссылка на
@@ -128,13 +129,20 @@
                             style="background-color: #f8f8f8; border: none; text-align: center;"><img
                                 src="images/on_white/pointer.svg" class="pointer_svg right" alt="pointer" /></span> -->
                     </div>
-                    <div class="input-group group-input-group">
-                        <span class="input-group-text people-svg left user-select-none" id="" style="border: none;"><img
-                                src="images/on_white/people_blue.svg" alt="people"></span>
-                        <input type="text" class="form-control group-input" aria-label="Sizing example input"
-                            aria-describedby="" placeholder="Группа">
-                        <span class="input-group-text close-svg right" style="border: none;"><img
-                                src="images/on_white/close.svg" alt="close"></span>
+                    <div class="input-group">
+                        <div class="input-group group-input-group">
+                            <span class="input-group-text people-svg left user-select-none" id=""
+                                style="border: none;"><img src="images/on_white/people_blue.svg" alt="people"></span>
+                            <input type="text" class="form-control group-input" aria-label="Sizing example input"
+                                aria-describedby="" placeholder="Группа">
+                            <span class="input-group-text close-svg right" style="border: none;"><img
+                                    src="images/on_white/close.svg" alt="close"></span>
+                        </div>
+                        <ul id="group-autocomplete" class="group-autocomplete autocomplete list-unstyled"
+                            style="display: none;">
+                            <div class="autocomplete-items">
+                            </div>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -171,7 +179,7 @@
 
         </div>
     </main>
-    <footer class="footer">
+    <footer class="footer mt-auto">
         <section class="ft-links">
             <div class="space"></div>
             <section>

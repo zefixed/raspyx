@@ -64,6 +64,35 @@ $offcanvas-horizontal-width: 100px
     height: 150px
     animation: rotate 1.6s cubic-bezier(0.645, 0.045, 0.355, 1) 0s infinite normal forwards
 
+.autocomplete
+    background-color: $light-bg-color-darker
+    border-radius: 7px
+    padding: 5px 5px
+    position: absolute
+    z-index: 200
+    max-height: 40vh
+    overflow: auto
+    border-radius: 0.5rem !important
+    width: 100%
+    margin-left: 0.3px
+    .autocomplete-items
+        padding-top: 37px
+    .autocomplete-item
+        text-align: center
+        border-radius: 0.375rem
+        padding: 3px 14px
+        &:hover
+            background-color: $light-bg-color-darker-daker
+
+.autocomplete-dark
+    background-color: $dark-bg-color-lighter
+    color: $light-add-font-color
+    .autocomplete-item-dark
+        background-color: $dark-bg-color-lighter
+        color: $light-add-font-color
+        &:hover
+            color: $light-selection-bg-color
+
 .body
     display: flex
     flex-direction: column
@@ -106,6 +135,7 @@ $offcanvas-horizontal-width: 100px
             background-color: $add-bg-color
             padding-left: 70px
         .content
+            width: 100%
             margin: 3vh 4vw 2vh 4vw
             display: flex
             flex-direction: column
@@ -137,6 +167,8 @@ $offcanvas-horizontal-width: 100px
                 .date-input-dark, .group-input-dark, .people-svg-dark, .close-svg-dark
                     background-color: $dark-bg-color-lighter
                     color: $light-add-font-color
+                .group-input-group
+                    z-index: 300
             .schedule
                 //min-width: 1200px
                 //max-width: calc(100vw - 70px - 4vw - 4vw)
@@ -170,12 +202,18 @@ $offcanvas-horizontal-width: 100px
                     align-self: start
                     //max-height: calc(100vh - 200px - 70px - 40px - 3vh - 2vh - 20px - 10px)
                     // min-height: 165px
+
                 .m-all
                     margin: 10px 5px 10px 5px
                 .m-right
                     margin: 10px 0px 10px 5px
                 .mn-wdth
                     min-width: 170px
+                .pair-none
+                    height: 15rem
+                    transform: rotate(-45deg)
+                    font-size: 1.5rem
+                    font-weight: 100
                 .pair
                     background-color: $light-bg-color-darker-daker
                     margin: 10px
