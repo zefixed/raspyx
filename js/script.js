@@ -66,12 +66,14 @@ function addDay(dayData, dayName) {
 }
 function addSchedule(jsonData) {
     var _a;
-    for (const data in jsonData) {
-        const day = addDay(jsonData[data], data);
-        for (const pair of day) {
-            (_a = document.getElementById(data)) === null || _a === void 0 ? void 0 : _a.appendChild(pair);
+    return __awaiter(this, void 0, void 0, function* () {
+        for (const data in jsonData) {
+            const day = addDay(jsonData[data], data);
+            for (const pair of day) {
+                (_a = document.getElementById(data)) === null || _a === void 0 ? void 0 : _a.appendChild(pair);
+            }
         }
-    }
+    });
 }
 function closeSvgHandler() {
     const groupInput = document.querySelector(".group-input");
@@ -311,34 +313,65 @@ function setScheduleHandler(event) {
         }
     }
 }
-function setSchedule(group) {
-    const pairs = document.querySelector(".pairs");
-    const switchTheme = document.querySelector("#flexSwitchCheckDarkTheme");
-    let theme = "light";
-    if (switchTheme.checked)
-        theme = "dark";
-    const noRasp = `<div class="pair-none d-flex justify-content-center align-items-center">
-            Сегодня нет занятий
-        </div>`;
-    pairs.innerHTML =
-        `<div id="monday" class="day day-with-footer p-monday m-left mn-wdth">${noRasp}</div>
-        <div id="tuesday" class="day day-with-footer p-tuesday m-all mn-wdth">${noRasp}</div>
-        <div id="wednesday" class="day day-with-footer p-wednesday m-all mn-wdth">${noRasp}</div>
-        <div id="thursday" class="day day-with-footer p-thursday m-all mn-wdth">${noRasp}</div>
-        <div id="friday" class="day day-with-footer p-friday m-all mn-wdth">${noRasp}</div>
-        <div id="saturday" class="day day-with-footer p-saturday m-right mn-wdth">${noRasp}</div>`;
-    if (theme == "dark") {
-        for (const day of document.getElementsByClassName("day")) {
-            day.classList.add("day-dark");
+function getRasp(group) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const response = yield fetch(`https://itcpd.ru/api/V1/getRasp/?format=json&grup=${group}`);
+            const data = yield response.json();
+            return data;
         }
-    }
+        catch (error) {
+            console.log(error);
+        }
+    });
+}
+function setSchedule(group) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const pairs = document.querySelector(".pairs");
+        const switchTheme = document.querySelector("#flexSwitchCheckDarkTheme");
+        let theme = "light";
+        if (switchTheme.checked)
+            theme = "dark";
+        const jsonData = yield getRasp(group);
+        pairs.innerHTML =
+            `<div id="monday" class="day day-with-footer p-monday m-left mn-wdth"></div>
+        <div id="tuesday" class="day day-with-footer p-tuesday m-all mn-wdth"></div>
+        <div id="wednesday" class="day day-with-footer p-wednesday m-all mn-wdth"></div>
+        <div id="thursday" class="day day-with-footer p-thursday m-all mn-wdth"></div>
+        <div id="friday" class="day day-with-footer p-friday m-all mn-wdth"></div>
+        <div id="saturday" class="day day-with-footer p-saturday m-right mn-wdth"></div>`;
+        addSchedule(jsonData);
+        const noRasp = `<div class="pair-none d-flex justify-content-center align-items-center">
+        Сегодня нет занятий
+    </div>`;
+        for (const day of pairs.children) {
+            if (!day.innerHTML) {
+                day.innerHTML = noRasp;
+            }
+        }
+        if (!group) {
+            pairs.innerHTML =
+                `<div id="monday" class="day day-with-footer p-monday m-left mn-wdth">${noRasp}</div>
+            <div id="tuesday" class="day day-with-footer p-tuesday m-all mn-wdth">${noRasp}</div>
+            <div id="wednesday" class="day day-with-footer p-wednesday m-all mn-wdth">${noRasp}</div>
+            <div id="thursday" class="day day-with-footer p-thursday m-all mn-wdth">${noRasp}</div>
+            <div id="friday" class="day day-with-footer p-friday m-all mn-wdth">${noRasp}</div>
+            <div id="saturday" class="day day-with-footer p-saturday m-right mn-wdth">${noRasp}</div>`;
+        }
+        if (theme == "dark") {
+            for (const day of document.getElementsByClassName("day")) {
+                day.classList.add("day-dark");
+            }
+        }
+    });
 }
 window.onload = function () {
     setGroupsAutocomplete();
-    addSchedule(jsonData);
+    // addSchedule(jsonData)
+    setSchedule("");
     setDate("");
     switchDarkThemeHandler();
-    setVersion("1.24.15");
+    setVersion("1.24.20");
     // Clearing the group's input 
     const groupInput = document.querySelector(".group-input");
     if (groupInput)

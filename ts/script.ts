@@ -65,7 +65,7 @@ function addDay(dayData: { [key: string]: any }, dayName: string): HTMLDivElemen
     return pairs
 }
 
-function addSchedule(jsonData: { [key: string]: object }): void {
+async function addSchedule(jsonData: any) {
     for (const data in jsonData) {
         const day = addDay(jsonData[data], data)
         for (const pair of day) {
@@ -319,24 +319,57 @@ function setScheduleHandler(event: KeyboardEvent) {
     }
 }
 
-function setSchedule(group: string) {
+
+async function getRasp(group: string) {
+    try {
+        const response = await fetch(`https://itcpd.ru/api/V1/getRasp/?format=json&grup=${group}`)
+        const data = await response.json()
+        return data
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function setSchedule(group: string) {
     const pairs = document.querySelector(".pairs") as HTMLElement
     const switchTheme = document.querySelector("#flexSwitchCheckDarkTheme") as HTMLInputElement
 
     let theme = "light"
     if (switchTheme.checked) theme = "dark"
 
+    const jsonData = await getRasp(group);
+
+    pairs.innerHTML =
+        `<div id="monday" class="day day-with-footer p-monday m-left mn-wdth"></div>
+        <div id="tuesday" class="day day-with-footer p-tuesday m-all mn-wdth"></div>
+        <div id="wednesday" class="day day-with-footer p-wednesday m-all mn-wdth"></div>
+        <div id="thursday" class="day day-with-footer p-thursday m-all mn-wdth"></div>
+        <div id="friday" class="day day-with-footer p-friday m-all mn-wdth"></div>
+        <div id="saturday" class="day day-with-footer p-saturday m-right mn-wdth"></div>`
+
+    addSchedule(jsonData)
+
     const noRasp =
         `<div class="pair-none d-flex justify-content-center align-items-center">
-            Сегодня нет занятий
-        </div>`
-    pairs.innerHTML =
-        `<div id="monday" class="day day-with-footer p-monday m-left mn-wdth">${noRasp}</div>
-        <div id="tuesday" class="day day-with-footer p-tuesday m-all mn-wdth">${noRasp}</div>
-        <div id="wednesday" class="day day-with-footer p-wednesday m-all mn-wdth">${noRasp}</div>
-        <div id="thursday" class="day day-with-footer p-thursday m-all mn-wdth">${noRasp}</div>
-        <div id="friday" class="day day-with-footer p-friday m-all mn-wdth">${noRasp}</div>
-        <div id="saturday" class="day day-with-footer p-saturday m-right mn-wdth">${noRasp}</div>`
+        Сегодня нет занятий
+    </div>`
+
+    for (const day of pairs.children) {
+        if (!day.innerHTML) {
+            day.innerHTML = noRasp
+        }
+    }
+
+    if (!group) {
+
+        pairs.innerHTML =
+            `<div id="monday" class="day day-with-footer p-monday m-left mn-wdth">${noRasp}</div>
+            <div id="tuesday" class="day day-with-footer p-tuesday m-all mn-wdth">${noRasp}</div>
+            <div id="wednesday" class="day day-with-footer p-wednesday m-all mn-wdth">${noRasp}</div>
+            <div id="thursday" class="day day-with-footer p-thursday m-all mn-wdth">${noRasp}</div>
+            <div id="friday" class="day day-with-footer p-friday m-all mn-wdth">${noRasp}</div>
+            <div id="saturday" class="day day-with-footer p-saturday m-right mn-wdth">${noRasp}</div>`
+    }
 
     if (theme == "dark") {
         for (const day of document.getElementsByClassName("day") as HTMLCollectionOf<HTMLElement>) {
@@ -347,10 +380,11 @@ function setSchedule(group: string) {
 
 window.onload = function () {
     setGroupsAutocomplete()
-    addSchedule(jsonData)
+    // addSchedule(jsonData)
+    setSchedule("")
     setDate("")
     switchDarkThemeHandler()
-    setVersion("1.24.15")
+    setVersion("1.24.20")
 
 
     // Clearing the group's input 
