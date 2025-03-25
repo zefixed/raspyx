@@ -92,6 +92,10 @@ func getLogLevel(level string) *slog.Level {
 		lvl = slog.LevelDebug
 	case "info":
 		lvl = slog.LevelInfo
+	case "warn":
+		lvl = slog.LevelWarn
+	case "error":
+		lvl = slog.LevelError
 	default:
 		return nil
 	}
