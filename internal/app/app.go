@@ -1,15 +1,20 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
 	"raspyx/config"
+	"syscall"
+	"time"
 )
 
 func Run(cfg *config.Config) {
+	// gin.SetMode(gin.ReleaseMode)
 	log, err := setupLogger(cfg)
 	if err != nil {
 		panic(err)
@@ -18,6 +23,9 @@ func Run(cfg *config.Config) {
 	log.Info(fmt.Sprintf("starting %v v%v", cfg.App.Name, cfg.App.Version), slog.String("logLevel", cfg.Log.Level))
 	log.Debug("debug messages are enabled")
 
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -25,10 +33,32 @@ func Run(cfg *config.Config) {
 		})
 	})
 
-	err = r.Run(fmt.Sprintf(":%v", cfg.HTTP.Port))
-	if err != nil {
-		log.Error(fmt.Sprintf("error starting server, %v", err))
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%v", cfg.HTTP.Port),
+		Handler: r,
 	}
+
+	log.Info(fmt.Sprintf("starting server at :%v", cfg.HTTP.Port))
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Error(fmt.Sprintf("error starting server: %v", err))
+			panic(err)
+		}
+	}()
+
+	<-ctx.Done()
+
+	stop()
+	log.Info("shutting down gracefully")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Error("server forced to shutdown: ", err)
+	}
+
+	log.Info("server stopped")
 }
 
 func setupLogger(cfg *config.Config) (*slog.Logger, error) {
