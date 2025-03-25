@@ -24,7 +24,11 @@ func Run(cfg *config.Config) {
 			"message": "pong",
 		})
 	})
-	r.Run() // listen and serve on 0.0.0.0:8080
+
+	err = r.Run(fmt.Sprintf(":%v", cfg.HTTP.Port))
+	if err != nil {
+		log.Error(fmt.Sprintf("error starting server, %v", err))
+	}
 }
 
 func setupLogger(cfg *config.Config) (*slog.Logger, error) {

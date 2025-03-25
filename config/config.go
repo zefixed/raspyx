@@ -8,8 +8,9 @@ import (
 
 type (
 	Config struct {
-		App App
-		Log Log
+		App  App
+		Log  Log
+		HTTP HTTP
 	}
 	App struct {
 		Name    string `env:"APP_NAME,required"`
@@ -18,6 +19,10 @@ type (
 	Log struct {
 		Level string `env:"LOG_LEVEL,required"`
 		Type  string `env:"LOG_TYPE,required"`
+	}
+
+	HTTP struct {
+		Port string `env:"HTTP_PORT,required"`
 	}
 )
 
