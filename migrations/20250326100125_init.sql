@@ -1,45 +1,45 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS teachers (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY,
     first_name VARCHAR NOT NULL,
     second_name VARCHAR NOT NULL,
     middle_name VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS groups (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY,
     number VARCHAR NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS rooms (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY,
     number VARCHAR NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS subjects (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY,
     name VARCHAR NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS subj_types (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY,
     type VARCHAR NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS locations (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY,
     name VARCHAR NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS schedule (
-    id SERIAL PRIMARY KEY,
-    teacher_id INT REFERENCES teachers(id),
-    group_id INT NOT NULL REFERENCES groups(id),
-    room_id INT REFERENCES rooms(id),
-    subject_id INT NOT NULL REFERENCES subjects(id),
-    type_id INT NOT NULL REFERENCES subj_types(id),
-    location_id INT NOT NULL REFERENCES locations(id),
+    id UUID PRIMARY KEY,
+    teacher_id UUID REFERENCES teachers(id),
+    group_id UUID NOT NULL REFERENCES groups(id),
+    room_id UUID REFERENCES rooms(id),
+    subject_id UUID NOT NULL REFERENCES subjects(id),
+    type_id UUID NOT NULL REFERENCES subj_types(id),
+    location_id UUID NOT NULL REFERENCES locations(id),
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
     start_date DATE NOT NULL,
