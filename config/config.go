@@ -11,6 +11,7 @@ type (
 		App  App
 		Log  Log
 		HTTP HTTP
+		PG   PG
 	}
 	App struct {
 		Name    string `env:"APP_NAME,required"`
@@ -23,6 +24,10 @@ type (
 
 	HTTP struct {
 		Port string `env:"HTTP_PORT,required"`
+	}
+
+	PG struct {
+		PGURL string `env:"PG_URL,required"`
 	}
 )
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 	"log/slog"
 	"net/http"
 	"os"
@@ -15,6 +16,8 @@ import (
 
 func Run(cfg *config.Config) {
 	// gin.SetMode(gin.ReleaseMode)
+
+	// Logger setup
 	log, err := setupLogger(cfg)
 	if err != nil {
 		panic(err)
@@ -22,6 +25,14 @@ func Run(cfg *config.Config) {
 
 	log.Info(fmt.Sprintf("starting %v v%v", cfg.App.Name, cfg.App.Version), slog.String("logLevel", cfg.Log.Level))
 	log.Debug("debug messages are enabled")
+
+	// Creating db connection
+	conn, err := pgx.Connect(context.Background(), cfg.PG.PGURL)
+	if err != nil {
+		log.Error("error db connection: %v", err)
+		panic(err)
+	}
+	defer conn.Close(context.Background())
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -47,6 +58,7 @@ func Run(cfg *config.Config) {
 		}
 	}()
 
+	// shutdown
 	<-ctx.Done()
 
 	stop()
