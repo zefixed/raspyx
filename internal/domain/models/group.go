@@ -4,5 +4,5 @@ import "github.com/google/uuid"
 
 type Group struct {
 	UUID   uuid.UUID `json:"uuid"`
-	Number int       `json:"number"`
+	Number string    `json:"number"`
 }
