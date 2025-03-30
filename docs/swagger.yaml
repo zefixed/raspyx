@@ -71,4 +71,33 @@ paths:
       summary: Creating a new group
       tags:
       - group
+  /api/v1/groups/{uuid}:
+    delete:
+      consumes:
+      - '*/*'
+      description: Deleting existing group from the database
+      parameters:
+      - description: Group uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Deleting existing group
+      tags:
+      - group
 swagger: "2.0"

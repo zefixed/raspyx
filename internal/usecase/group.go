@@ -44,3 +44,12 @@ func (uc *GroupUseCase) Create(ctx context.Context, groupDTO *dto.CreateGroupReq
 
 	return &dto.CreateGroupResponse{UUID: group.UUID}, nil
 }
+
+func (uc *GroupUseCase) Delete(ctx context.Context, uuid uuid.UUID) error {
+	const op = "usecase.group.Delete"
+	err := uc.repo.Delete(ctx, uuid)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
+}

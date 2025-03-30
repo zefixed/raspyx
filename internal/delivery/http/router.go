@@ -14,7 +14,16 @@ func NewRouter(r *gin.Engine, log *slog.Logger, conn *pgx.Conn) {
 	// Routers
 	apiV1Group := r.Group("/api/v1")
 	{
-		v1.NewGroupRoutes(
+		v1.NewGroupRouteCreate(
+			apiV1Group,
+			usecase.NewGroupUseCase(
+				postgres.NewGroupRepository(conn),
+				*services.NewGroupService(),
+			),
+			log,
+		)
+
+		v1.NewGroupRouteDelete(
 			apiV1Group,
 			usecase.NewGroupUseCase(
 				postgres.NewGroupRepository(conn),
