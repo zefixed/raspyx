@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"raspyx/config"
+	v1 "raspyx/internal/delivery/http"
 	"syscall"
 	"time"
 )
@@ -43,6 +44,8 @@ func Run(cfg *config.Config) {
 			"message": "pong",
 		})
 	})
+	
+	v1.NewRouter(r, log, conn)
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%v", cfg.HTTP.Port),
