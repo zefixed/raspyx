@@ -14,6 +14,17 @@ type groupRoutes struct {
 	log *slog.Logger
 }
 
+// NewGroupRoutes
+// @Summary Creating a new group
+// @Description Creates a new group in the database and returns its uuid
+// @Tags group
+// @Accept json
+// @Produce json
+// @Param group body dto.CreateGroupRequest true "Group number"
+// @Success 200 {object} ResponseOK{response=dto.CreateGroupResponse}
+// @Failure 400 {object} ResponseError
+// @Failure 500 {object} ResponseError
+// @Router /api/v1/groups [post]
 func NewGroupRoutes(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, log *slog.Logger) {
 	r := &groupRoutes{uc, log}
 
@@ -28,15 +39,15 @@ func NewGroupRoutes(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, log *
 		resp, err := r.uc.Create(c, &groupDTO)
 		if err != nil {
 			if strings.Contains(err.Error(), "group is not valid") {
-				c.JSON(http.StatusBadRequest, gin.H{"error": "Group is not valid"})
+				c.JSON(http.StatusBadRequest, RespError("Group is not valid"))
 			} else if strings.Contains(err.Error(), "exist") {
-				c.JSON(http.StatusBadRequest, gin.H{"error": "Group exists"})
+				c.JSON(http.StatusBadRequest, RespError("Group exists"))
 			} else {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			}
 			return
 		}
 
-		c.JSON(http.StatusOK, resp)
+		c.JSON(http.StatusOK, RespOK(resp))
 	})
 }

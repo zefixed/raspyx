@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
+	swaggerFiles "github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 	"raspyx/config"
+	_ "raspyx/docs"
 	v1 "raspyx/internal/delivery/http"
 	"syscall"
 	"time"
@@ -39,12 +42,18 @@ func Run(cfg *config.Config) {
 	defer stop()
 
 	r := gin.Default()
+
+	// Pinger
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
-	
+
+	// Swagger documentation
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	// All routes
 	v1.NewRouter(r, log, conn)
 
 	srv := &http.Server{
