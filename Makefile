@@ -22,3 +22,7 @@ db-delete: ### Deletion postgres db docker instance
 	docker stop $(APP_NAME)db
 	docker rm $(APP_NAME)db
 .PHONY: db-delete
+
+swag: ### Generation swagger documentation
+	swag init -g cmd/app/main.go
+.PHONY: swag
