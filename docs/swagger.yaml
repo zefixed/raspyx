@@ -1,0 +1,74 @@
+basePath: /
+definitions:
+  dto.CreateGroupRequest:
+    properties:
+      group:
+        example: 221-352
+        type: string
+    required:
+    - group
+    type: object
+  dto.CreateGroupResponse:
+    properties:
+      uuid:
+        example: 954921ef-0d5c-11f0-91ca-20114d2008d9
+        type: string
+    type: object
+  v1.ResponseError:
+    properties:
+      error:
+        type: string
+      status:
+        example: Error
+        type: string
+    type: object
+  v1.ResponseOK:
+    properties:
+      response: {}
+      status:
+        example: OK
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for schedules
+  title: Raspyx
+  version: 0.0.1
+paths:
+  /api/v1/groups:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new group in the database and returns its uuid
+      parameters:
+      - description: Group number
+        in: body
+        name: group
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.CreateGroupResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Creating a new group
+      tags:
+      - group
+swagger: "2.0"

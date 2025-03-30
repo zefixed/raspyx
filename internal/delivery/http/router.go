@@ -12,7 +12,7 @@ import (
 
 func NewRouter(r *gin.Engine, log *slog.Logger, conn *pgx.Conn) {
 	// Routers
-	apiV1Group := r.Group("/v1")
+	apiV1Group := r.Group("/api/v1")
 	{
 		v1.NewGroupRoutes(
 			apiV1Group,
