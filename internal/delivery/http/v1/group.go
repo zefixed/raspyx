@@ -29,6 +29,8 @@ func NewGroupRoutes(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, log *
 		if err != nil {
 			if strings.Contains(err.Error(), "group is not valid") {
 				c.JSON(http.StatusBadRequest, gin.H{"error": "Group is not valid"})
+			} else if strings.Contains(err.Error(), "exist") {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Group exists"})
 			} else {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 			}
