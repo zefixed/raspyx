@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
+	"strings"
 )
 
 type GroupRepository struct {
@@ -26,6 +27,9 @@ func (r *GroupRepository) Create(ctx context.Context, group *models.Group) error
 			  VALUES ($1, $2)`
 	_, err := r.db.Exec(ctx, query, group.UUID, group.Number)
 	if err != nil {
+		if strings.Contains(err.Error(), "23505") {
+			return fmt.Errorf("%s: %w", op, repository.ErrExist)
+		}
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
