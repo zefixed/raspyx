@@ -11,7 +11,33 @@ definitions:
   dto.CreateGroupResponse:
     properties:
       uuid:
-        example: 954921ef-0d5c-11f0-91ca-20114d2008d9
+        example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
+        type: string
+    type: object
+  dto.GetGroupsResponse:
+    properties:
+      groups:
+        items:
+          $ref: '#/definitions/models.Group'
+        type: array
+    required:
+    - groups
+    type: object
+  dto.UpdateGroupRequest:
+    properties:
+      group:
+        example: 221-352
+        type: string
+    required:
+    - group
+    type: object
+  models.Group:
+    properties:
+      number:
+        example: 221-352
+        type: string
+      uuid:
+        example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
         type: string
     type: object
   v1.ResponseError:
@@ -37,6 +63,29 @@ info:
   version: 0.0.1
 paths:
   /api/v1/groups:
+    get:
+      consumes:
+      - '*/*'
+      description: Get all groups from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.GetGroupsResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting groups
+      tags:
+      - group
     post:
       consumes:
       - application/json
@@ -98,6 +147,120 @@ paths:
           schema:
             $ref: '#/definitions/v1.ResponseError'
       summary: Deleting existing group
+      tags:
+      - group
+  /api/v1/groups/number/{number}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get group from database with given number
+      parameters:
+      - description: Group number
+        in: path
+        name: number
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/models.Group'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting group by number
+      tags:
+      - group
+  /api/v1/groups/uuid/{uuid}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get group from database with given uuid
+      parameters:
+      - description: Group uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/models.Group'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting group by uuid
+      tags:
+      - group
+    put:
+      consumes:
+      - application/json
+      description: Update group in database
+      parameters:
+      - description: Group uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Group
+        in: body
+        name: group
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Updating group
       tags:
       - group
 swagger: "2.0"

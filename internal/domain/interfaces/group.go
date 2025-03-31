@@ -8,6 +8,7 @@ import (
 
 type GroupRepository interface {
 	Create(ctx context.Context, group *models.Group) error
+	Get(ctx context.Context) ([]*models.Group, error)
 	GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.Group, error)
 	GetByNumber(ctx context.Context, number string) (*models.Group, error)
 	Update(ctx context.Context, group *models.Group) error
