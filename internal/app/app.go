@@ -14,12 +14,13 @@ import (
 	"raspyx/config"
 	_ "raspyx/docs"
 	v1 "raspyx/internal/delivery/http"
+	"raspyx/internal/delivery/http/middleware"
 	"syscall"
 	"time"
 )
 
 func Run(cfg *config.Config) {
-	// gin.SetMode(gin.ReleaseMode)
+	//gin.SetMode(gin.ReleaseMode)
 
 	// Logger setup
 	log, err := setupLogger(cfg)
@@ -41,7 +42,9 @@ func Run(cfg *config.Config) {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	r := gin.Default()
+	r := gin.New()
+	r.Use(middleware.Logger(log))
+	r.Use(gin.Recovery())
 
 	// Pinger
 	r.GET("/ping", func(c *gin.Context) {
