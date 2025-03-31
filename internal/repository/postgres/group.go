@@ -35,6 +35,33 @@ func (r *GroupRepository) Create(ctx context.Context, group *models.Group) error
 
 	return nil
 }
+
+func (r *GroupRepository) Get(ctx context.Context) ([]*models.Group, error) {
+	const op = "repository.postgres.GroupRepository.Get"
+
+	query := `SELECT uuid, number
+			  FROM groups`
+	rows, err := r.db.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	var groups []*models.Group
+	for rows.Next() {
+		var group models.Group
+		err := rows.Scan(&group.UUID, &group.Number)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
+			}
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+		groups = append(groups, &group)
+	}
+
+	return groups, nil
+}
+
 func (r *GroupRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.Group, error) {
 	const op = "repository.postgres.GroupRepository.GetByUUID"
 
@@ -54,6 +81,7 @@ func (r *GroupRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*model
 
 	return &group, nil
 }
+
 func (r *GroupRepository) GetByNumber(ctx context.Context, number string) (*models.Group, error) {
 	const op = "repository.postgres.GroupRepository.GetByNumber"
 
@@ -73,6 +101,7 @@ func (r *GroupRepository) GetByNumber(ctx context.Context, number string) (*mode
 
 	return &group, nil
 }
+
 func (r *GroupRepository) Update(ctx context.Context, group *models.Group) error {
 	const op = "repository.postgres.GroupRepository.Update"
 
@@ -81,6 +110,9 @@ func (r *GroupRepository) Update(ctx context.Context, group *models.Group) error
 			  WHERE uuid = $2`
 	result, err := r.db.Exec(ctx, query, group.Number, group.UUID)
 	if err != nil {
+		if strings.Contains(err.Error(), "23505") {
+			return fmt.Errorf("%s: %w", op, repository.ErrExist)
+		}
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
