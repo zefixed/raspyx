@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
+	"strings"
 )
 
 type LocationRepository struct {
@@ -27,6 +28,9 @@ func (r *LocationRepository) Create(ctx context.Context, location *models.Locati
 	_, err := r.db.Exec(ctx, query, location.UUID, location.Name)
 
 	if err != nil {
+		if strings.Contains(err.Error(), "23505") {
+			return fmt.Errorf("%s: %w", op, repository.ErrExist)
+		}
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -107,6 +111,9 @@ func (r *LocationRepository) Update(ctx context.Context, location *models.Locati
 
 	result, err := r.db.Exec(ctx, query, location.Name, location.UUID)
 	if err != nil {
+		if strings.Contains(err.Error(), "23505") {
+			return fmt.Errorf("%s: %w", op, repository.ErrExist)
+		}
 		return fmt.Errorf("%s: %w", op, err)
 	}
 

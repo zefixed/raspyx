@@ -19,6 +19,7 @@ type GroupUseCase struct {
 func NewGroupUseCase(repo interfaces.GroupRepository, svc services.GroupService) *GroupUseCase {
 	return &GroupUseCase{repo: repo, svc: svc}
 }
+
 func (uc *GroupUseCase) Create(ctx context.Context, groupDTO *dto.CreateGroupRequest) (*dto.CreateGroupResponse, error) {
 	const op = "usecase.group.Create"
 
@@ -48,6 +49,7 @@ func (uc *GroupUseCase) Create(ctx context.Context, groupDTO *dto.CreateGroupReq
 func (uc *GroupUseCase) Get(ctx context.Context) ([]*models.Group, error) {
 	const op = "usecase.group.Get"
 
+	// Getting all groups from db
 	groups, err := uc.repo.Get(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -59,6 +61,7 @@ func (uc *GroupUseCase) Get(ctx context.Context) ([]*models.Group, error) {
 func (uc *GroupUseCase) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.Group, error) {
 	const op = "usecase.group.GetByUUID"
 
+	// Getting group from db with given uuid
 	group, err := uc.repo.GetByUUID(ctx, uuid)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -70,11 +73,13 @@ func (uc *GroupUseCase) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.
 func (uc *GroupUseCase) GetByNumber(ctx context.Context, number string) (*models.Group, error) {
 	const op = "usecase.group.GetByNumber"
 
+	// Validating given group number
 	valid := uc.svc.Validate(&models.Group{Number: number})
 	if !valid {
 		return nil, fmt.Errorf("%s: %w", op, errors.New("group is not valid"))
 	}
 
+	// Getting group from db with given number
 	group, err := uc.repo.GetByNumber(ctx, number)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -91,6 +96,7 @@ func (uc *GroupUseCase) Update(ctx context.Context, group *models.Group) error {
 		return fmt.Errorf("%s: %w", op, errors.New("group is not valid"))
 	}
 
+	// Updating group in db with given group
 	err := uc.repo.Update(ctx, group)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
@@ -101,6 +107,8 @@ func (uc *GroupUseCase) Update(ctx context.Context, group *models.Group) error {
 
 func (uc *GroupUseCase) Delete(ctx context.Context, uuid uuid.UUID) error {
 	const op = "usecase.group.Delete"
+
+	// Deleting groups from db with given uuid
 	err := uc.repo.Delete(ctx, uuid)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)

@@ -33,7 +33,6 @@ func NewGroupRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 
 	groupGroup := apiV1Group.Group("/groups")
 
-	// POST /api/v1/groups
 	groupGroup.POST("/", func(c *gin.Context) {
 		var groupDTO dto.CreateGroupRequest
 		if err := c.ShouldBindJSON(&groupDTO); err != nil {

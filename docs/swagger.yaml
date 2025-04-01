@@ -14,6 +14,20 @@ definitions:
         example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
         type: string
     type: object
+  dto.CreateLocationRequest:
+    properties:
+      name:
+        example: Автозаводская
+        type: string
+    required:
+    - name
+    type: object
+  dto.CreateLocationResponse:
+    properties:
+      uuid:
+        example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
+        type: string
+    type: object
   dto.GetGroupsResponse:
     properties:
       groups:
@@ -23,6 +37,15 @@ definitions:
     required:
     - groups
     type: object
+  dto.GetLocationsResponse:
+    properties:
+      locations:
+        items:
+          $ref: '#/definitions/models.Location'
+        type: array
+    required:
+    - locations
+    type: object
   dto.UpdateGroupRequest:
     properties:
       group:
@@ -31,6 +54,14 @@ definitions:
     required:
     - group
     type: object
+  dto.UpdateLocationRequest:
+    properties:
+      name:
+        example: Автозаводская
+        type: string
+    required:
+    - name
+    type: object
   models.Group:
     properties:
       number:
@@ -38,6 +69,13 @@ definitions:
         type: string
       uuid:
         example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
+        type: string
+    type: object
+  models.Location:
+    properties:
+      name:
+        type: string
+      uuid:
         type: string
     type: object
   v1.ResponseError:
@@ -263,4 +301,201 @@ paths:
       summary: Updating group
       tags:
       - group
+  /api/v1/locations:
+    get:
+      consumes:
+      - '*/*'
+      description: Get all locations from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.GetLocationsResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting locations
+      tags:
+      - location
+    post:
+      consumes:
+      - application/json
+      description: Creates a new location in the database and returns its uuid
+      parameters:
+      - description: Location name
+        in: body
+        name: location
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateLocationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.CreateLocationResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Creating a new location
+      tags:
+      - location
+  /api/v1/locations/{uuid}:
+    delete:
+      consumes:
+      - '*/*'
+      description: Deleting existing location from the database
+      parameters:
+      - description: Location uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Deleting existing location
+      tags:
+      - location
+  /api/v1/locations/name/{name}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get location from database with given name
+      parameters:
+      - description: Location name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/models.Location'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting location by name
+      tags:
+      - location
+  /api/v1/locations/uuid/{uuid}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get location from database with given uuid
+      parameters:
+      - description: Location uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/models.Location'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting location by uuid
+      tags:
+      - location
+    put:
+      consumes:
+      - application/json
+      description: Update location in database
+      parameters:
+      - description: Location uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Location
+        in: body
+        name: group
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateLocationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Updating location
+      tags:
+      - location
 swagger: "2.0"

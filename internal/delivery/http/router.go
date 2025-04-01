@@ -24,4 +24,16 @@ func NewRouter(r *gin.Engine, log *slog.Logger, conn *pgx.Conn) {
 	v1.NewGroupRouteGetByNumber(apiV1Group, groupUseCase, log)
 	v1.NewGroupRouteUpdate(apiV1Group, groupUseCase, log)
 	v1.NewGroupRouteDelete(apiV1Group, groupUseCase, log)
+
+	locationUseCase := usecase.NewLocationUseCase(
+		postgres.NewLocationRepository(conn),
+		*services.NewLocationService(),
+	)
+
+	v1.NewLocationRouteCreate(apiV1Group, locationUseCase, log)
+	v1.NewLocationRouteGet(apiV1Group, locationUseCase, log)
+	v1.NewLocationRouteGetByUUID(apiV1Group, locationUseCase, log)
+	v1.NewLocationRouteGetByName(apiV1Group, locationUseCase, log)
+	v1.NewLocationRouteUpdate(apiV1Group, locationUseCase, log)
+	v1.NewLocationRouteDelete(apiV1Group, locationUseCase, log)
 }
