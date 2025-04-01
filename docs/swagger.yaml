@@ -52,6 +52,21 @@ definitions:
     required:
     - type
     type: object
+  dto.CreateTeacherRequest:
+    properties:
+      first_name:
+        example: Имя
+        type: string
+      middle_name:
+        example: Отчество
+        type: string
+      second_name:
+        example: Фамилия
+        type: string
+    required:
+    - first_name
+    - second_name
+    type: object
   dto.GetGroupsResponse:
     properties:
       groups:
@@ -97,6 +112,23 @@ definitions:
     required:
     - subjects
     type: object
+  dto.GetTeachersResponse:
+    properties:
+      teachers:
+        items:
+          $ref: '#/definitions/dto.TeacherDTO'
+        type: array
+    required:
+    - teachers
+    type: object
+  dto.TeacherDTO:
+    properties:
+      name:
+        example: Фамилия Имя Отчество
+        type: string
+    required:
+    - name
+    type: object
   dto.UpdateGroupRequest:
     properties:
       group:
@@ -136,6 +168,18 @@ definitions:
         type: string
     required:
     - type
+    type: object
+  dto.UpdateTeacherRequest:
+    properties:
+      first_name:
+        example: Имя
+        type: string
+      middle_name:
+        example: Отчество
+        type: string
+      second_name:
+        example: Фамилия
+        type: string
     type: object
   models.Group:
     properties:
@@ -177,6 +221,21 @@ definitions:
     properties:
       type:
         example: Практика
+        type: string
+      uuid:
+        example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
+        type: string
+    type: object
+  models.Teacher:
+    properties:
+      first_name:
+        example: Имя
+        type: string
+      middle_name:
+        example: Отчество
+        type: string
+      second_name:
+        example: Фамилия
         type: string
       uuid:
         example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
@@ -1215,4 +1274,205 @@ paths:
       summary: Updating subjectType
       tags:
       - subjectType
+  /api/v1/teachers:
+    get:
+      consumes:
+      - '*/*'
+      description: Get all teachers from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.GetTeachersResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting teachers
+      tags:
+      - teacher
+    post:
+      consumes:
+      - application/json
+      description: Creates a new teacher in the database and returns its uuid
+      parameters:
+      - description: Teacher
+        in: body
+        name: teacher
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTeacherRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.CreateTeacherRequest'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Creating a new teacher
+      tags:
+      - teacher
+  /api/v1/teachers/{uuid}:
+    delete:
+      consumes:
+      - '*/*'
+      description: Deleting existing teacher from the database
+      parameters:
+      - description: Teacher uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Deleting existing teacher
+      tags:
+      - teacher
+  /api/v1/teachers/fullname/{fullname}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get teacher from database with given fullname
+      parameters:
+      - description: Teacher fullname
+        in: path
+        name: fullname
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/models.Teacher'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting teacher by fullname
+      tags:
+      - teacher
+  /api/v1/teachers/uuid/{uuid}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get teacher from database with given uuid
+      parameters:
+      - description: Teacher uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/models.Teacher'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting teacher by uuid
+      tags:
+      - teacher
+    put:
+      consumes:
+      - application/json
+      description: Update teacher in database
+      parameters:
+      - description: Teacher uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Teacher
+        in: body
+        name: teacher
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateTeacherRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Updating teacher
+      tags:
+      - teacher
 swagger: "2.0"

@@ -82,25 +82,37 @@ func (r *TeacherRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*mod
 	return &teacher, nil
 }
 
-func (r *TeacherRepository) GetByFullName(ctx context.Context, fn string) (*models.Teacher, error) {
+func (r *TeacherRepository) GetByFullName(ctx context.Context, fn string) ([]*models.Teacher, error) {
 	const op = "repository.postgres.TeacherRepository.GetByFullName"
 
 	query := `SELECT uuid, first_name, second_name, middle_name 
 			  FROM teachers 
-			  WHERE CONCAT(first_name, ' ', second_name, ' ', middle_name) = $1`
+			  WHERE CONCAT(second_name, ' ', first_name, ' ', middle_name) = $1`
 
-	row := r.db.QueryRow(ctx, query, fn)
-
-	var teacher models.Teacher
-	err := row.Scan(&teacher.UUID, &teacher.FirstName, &teacher.SecondName, &teacher.MiddleName)
+	rows, err := r.db.Query(ctx, query, fn)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
-		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return &teacher, nil
+	var teachers []*models.Teacher
+	for rows.Next() {
+		var teacher models.Teacher
+		err := rows.Scan(&teacher.UUID, &teacher.FirstName, &teacher.SecondName, &teacher.MiddleName)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
+			}
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		teachers = append(teachers, &teacher)
+	}
+
+	if len(teachers) == 0 {
+		return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
+	}
+
+	return teachers, nil
 }
 func (r *TeacherRepository) Update(ctx context.Context, teacher *models.Teacher) error {
 	const op = "repository.postgres.TeacherRepository.Update"
