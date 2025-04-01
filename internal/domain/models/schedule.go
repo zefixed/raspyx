@@ -20,3 +20,19 @@ type Schedule struct {
 	Weekday      int       `json:"weekday"`
 	Link         string    `json:"link"`
 }
+
+type ScheduleData struct {
+	UUID      uuid.UUID `json:"uuid"`
+	Teacher   string    `json:"teacher,omitempty"`
+	Group     string    `json:"group"`
+	Room      string    `json:"room,omitempty"`
+	Subject   string    `json:"subject"`
+	Type      string    `json:"type"`
+	Location  string    `json:"location"`
+	StartTime time.Time `json:"start_time"`
+	EndTime   time.Time `json:"end_time"`
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
+	Weekday   int       `json:"weekday"`
+	Link      string    `json:"link"`
+}
