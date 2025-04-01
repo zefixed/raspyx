@@ -232,6 +232,7 @@ func NewGroupRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 // @Param uuid path string true "Group uuid"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/groups/{uuid} [delete]
 func NewGroupRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, log *slog.Logger) {
@@ -252,7 +253,7 @@ func NewGroupRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {
 				log.Info("Group not found", slog.String("group_uuid", groupUUID.String()))
-				c.JSON(http.StatusBadRequest, RespError("Group not found"))
+				c.JSON(http.StatusNotFound, RespError("Group not found"))
 			} else {
 				log.Error("Internal server error", slog.String("error", err.Error()))
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))

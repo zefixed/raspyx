@@ -222,6 +222,7 @@ func NewLocationRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 // @Param uuid path string true "Location uuid"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/locations/{uuid} [delete]
 func NewLocationRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.LocationUseCase, log *slog.Logger) {
@@ -242,7 +243,7 @@ func NewLocationRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {
 				log.Info("Location not found", slog.String("location_uuid", locationUUID.String()))
-				c.JSON(http.StatusBadRequest, RespError("Location not found"))
+				c.JSON(http.StatusNotFound, RespError("Location not found"))
 			} else {
 				log.Error("Internal server error", slog.String("error", err.Error()))
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))

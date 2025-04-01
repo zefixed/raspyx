@@ -228,6 +228,7 @@ func NewSubjectRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCa
 // @Param uuid path string true "Subject uuid"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/subjects/{uuid} [delete]
 func NewSubjectRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCase, log *slog.Logger) {
@@ -248,7 +249,7 @@ func NewSubjectRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCa
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {
 				log.Info("subject not found", slog.String("subject_uuid", subjectUUID.String()))
-				c.JSON(http.StatusBadRequest, RespError("Subject not found"))
+				c.JSON(http.StatusNotFound, RespError("Subject not found"))
 			} else {
 				log.Error("Internal server error", slog.String("error", err.Error()))
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))

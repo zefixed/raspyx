@@ -284,6 +284,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
         "500":
           description: Internal Server Error
           schema:
@@ -485,6 +489,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
         "500":
           description: Internal Server Error
           schema:
@@ -682,6 +690,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
         "500":
           description: Internal Server Error
           schema:
@@ -877,6 +889,10 @@ paths:
             $ref: '#/definitions/v1.ResponseOK'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/v1.ResponseError'
         "500":
