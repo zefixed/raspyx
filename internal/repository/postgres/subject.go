@@ -52,7 +52,7 @@ func (r *SubjectRepository) Get(ctx context.Context) ([]*models.Subject, error) 
 
 		subjects = append(subjects, &subject)
 	}
-	
+
 	return subjects, nil
 }
 
@@ -75,23 +75,36 @@ func (r *SubjectRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*mod
 	return &subject, nil
 }
 
-func (r *SubjectRepository) GetByName(ctx context.Context, name string) (*models.Subject, error) {
+func (r *SubjectRepository) GetByName(ctx context.Context, name string) ([]*models.Subject, error) {
 	const op = "repository.postgres.SubjectRepository.GetByName"
 
 	query := `SELECT uuid, name
 			  FROM subjects
 			  WHERE name = $1`
-	row := r.db.QueryRow(ctx, query, name)
-	var subject models.Subject
-	err := row.Scan(&subject.UUID, &subject.Name)
+	rows, err := r.db.Query(ctx, query, name)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
-		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return &subject, nil
+	var subjects []*models.Subject
+	for rows.Next() {
+		var subject models.Subject
+		err := rows.Scan(&subject.UUID, &subject.Name)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
+			}
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		subjects = append(subjects, &subject)
+	}
+
+	if len(subjects) == 0 {
+		return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
+	}
+
+	return subjects, nil
 }
 
 func (r *SubjectRepository) Update(ctx context.Context, subject *models.Subject) error {
