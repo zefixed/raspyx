@@ -1633,6 +1633,328 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/teachers": {
+            "get": {
+                "description": "Get all teachers from database",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teacher"
+                ],
+                "summary": "Getting teachers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseOK"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/dto.GetTeachersResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new teacher in the database and returns its uuid",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teacher"
+                ],
+                "summary": "Creating a new teacher",
+                "parameters": [
+                    {
+                        "description": "Teacher",
+                        "name": "teacher",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateTeacherRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseOK"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/dto.CreateTeacherRequest"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/teachers/fullname/{fullname}": {
+            "get": {
+                "description": "Get teacher from database with given fullname",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teacher"
+                ],
+                "summary": "Getting teacher by fullname",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Teacher fullname",
+                        "name": "fullname",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseOK"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/models.Teacher"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/teachers/uuid/{uuid}": {
+            "get": {
+                "description": "Get teacher from database with given uuid",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teacher"
+                ],
+                "summary": "Getting teacher by uuid",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Teacher uuid",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseOK"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/models.Teacher"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update teacher in database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teacher"
+                ],
+                "summary": "Updating teacher",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Teacher uuid",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Teacher",
+                        "name": "teacher",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateTeacherRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseOK"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/teachers/{uuid}": {
+            "delete": {
+                "description": "Deleting existing teacher from the database",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teacher"
+                ],
+                "summary": "Deleting existing teacher",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Teacher uuid",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseOK"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1714,6 +2036,27 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateTeacherRequest": {
+            "type": "object",
+            "required": [
+                "first_name",
+                "second_name"
+            ],
+            "properties": {
+                "first_name": {
+                    "type": "string",
+                    "example": "Имя"
+                },
+                "middle_name": {
+                    "type": "string",
+                    "example": "Отчество"
+                },
+                "second_name": {
+                    "type": "string",
+                    "example": "Фамилия"
+                }
+            }
+        },
         "dto.GetGroupsResponse": {
             "type": "object",
             "required": [
@@ -1784,6 +2127,32 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.GetTeachersResponse": {
+            "type": "object",
+            "required": [
+                "teachers"
+            ],
+            "properties": {
+                "teachers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.TeacherDTO"
+                    }
+                }
+            }
+        },
+        "dto.TeacherDTO": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "Фамилия Имя Отчество"
+                }
+            }
+        },
         "dto.UpdateGroupRequest": {
             "type": "object",
             "required": [
@@ -1841,6 +2210,23 @@ const docTemplate = `{
                 "type": {
                     "type": "string",
                     "example": "Практика"
+                }
+            }
+        },
+        "dto.UpdateTeacherRequest": {
+            "type": "object",
+            "properties": {
+                "first_name": {
+                    "type": "string",
+                    "example": "Имя"
+                },
+                "middle_name": {
+                    "type": "string",
+                    "example": "Отчество"
+                },
+                "second_name": {
+                    "type": "string",
+                    "example": "Фамилия"
                 }
             }
         },
@@ -1902,6 +2288,27 @@ const docTemplate = `{
                 "type": {
                     "type": "string",
                     "example": "Практика"
+                },
+                "uuid": {
+                    "type": "string",
+                    "example": "c555b9e8-0d7a-11f0-adcd-20114d2008d9"
+                }
+            }
+        },
+        "models.Teacher": {
+            "type": "object",
+            "properties": {
+                "first_name": {
+                    "type": "string",
+                    "example": "Имя"
+                },
+                "middle_name": {
+                    "type": "string",
+                    "example": "Отчество"
+                },
+                "second_name": {
+                    "type": "string",
+                    "example": "Фамилия"
                 },
                 "uuid": {
                     "type": "string",

@@ -72,4 +72,16 @@ func NewRouter(r *gin.Engine, log *slog.Logger, conn *pgx.Conn) {
 	v1.NewSubjectTypeRouteGetByType(apiV1Group, subjectTypeUseCase, log)
 	v1.NewSubjectTypeRouteUpdate(apiV1Group, subjectTypeUseCase, log)
 	v1.NewSubjectTypeRouteDelete(apiV1Group, subjectTypeUseCase, log)
+
+	teacherUseCase := usecase.NewTeacherUseCase(
+		postgres.NewTeacherRepository(conn),
+		*services.NewTeacherService(),
+	)
+
+	v1.NewTeacherRouteCreate(apiV1Group, teacherUseCase, log)
+	v1.NewTeacherRouteGet(apiV1Group, teacherUseCase, log)
+	v1.NewTeacherRouteGetByUUID(apiV1Group, teacherUseCase, log)
+	v1.NewTeacherRouteGetByFullName(apiV1Group, teacherUseCase, log)
+	v1.NewTeacherRouteUpdate(apiV1Group, teacherUseCase, log)
+	v1.NewTeacherRouteDelete(apiV1Group, teacherUseCase, log)
 }
