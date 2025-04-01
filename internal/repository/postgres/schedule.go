@@ -67,7 +67,7 @@ func (r *ScheduleRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*mo
 	return &schedule, nil
 }
 
-func (r *ScheduleRepository) GetByTeacher(ctx context.Context, firstName, secondName, middleName string) (*[]models.Schedule, error) {
+func (r *ScheduleRepository) GetByTeacher(ctx context.Context, firstName, secondName, middleName string) ([]*models.Schedule, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByTeacher"
 
 	query := `SELECT uuid
@@ -93,7 +93,7 @@ func (r *ScheduleRepository) GetByTeacher(ctx context.Context, firstName, second
 	return schedule, nil
 }
 
-func (r *ScheduleRepository) GetByTeacherUUID(ctx context.Context, teacherUUID uuid.UUID) (*[]models.Schedule, error) {
+func (r *ScheduleRepository) GetByTeacherUUID(ctx context.Context, teacherUUID uuid.UUID) ([]*models.Schedule, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByTeacherUUID"
 
 	query := `SELECT uuid, teacher_uuid, group_uuid,
@@ -109,14 +109,14 @@ func (r *ScheduleRepository) GetByTeacherUUID(ctx context.Context, teacherUUID u
 
 	schedules, err := parseSchedule(&rows)
 
-	if len(*schedules) == 0 {
+	if len(schedules) == 0 {
 		return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
 	}
 
 	return schedules, nil
 }
 
-func (r *ScheduleRepository) GetByGroup(ctx context.Context, groupNumber string) (*[]models.Schedule, error) {
+func (r *ScheduleRepository) GetByGroup(ctx context.Context, groupNumber string) ([]*models.Schedule, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByGroup"
 
 	query := `SELECT uuid
@@ -142,7 +142,7 @@ func (r *ScheduleRepository) GetByGroup(ctx context.Context, groupNumber string)
 	return schedule, nil
 }
 
-func (r *ScheduleRepository) GetByGroupUUID(ctx context.Context, groupUUID uuid.UUID) (*[]models.Schedule, error) {
+func (r *ScheduleRepository) GetByGroupUUID(ctx context.Context, groupUUID uuid.UUID) ([]*models.Schedule, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByGroupUUID"
 
 	query := `SELECT uuid, teacher_uuid, group_uuid,
@@ -157,14 +157,14 @@ func (r *ScheduleRepository) GetByGroupUUID(ctx context.Context, groupUUID uuid.
 	}
 	schedules, err := parseSchedule(&rows)
 
-	if len(*schedules) == 0 {
+	if len(schedules) == 0 {
 		return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
 	}
 
 	return schedules, nil
 }
 
-func (r *ScheduleRepository) GetByRoom(ctx context.Context, roomNumber string) (*[]models.Schedule, error) {
+func (r *ScheduleRepository) GetByRoom(ctx context.Context, roomNumber string) ([]*models.Schedule, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByRoom"
 
 	query := `SELECT uuid
@@ -190,7 +190,7 @@ func (r *ScheduleRepository) GetByRoom(ctx context.Context, roomNumber string) (
 	return schedule, nil
 }
 
-func (r *ScheduleRepository) GetByRoomUUID(ctx context.Context, roomUUID uuid.UUID) (*[]models.Schedule, error) {
+func (r *ScheduleRepository) GetByRoomUUID(ctx context.Context, roomUUID uuid.UUID) ([]*models.Schedule, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByRoomUUID"
 
 	query := `SELECT uuid, teacher_uuid, group_uuid,
@@ -205,19 +205,19 @@ func (r *ScheduleRepository) GetByRoomUUID(ctx context.Context, roomUUID uuid.UU
 	}
 	schedules, err := parseSchedule(&rows)
 
-	if len(*schedules) == 0 {
+	if len(schedules) == 0 {
 		return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
 	}
 
 	return schedules, nil
 }
 
-func (r *ScheduleRepository) GetBySubject(ctx context.Context, subjectName string) (*[]models.Schedule, error) {
+func (r *ScheduleRepository) GetBySubject(ctx context.Context, subjectName string) ([]*models.Schedule, error) {
 	const op = "repository.postgres.ScheduleRepository.GetBySubject"
 
 	query := `SELECT uuid
-			  FROM rooms
-			  WHERE number = $1`
+			  FROM subjects
+			  WHERE name = $1`
 
 	row := r.db.QueryRow(ctx, query, subjectName)
 
@@ -238,7 +238,7 @@ func (r *ScheduleRepository) GetBySubject(ctx context.Context, subjectName strin
 	return schedule, nil
 }
 
-func (r *ScheduleRepository) GetBySubjectUUID(ctx context.Context, subjectUUID uuid.UUID) (*[]models.Schedule, error) {
+func (r *ScheduleRepository) GetBySubjectUUID(ctx context.Context, subjectUUID uuid.UUID) ([]*models.Schedule, error) {
 	const op = "repository.postgres.ScheduleRepository.GetBySubjectUUID"
 
 	query := `SELECT uuid, teacher_uuid, group_uuid,
@@ -253,19 +253,19 @@ func (r *ScheduleRepository) GetBySubjectUUID(ctx context.Context, subjectUUID u
 	}
 	schedules, err := parseSchedule(&rows)
 
-	if len(*schedules) == 0 {
+	if len(schedules) == 0 {
 		return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
 	}
 
 	return schedules, nil
 }
 
-func (r *ScheduleRepository) GetByLocation(ctx context.Context, locationName string) (*[]models.Schedule, error) {
+func (r *ScheduleRepository) GetByLocation(ctx context.Context, locationName string) ([]*models.Schedule, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByLocation"
 
 	query := `SELECT uuid
-			  FROM rooms
-			  WHERE number = $1`
+			  FROM locations
+			  WHERE name = $1`
 
 	row := r.db.QueryRow(ctx, query, locationName)
 
@@ -286,7 +286,7 @@ func (r *ScheduleRepository) GetByLocation(ctx context.Context, locationName str
 	return schedule, nil
 }
 
-func (r *ScheduleRepository) GetByLocationUUID(ctx context.Context, locationUUID uuid.UUID) (*[]models.Schedule, error) {
+func (r *ScheduleRepository) GetByLocationUUID(ctx context.Context, locationUUID uuid.UUID) ([]*models.Schedule, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByLocationUUID"
 
 	query := `SELECT uuid, teacher_uuid, group_uuid,
@@ -301,7 +301,7 @@ func (r *ScheduleRepository) GetByLocationUUID(ctx context.Context, locationUUID
 	}
 	schedules, err := parseSchedule(&rows)
 
-	if len(*schedules) == 0 {
+	if len(schedules) == 0 {
 		return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
 	}
 
@@ -352,10 +352,10 @@ func (r *ScheduleRepository) Delete(ctx context.Context, uuid uuid.UUID) error {
 	return nil
 }
 
-func parseSchedule(rows *pgx.Rows) (*[]models.Schedule, error) {
+func parseSchedule(rows *pgx.Rows) ([]*models.Schedule, error) {
 	const op = "repository.postgres.ScheduleRepository.parseSchedule"
 
-	var schedules []models.Schedule
+	var schedules []*models.Schedule
 	for (*rows).Next() {
 		var schedule models.Schedule
 		err := (*rows).Scan(
@@ -367,8 +367,8 @@ func parseSchedule(rows *pgx.Rows) (*[]models.Schedule, error) {
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
-		schedules = append(schedules, schedule)
+		schedules = append(schedules, &schedule)
 	}
 
-	return &schedules, nil
+	return schedules, nil
 }
