@@ -573,7 +573,7 @@ const docTemplate = `{
                     },
                     {
                         "description": "Location",
-                        "name": "group",
+                        "name": "location",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -652,6 +652,322 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/rooms": {
+            "get": {
+                "description": "Get all rooms from database",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "room"
+                ],
+                "summary": "Getting rooms",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseOK"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/dto.GetRoomsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new room in the database and returns its uuid",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "room"
+                ],
+                "summary": "Creating a new room",
+                "parameters": [
+                    {
+                        "description": "Room number",
+                        "name": "room",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateRoomRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseOK"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/dto.CreateRoomRequest"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/rooms/number/{number}": {
+            "get": {
+                "description": "Get room from database with given number",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "room"
+                ],
+                "summary": "Getting room by number",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Room number",
+                        "name": "number",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseOK"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/models.Room"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/rooms/uuid/{uuid}": {
+            "get": {
+                "description": "Get room from database with given uuid",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "room"
+                ],
+                "summary": "Getting room by uuid",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Room uuid",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseOK"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/models.Room"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update room in database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "room"
+                ],
+                "summary": "Updating room",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Room uuid",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Room",
+                        "name": "room",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateRoomRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseOK"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/rooms/{uuid}": {
+            "delete": {
+                "description": "Deleting existing room from the database",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "room"
+                ],
+                "summary": "Deleting existing room",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Room uuid",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseOK"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -697,6 +1013,18 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateRoomRequest": {
+            "type": "object",
+            "required": [
+                "number"
+            ],
+            "properties": {
+                "number": {
+                    "type": "string",
+                    "example": "ав4805"
+                }
+            }
+        },
         "dto.GetGroupsResponse": {
             "type": "object",
             "required": [
@@ -725,6 +1053,20 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.GetRoomsResponse": {
+            "type": "object",
+            "required": [
+                "rooms"
+            ],
+            "properties": {
+                "rooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Room"
+                    }
+                }
+            }
+        },
         "dto.UpdateGroupRequest": {
             "type": "object",
             "required": [
@@ -749,6 +1091,18 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.UpdateRoomRequest": {
+            "type": "object",
+            "required": [
+                "number"
+            ],
+            "properties": {
+                "number": {
+                    "type": "string",
+                    "example": "ав4805"
+                }
+            }
+        },
         "models.Group": {
             "type": "object",
             "properties": {
@@ -766,10 +1120,25 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Автозаводская"
                 },
                 "uuid": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "c555b9e8-0d7a-11f0-adcd-20114d2008d9"
+                }
+            }
+        },
+        "models.Room": {
+            "type": "object",
+            "properties": {
+                "number": {
+                    "type": "string",
+                    "example": "ав4805"
+                },
+                "uuid": {
+                    "type": "string",
+                    "example": "c555b9e8-0d7a-11f0-adcd-20114d2008d9"
                 }
             }
         },

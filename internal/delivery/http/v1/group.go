@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"log/slog"
@@ -198,7 +197,6 @@ func NewGroupRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 			} else if strings.Contains(err.Error(), "exist") {
 				c.JSON(http.StatusBadRequest, RespError("Group exists"))
 			} else {
-				fmt.Println(err)
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			}
 			return
@@ -241,6 +239,7 @@ func NewGroupRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 			}
 			return
 		}
+
 		c.JSON(http.StatusOK, RespOK(nil))
 	})
 }

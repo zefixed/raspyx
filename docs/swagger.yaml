@@ -28,6 +28,14 @@ definitions:
         example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
         type: string
     type: object
+  dto.CreateRoomRequest:
+    properties:
+      number:
+        example: ав4805
+        type: string
+    required:
+    - number
+    type: object
   dto.GetGroupsResponse:
     properties:
       groups:
@@ -46,6 +54,15 @@ definitions:
     required:
     - locations
     type: object
+  dto.GetRoomsResponse:
+    properties:
+      rooms:
+        items:
+          $ref: '#/definitions/models.Room'
+        type: array
+    required:
+    - rooms
+    type: object
   dto.UpdateGroupRequest:
     properties:
       group:
@@ -62,6 +79,14 @@ definitions:
     required:
     - name
     type: object
+  dto.UpdateRoomRequest:
+    properties:
+      number:
+        example: ав4805
+        type: string
+    required:
+    - number
+    type: object
   models.Group:
     properties:
       number:
@@ -74,8 +99,19 @@ definitions:
   models.Location:
     properties:
       name:
+        example: Автозаводская
         type: string
       uuid:
+        example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
+        type: string
+    type: object
+  models.Room:
+    properties:
+      number:
+        example: ав4805
+        type: string
+      uuid:
+        example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
         type: string
     type: object
   v1.ResponseError:
@@ -472,7 +508,7 @@ paths:
         type: string
       - description: Location
         in: body
-        name: group
+        name: location
         required: true
         schema:
           $ref: '#/definitions/dto.UpdateLocationRequest'
@@ -498,4 +534,201 @@ paths:
       summary: Updating location
       tags:
       - location
+  /api/v1/rooms:
+    get:
+      consumes:
+      - '*/*'
+      description: Get all rooms from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.GetRoomsResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting rooms
+      tags:
+      - room
+    post:
+      consumes:
+      - application/json
+      description: Creates a new room in the database and returns its uuid
+      parameters:
+      - description: Room number
+        in: body
+        name: room
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateRoomRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.CreateRoomRequest'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Creating a new room
+      tags:
+      - room
+  /api/v1/rooms/{uuid}:
+    delete:
+      consumes:
+      - '*/*'
+      description: Deleting existing room from the database
+      parameters:
+      - description: Room uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Deleting existing room
+      tags:
+      - room
+  /api/v1/rooms/number/{number}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get room from database with given number
+      parameters:
+      - description: Room number
+        in: path
+        name: number
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/models.Room'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting room by number
+      tags:
+      - room
+  /api/v1/rooms/uuid/{uuid}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get room from database with given uuid
+      parameters:
+      - description: Room uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/models.Room'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting room by uuid
+      tags:
+      - room
+    put:
+      consumes:
+      - application/json
+      description: Update room in database
+      parameters:
+      - description: Room uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Room
+        in: body
+        name: room
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateRoomRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Updating room
+      tags:
+      - room
 swagger: "2.0"

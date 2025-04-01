@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
+	"strings"
 )
 
 type SubjectTypeRepository struct {
@@ -26,6 +27,9 @@ func (r *SubjectTypeRepository) Create(ctx context.Context, subjectType *models.
 			  VALUES ($1, $2)`
 	_, err := r.db.Exec(ctx, query, subjectType.UUID, subjectType.Type)
 	if err != nil {
+		if strings.Contains(err.Error(), "23505") {
+			return fmt.Errorf("%s: %w", op, repository.ErrExist)
+		}
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -52,7 +56,7 @@ func (r *SubjectTypeRepository) Get(ctx context.Context) ([]*models.SubjectType,
 
 		subjTypes = append(subjTypes, &subjType)
 	}
-	
+
 	return subjTypes, nil
 }
 
@@ -102,6 +106,9 @@ func (r *SubjectTypeRepository) Update(ctx context.Context, subjectType *models.
 			  WHERE uuid = $2`
 	result, err := r.db.Exec(ctx, query, subjectType.Type, subjectType.UUID)
 	if err != nil {
+		if strings.Contains(err.Error(), "23505") {
+			return fmt.Errorf("%s: %w", op, repository.ErrExist)
+		}
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
