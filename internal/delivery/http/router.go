@@ -11,61 +11,17 @@ import (
 )
 
 func NewRouter(r *gin.Engine, log *slog.Logger, conn *pgx.Conn) {
-	// Routers
 	apiV1Group := r.Group("/api/v1")
-	{
-		v1.NewGroupRouteCreate(
-			apiV1Group,
-			usecase.NewGroupUseCase(
-				postgres.NewGroupRepository(conn),
-				*services.NewGroupService(),
-			),
-			log,
-		)
 
-		v1.NewGroupRouteGet(
-			apiV1Group,
-			usecase.NewGroupUseCase(
-				postgres.NewGroupRepository(conn),
-				*services.NewGroupService(),
-			),
-			log,
-		)
+	groupUseCase := usecase.NewGroupUseCase(
+		postgres.NewGroupRepository(conn),
+		*services.NewGroupService(),
+	)
 
-		v1.NewGroupRouteGetByUUID(
-			apiV1Group,
-			usecase.NewGroupUseCase(
-				postgres.NewGroupRepository(conn),
-				*services.NewGroupService(),
-			),
-			log,
-		)
-
-		v1.NewGroupRouteGetByNumber(
-			apiV1Group,
-			usecase.NewGroupUseCase(
-				postgres.NewGroupRepository(conn),
-				*services.NewGroupService(),
-			),
-			log,
-		)
-
-		v1.NewGroupRouteUpdate(
-			apiV1Group,
-			usecase.NewGroupUseCase(
-				postgres.NewGroupRepository(conn),
-				*services.NewGroupService(),
-			),
-			log,
-		)
-
-		v1.NewGroupRouteDelete(
-			apiV1Group,
-			usecase.NewGroupUseCase(
-				postgres.NewGroupRepository(conn),
-				*services.NewGroupService(),
-			),
-			log,
-		)
-	}
+	v1.NewGroupRouteCreate(apiV1Group, groupUseCase, log)
+	v1.NewGroupRouteGet(apiV1Group, groupUseCase, log)
+	v1.NewGroupRouteGetByUUID(apiV1Group, groupUseCase, log)
+	v1.NewGroupRouteGetByNumber(apiV1Group, groupUseCase, log)
+	v1.NewGroupRouteUpdate(apiV1Group, groupUseCase, log)
+	v1.NewGroupRouteDelete(apiV1Group, groupUseCase, log)
 }
