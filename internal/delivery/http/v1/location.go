@@ -35,6 +35,7 @@ func NewLocationRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 	locationGroup.POST("/", func(c *gin.Context) {
 		var locationDTO dto.CreateLocationRequest
 		if err := c.ShouldBindJSON(&locationDTO); err != nil {
+			log.Warn(ErrWrongDataStructure, slog.String("error", err.Error()))
 			c.JSON(http.StatusBadRequest, RespError(ErrWrongDataStructure))
 			return
 		}
@@ -42,8 +43,10 @@ func NewLocationRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 		resp, err := r.uc.Create(c, &locationDTO)
 		if err != nil {
 			if strings.Contains(err.Error(), "exist") {
+				log.Info("Location exist", slog.String("location_name", locationDTO.Name))
 				c.JSON(http.StatusBadRequest, RespError("Location exists"))
 			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			}
 			return
@@ -71,6 +74,7 @@ func NewLocationRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.LocationUseCas
 	locationGroup.GET("/", func(c *gin.Context) {
 		resp, err := r.uc.Get(c)
 		if err != nil {
+			log.Error("Internal server error", slog.String("error", err.Error()))
 			c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			return
 		}
@@ -100,6 +104,7 @@ func NewLocationRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.Location
 		reqUUID := c.Param("uuid")
 		locationUUID, err := uuid.Parse(reqUUID)
 		if err != nil {
+			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
 			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
 			return
 		}
@@ -107,8 +112,10 @@ func NewLocationRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.Location
 		resp, err := r.uc.GetByUUID(c, locationUUID)
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {
+				log.Info("Location not found", slog.String("location_uuid", locationUUID.String()))
 				c.JSON(http.StatusNotFound, RespError("Location not found"))
 			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			}
 			return
@@ -140,8 +147,10 @@ func NewLocationRouteGetByName(apiV1Group *gin.RouterGroup, uc *usecase.Location
 		resp, err := r.uc.GetByName(c, reqName)
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {
+				log.Info("Location not found", slog.String("location_number", reqName))
 				c.JSON(http.StatusNotFound, RespError("Location not found"))
 			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			}
 			return
@@ -173,12 +182,14 @@ func NewLocationRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 		reqUUID := c.Param("uuid")
 		locationUUID, err := uuid.Parse(reqUUID)
 		if err != nil {
+			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
 			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
 			return
 		}
 
 		var locationDTO dto.UpdateLocationRequest
 		if err := c.ShouldBindJSON(&locationDTO); err != nil {
+			log.Warn(ErrWrongDataStructure, slog.String("error", err.Error()))
 			c.JSON(http.StatusBadRequest, RespError(ErrWrongDataStructure))
 			return
 		}
@@ -186,10 +197,13 @@ func NewLocationRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 		err = r.uc.Update(c, &models.Location{UUID: locationUUID, Name: locationDTO.Name})
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {
+				log.Info("Location not found", slog.String("location_uuid", locationUUID.String()))
 				c.JSON(http.StatusNotFound, RespError("Location not found"))
 			} else if strings.Contains(err.Error(), "exist") {
+				log.Info("Location exist", slog.String("location_name", locationDTO.Name))
 				c.JSON(http.StatusBadRequest, RespError("Location exists"))
 			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			}
 			return
@@ -219,6 +233,7 @@ func NewLocationRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 		reqUUID := c.Param("uuid")
 		locationUUID, err := uuid.Parse(reqUUID)
 		if err != nil {
+			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
 			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
 			return
 		}
@@ -226,13 +241,15 @@ func NewLocationRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 		err = r.uc.Delete(c, locationUUID)
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {
+				log.Info("Location not found", slog.String("location_uuid", locationUUID.String()))
 				c.JSON(http.StatusBadRequest, RespError("Location not found"))
 			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			}
 			return
 		}
-		
+
 		c.JSON(http.StatusOK, RespOK(nil))
 	})
 }

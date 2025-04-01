@@ -35,6 +35,7 @@ func NewGroupRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 	groupGroup.POST("/", func(c *gin.Context) {
 		var groupDTO dto.CreateGroupRequest
 		if err := c.ShouldBindJSON(&groupDTO); err != nil {
+			log.Warn(ErrWrongDataStructure, slog.String("error", err.Error()))
 			c.JSON(http.StatusBadRequest, RespError(ErrWrongDataStructure))
 			return
 		}
@@ -42,10 +43,13 @@ func NewGroupRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 		resp, err := r.uc.Create(c, &groupDTO)
 		if err != nil {
 			if strings.Contains(err.Error(), "group is not valid") {
+				log.Warn("Group is not valid", slog.String("group_number", groupDTO.Group))
 				c.JSON(http.StatusBadRequest, RespError("Group is not valid"))
 			} else if strings.Contains(err.Error(), "exist") {
+				log.Info("Group exist", slog.String("group_number", groupDTO.Group))
 				c.JSON(http.StatusBadRequest, RespError("Group exists"))
 			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			}
 			return
@@ -73,6 +77,7 @@ func NewGroupRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, log
 	groupGroup.GET("/", func(c *gin.Context) {
 		resp, err := r.uc.Get(c)
 		if err != nil {
+			log.Error("Internal server error", slog.String("error", err.Error()))
 			c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			return
 		}
@@ -102,6 +107,7 @@ func NewGroupRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCas
 		reqUUID := c.Param("uuid")
 		groupUUID, err := uuid.Parse(reqUUID)
 		if err != nil {
+			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
 			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
 			return
 		}
@@ -109,8 +115,10 @@ func NewGroupRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCas
 		resp, err := r.uc.GetByUUID(c, groupUUID)
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {
+				log.Info("Group not found", slog.String("group_uuid", groupUUID.String()))
 				c.JSON(http.StatusNotFound, RespError("Group not found"))
 			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			}
 			return
@@ -143,10 +151,13 @@ func NewGroupRouteGetByNumber(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseC
 		resp, err := r.uc.GetByNumber(c, reqNumber)
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {
+				log.Info("Group not found", slog.String("group_number", reqNumber))
 				c.JSON(http.StatusNotFound, RespError("Group not found"))
 			} else if strings.Contains(err.Error(), "group is not valid") {
+				log.Warn("Group is not valid", slog.String("group_number", reqNumber))
 				c.JSON(http.StatusBadRequest, RespError("Group is not valid"))
 			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			}
 			return
@@ -178,12 +189,14 @@ func NewGroupRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 		reqUUID := c.Param("uuid")
 		groupUUID, err := uuid.Parse(reqUUID)
 		if err != nil {
+			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
 			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
 			return
 		}
 
 		var groupDTO dto.UpdateGroupRequest
 		if err := c.ShouldBindJSON(&groupDTO); err != nil {
+			log.Warn(ErrWrongDataStructure, slog.String("error", err.Error()))
 			c.JSON(http.StatusBadRequest, RespError(ErrWrongDataStructure))
 			return
 		}
@@ -191,12 +204,16 @@ func NewGroupRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 		err = r.uc.Update(c, &models.Group{UUID: groupUUID, Number: groupDTO.Group})
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {
+				log.Info("Group not found", slog.String("group_uuid", groupUUID.String()))
 				c.JSON(http.StatusNotFound, RespError("Group not found"))
 			} else if strings.Contains(err.Error(), "group is not valid") {
+				log.Warn("Group is not valid", slog.String("group_number", groupDTO.Group))
 				c.JSON(http.StatusBadRequest, RespError("Group is not valid"))
 			} else if strings.Contains(err.Error(), "exist") {
+				log.Info("Group exist", slog.String("group_number", groupDTO.Group))
 				c.JSON(http.StatusBadRequest, RespError("Group exists"))
 			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			}
 			return
@@ -226,6 +243,7 @@ func NewGroupRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 		reqUUID := c.Param("uuid")
 		groupUUID, err := uuid.Parse(reqUUID)
 		if err != nil {
+			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
 			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
 			return
 		}
@@ -233,8 +251,10 @@ func NewGroupRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 		err = r.uc.Delete(c, groupUUID)
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {
+				log.Info("Group not found", slog.String("group_uuid", groupUUID.String()))
 				c.JSON(http.StatusBadRequest, RespError("Group not found"))
 			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			}
 			return
