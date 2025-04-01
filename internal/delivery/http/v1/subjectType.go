@@ -1,0 +1,262 @@
+package v1
+
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"log/slog"
+	"net/http"
+	"raspyx/internal/domain/models"
+	"raspyx/internal/dto"
+	"raspyx/internal/usecase"
+	"strings"
+)
+
+type subjectTypeRoutes struct {
+	uc  *usecase.SubjectTypeUseCase
+	log *slog.Logger
+}
+
+// NewSubjectTypeRouteCreate
+// @Summary Creating a new subjectType
+// @Description Creates a new subjectType in the database and returns its uuid
+// @Tags subjectType
+// @Accept json
+// @Produce json
+// @Param subjectType body dto.CreateSubjectTypeRequest true "Subject type"
+// @Success 200 {object} ResponseOK{response=dto.CreateSubjectTypeRequest}
+// @Failure 400 {object} ResponseError
+// @Failure 500 {object} ResponseError
+// @Router /api/v1/subjecttypes [post]
+func NewSubjectTypeRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectTypeUseCase, log *slog.Logger) {
+	const op = "delivery.http.v1.NewSubjectTypeRouteCreate"
+	log = log.With(slog.String("op", op))
+
+	r := &subjectTypeRoutes{uc, log}
+
+	subjectTypeGroup := apiV1Group.Group("/subjecttypes")
+
+	subjectTypeGroup.POST("/", func(c *gin.Context) {
+		var subjectTypeDTO dto.CreateSubjectTypeRequest
+		if err := c.ShouldBindJSON(&subjectTypeDTO); err != nil {
+			log.Warn(ErrWrongDataStructure, slog.String("error", err.Error()))
+			c.JSON(http.StatusBadRequest, RespError(ErrWrongDataStructure))
+			return
+		}
+
+		resp, err := r.uc.Create(c, &subjectTypeDTO)
+		if err != nil {
+			if strings.Contains(err.Error(), "exist") {
+				log.Info("SubjectType exist", slog.String("subject_type", subjectTypeDTO.Type))
+				c.JSON(http.StatusBadRequest, RespError("SubjectType exists"))
+			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
+				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+			}
+			return
+		}
+
+		c.JSON(http.StatusOK, RespOK(resp))
+	})
+
+}
+
+// NewSubjectTypeRouteGet
+// @Summary Getting subjectTypes
+// @Description Get all subjectTypes from database
+// @Tags subjectType
+// @Accept */*
+// @Produce json
+// @Success 200 {object} ResponseOK{response=dto.GetSubjectTypesResponse}
+// @Failure 500 {object} ResponseError
+// @Router /api/v1/subjecttypes [get]
+func NewSubjectTypeRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.SubjectTypeUseCase, log *slog.Logger) {
+	const op = "delivery.http.v1.NewSubjectTypeRouteGet"
+	log = log.With(slog.String("op", op))
+
+	r := &subjectTypeRoutes{uc, log}
+
+	subjectTypeGroup := apiV1Group.Group("/subjecttypes")
+
+	subjectTypeGroup.GET("/", func(c *gin.Context) {
+		resp, err := r.uc.Get(c)
+		if err != nil {
+			log.Error("Internal server error", slog.String("error", err.Error()))
+			c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+			return
+		}
+
+		c.JSON(http.StatusOK, RespOK(resp))
+	})
+}
+
+// NewSubjectTypeRouteGetByUUID
+// @Summary Getting subjectType by uuid
+// @Description Get subjectType from database with given uuid
+// @Tags subjectType
+// @Accept */*
+// @Produce json
+// @Param uuid path string true "SubjectType uuid"
+// @Success 200 {object} ResponseOK{response=models.SubjectType}
+// @Failure 400 {object} ResponseError
+// @Failure 404 {object} ResponseError
+// @Failure 500 {object} ResponseError
+// @Router /api/v1/subjecttypes/uuid/{uuid} [get]
+func NewSubjectTypeRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.SubjectTypeUseCase, log *slog.Logger) {
+	r := &subjectTypeRoutes{uc, log}
+
+	subjectTypeGroup := apiV1Group.Group("/subjecttypes")
+
+	subjectTypeGroup.GET("/uuid/:uuid", func(c *gin.Context) {
+		reqUUID := c.Param("uuid")
+		subjectTypeUUID, err := uuid.Parse(reqUUID)
+		if err != nil {
+			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
+			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
+			return
+		}
+
+		resp, err := r.uc.GetByUUID(c, subjectTypeUUID)
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				log.Info("SubjectType not found", slog.String("subject_type_uuid", subjectTypeUUID.String()))
+				c.JSON(http.StatusNotFound, RespError("SubjectType not found"))
+			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
+				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+			}
+			return
+		}
+
+		c.JSON(http.StatusOK, RespOK(resp))
+	})
+}
+
+// NewSubjectTypeRouteGetByType
+// @Summary Getting subjectType by type
+// @Description Get subjectType from database with given type
+// @Tags subjectType
+// @Accept */*
+// @Produce json
+// @Param type path string true "Subject type"
+// @Success 200 {object} ResponseOK{response=models.SubjectType}
+// @Failure 404 {object} ResponseError
+// @Failure 500 {object} ResponseError
+// @Router /api/v1/subjecttypes/type/{type} [get]
+func NewSubjectTypeRouteGetByType(apiV1Group *gin.RouterGroup, uc *usecase.SubjectTypeUseCase, log *slog.Logger) {
+	r := &subjectTypeRoutes{uc, log}
+
+	subjectTypeGroup := apiV1Group.Group("/subjecttypes")
+
+	subjectTypeGroup.GET("/type/:type", func(c *gin.Context) {
+		reqType := c.Param("type")
+
+		resp, err := r.uc.GetByType(c, reqType)
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				log.Info("SubjectType not found", slog.String("subject_type", reqType))
+				c.JSON(http.StatusNotFound, RespError("SubjectType not found"))
+			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
+				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+			}
+			return
+		}
+
+		c.JSON(http.StatusOK, RespOK(resp))
+	})
+}
+
+// NewSubjectTypeRouteUpdate
+// @Summary Updating subjectType
+// @Description Update subjectType in database
+// @Tags subjectType
+// @Accept json
+// @Produce json
+// @Param uuid path string true "SubjectType uuid"
+// @Param subjectType body dto.UpdateSubjectTypeRequest true "SubjectType"
+// @Success 200 {object} ResponseOK
+// @Failure 400 {object} ResponseError
+// @Failure 404 {object} ResponseError
+// @Failure 500 {object} ResponseError
+// @Router /api/v1/subjecttypes/uuid/{uuid} [put]
+func NewSubjectTypeRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectTypeUseCase, log *slog.Logger) {
+	r := &subjectTypeRoutes{uc, log}
+
+	subjectTypeGroup := apiV1Group.Group("/subjecttypes")
+
+	subjectTypeGroup.PUT("/uuid/:uuid", func(c *gin.Context) {
+		reqUUID := c.Param("uuid")
+		subjectTypeUUID, err := uuid.Parse(reqUUID)
+		if err != nil {
+			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
+			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
+			return
+		}
+
+		var subjectTypeDTO dto.UpdateSubjectTypeRequest
+		if err := c.ShouldBindJSON(&subjectTypeDTO); err != nil {
+			log.Warn(ErrWrongDataStructure, slog.String("error", err.Error()))
+			c.JSON(http.StatusBadRequest, RespError(ErrWrongDataStructure))
+			return
+		}
+
+		err = r.uc.Update(c, &models.SubjectType{UUID: subjectTypeUUID, Type: subjectTypeDTO.Type})
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				log.Info("SubjectType not found", slog.String("subject_type_uuid", subjectTypeUUID.String()))
+				c.JSON(http.StatusNotFound, RespError("SubjectType not found"))
+			} else if strings.Contains(err.Error(), "exist") {
+				log.Info("SubjectType exist", slog.String("subject_type", subjectTypeDTO.Type))
+				c.JSON(http.StatusBadRequest, RespError("SubjectType exists"))
+			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
+				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+			}
+			return
+		}
+
+		c.JSON(http.StatusOK, RespOK(nil))
+	})
+}
+
+// NewSubjectTypeRouteDelete
+// @Summary Deleting existing subjectType
+// @Description Deleting existing subjectType from the database
+// @Tags subjectType
+// @Accept */*
+// @Produce json
+// @Param uuid path string true "SubjectType uuid"
+// @Success 200 {object} ResponseOK
+// @Failure 400 {object} ResponseError
+// @Failure 404 {object} ResponseError
+// @Failure 500 {object} ResponseError
+// @Router /api/v1/subjecttypes/{uuid} [delete]
+func NewSubjectTypeRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.SubjectTypeUseCase, log *slog.Logger) {
+	r := &subjectTypeRoutes{uc, log}
+
+	subjectTypeGroup := apiV1Group.Group("/subjecttypes")
+
+	subjectTypeGroup.DELETE("/:uuid", func(c *gin.Context) {
+		reqUUID := c.Param("uuid")
+		subjectTypeUUID, err := uuid.Parse(reqUUID)
+		if err != nil {
+			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
+			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
+			return
+		}
+
+		err = r.uc.Delete(c, subjectTypeUUID)
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				log.Info("SubjectType not found", slog.String("subject_type_uuid", subjectTypeUUID.String()))
+				c.JSON(http.StatusNotFound, RespError("SubjectType not found"))
+			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
+				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+			}
+			return
+		}
+
+		c.JSON(http.StatusOK, RespOK(nil))
+	})
+}
