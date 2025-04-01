@@ -44,6 +44,14 @@ definitions:
     required:
     - name
     type: object
+  dto.CreateSubjectTypeRequest:
+    properties:
+      type:
+        example: Практика
+        type: string
+    required:
+    - type
+    type: object
   dto.GetGroupsResponse:
     properties:
       groups:
@@ -70,6 +78,15 @@ definitions:
         type: array
     required:
     - rooms
+    type: object
+  dto.GetSubjectTypesResponse:
+    properties:
+      subjectTypes:
+        items:
+          $ref: '#/definitions/models.SubjectType'
+        type: array
+    required:
+    - subjectTypes
     type: object
   dto.GetSubjectsResponse:
     properties:
@@ -112,6 +129,14 @@ definitions:
     required:
     - name
     type: object
+  dto.UpdateSubjectTypeRequest:
+    properties:
+      type:
+        example: Практика
+        type: string
+    required:
+    - type
+    type: object
   models.Group:
     properties:
       number:
@@ -143,6 +168,15 @@ definitions:
     properties:
       name:
         example: Иностранный язык
+        type: string
+      uuid:
+        example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
+        type: string
+    type: object
+  models.SubjectType:
+    properties:
+      type:
+        example: Практика
         type: string
       uuid:
         example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
@@ -964,4 +998,205 @@ paths:
       summary: Updating subject
       tags:
       - subject
+  /api/v1/subjecttypes:
+    get:
+      consumes:
+      - '*/*'
+      description: Get all subjectTypes from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.GetSubjectTypesResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting subjectTypes
+      tags:
+      - subjectType
+    post:
+      consumes:
+      - application/json
+      description: Creates a new subjectType in the database and returns its uuid
+      parameters:
+      - description: Subject type
+        in: body
+        name: subjectType
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSubjectTypeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.CreateSubjectTypeRequest'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Creating a new subjectType
+      tags:
+      - subjectType
+  /api/v1/subjecttypes/{uuid}:
+    delete:
+      consumes:
+      - '*/*'
+      description: Deleting existing subjectType from the database
+      parameters:
+      - description: SubjectType uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Deleting existing subjectType
+      tags:
+      - subjectType
+  /api/v1/subjecttypes/type/{type}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get subjectType from database with given type
+      parameters:
+      - description: Subject type
+        in: path
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/models.SubjectType'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting subjectType by type
+      tags:
+      - subjectType
+  /api/v1/subjecttypes/uuid/{uuid}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get subjectType from database with given uuid
+      parameters:
+      - description: SubjectType uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/models.SubjectType'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting subjectType by uuid
+      tags:
+      - subjectType
+    put:
+      consumes:
+      - application/json
+      description: Update subjectType in database
+      parameters:
+      - description: SubjectType uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: SubjectType
+        in: body
+        name: subjectType
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSubjectTypeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Updating subjectType
+      tags:
+      - subjectType
 swagger: "2.0"
