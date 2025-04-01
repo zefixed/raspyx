@@ -31,6 +31,31 @@ func (r *SubjectTypeRepository) Create(ctx context.Context, subjectType *models.
 
 	return nil
 }
+
+func (r *SubjectTypeRepository) Get(ctx context.Context) ([]*models.SubjectType, error) {
+	const op = "repository.postgres.SubjectTypeRepository.GetByUUID"
+
+	query := `SELECT uuid, type
+			  FROM subj_types`
+	rows, err := r.db.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	var subjTypes []*models.SubjectType
+	for rows.Next() {
+		var subjType models.SubjectType
+		err := rows.Scan(&subjType.UUID, &subjType.Type)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		subjTypes = append(subjTypes, &subjType)
+	}
+	
+	return subjTypes, nil
+}
+
 func (r *SubjectTypeRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.SubjectType, error) {
 	const op = "repository.postgres.SubjectTypeRepository.GetByUUID"
 
@@ -49,6 +74,7 @@ func (r *SubjectTypeRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (
 
 	return &subjType, nil
 }
+
 func (r *SubjectTypeRepository) GetByType(ctx context.Context, subjectType string) (*models.SubjectType, error) {
 	const op = "repository.postgres.SubjectTypeRepository.GetByType"
 
@@ -67,6 +93,7 @@ func (r *SubjectTypeRepository) GetByType(ctx context.Context, subjectType strin
 
 	return &subjType, nil
 }
+
 func (r *SubjectTypeRepository) Update(ctx context.Context, subjectType *models.SubjectType) error {
 	const op = "repository.postgres.SubjectTypeRepository.Update"
 
@@ -85,6 +112,7 @@ func (r *SubjectTypeRepository) Update(ctx context.Context, subjectType *models.
 
 	return nil
 }
+
 func (r *SubjectTypeRepository) Delete(ctx context.Context, uuid uuid.UUID) error {
 	const op = "repository.postgres.SubjectTypeRepository.Delete"
 

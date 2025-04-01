@@ -37,6 +37,30 @@ func (r *TeacherRepository) Create(ctx context.Context, teacher *models.Teacher)
 	return nil
 }
 
+func (r *TeacherRepository) Get(ctx context.Context) ([]*models.Teacher, error) {
+	const op = "repository.postgres.TeacherRepository.Get"
+
+	query := `SELECT uuid, first_name, second_name, middle_name 
+			  FROM teachers`
+	rows, err := r.db.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	var teachers []*models.Teacher
+	for rows.Next() {
+		var teacher models.Teacher
+		err := rows.Scan(&teacher.UUID, &teacher.FirstName, &teacher.SecondName, &teacher.MiddleName)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		teachers = append(teachers, &teacher)
+	}
+
+	return teachers, nil
+}
+
 func (r *TeacherRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.Teacher, error) {
 	const op = "repository.postgres.TeacherRepository.GetByUUID"
 
