@@ -33,6 +33,31 @@ func (r *LocationRepository) Create(ctx context.Context, location *models.Locati
 	return nil
 
 }
+
+func (r *LocationRepository) Get(ctx context.Context) ([]*models.Location, error) {
+	const op = "repository.postgres.LocationRepository.Get"
+
+	query := `SELECT uuid, name
+			  FROM locations`
+	rows, err := r.db.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	var locations []*models.Location
+	for rows.Next() {
+		var location models.Location
+		err := rows.Scan(&location.UUID, &location.Name)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		locations = append(locations, &location)
+	}
+
+	return locations, nil
+}
+
 func (r *LocationRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.Location, error) {
 	const op = "repository.postgres.LocationRepository.GetByUUID"
 
@@ -52,6 +77,7 @@ func (r *LocationRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*mo
 
 	return &location, nil
 }
+
 func (r *LocationRepository) GetByName(ctx context.Context, name string) (*models.Location, error) {
 	const op = "repository.postgres.LocationRepository.GetByName"
 
@@ -71,6 +97,7 @@ func (r *LocationRepository) GetByName(ctx context.Context, name string) (*model
 
 	return &location, nil
 }
+
 func (r *LocationRepository) Update(ctx context.Context, location *models.Location) error {
 	const op = "repository.postgres.LocationRepository.Update"
 
@@ -90,6 +117,7 @@ func (r *LocationRepository) Update(ctx context.Context, location *models.Locati
 
 	return nil
 }
+
 func (r *LocationRepository) Delete(ctx context.Context, uuid uuid.UUID) error {
 	const op = "repository.postgres.LocationRepository.Delete"
 

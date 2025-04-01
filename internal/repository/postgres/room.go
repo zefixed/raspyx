@@ -31,6 +31,31 @@ func (r *RoomRepository) Create(ctx context.Context, room *models.Room) error {
 
 	return nil
 }
+
+func (r *RoomRepository) Get(ctx context.Context) ([]*models.Room, error) {
+	const op = "repository.postgres.RoomRepository.Get"
+
+	query := `SELECT uuid, number
+			  FROM rooms`
+	rows, err := r.db.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	var rooms []*models.Room
+	for rows.Next() {
+		var room models.Room
+		err := rows.Scan(&room.UUID, &room.Number)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		rooms = append(rooms, &room)
+	}
+
+	return rooms, nil
+}
+
 func (r *RoomRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.Room, error) {
 	const op = "repository.postgres.RoomRepository.GetByUUID"
 
@@ -49,6 +74,7 @@ func (r *RoomRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models
 
 	return &room, nil
 }
+
 func (r *RoomRepository) GetByNumber(ctx context.Context, number string) (*models.Room, error) {
 	const op = "repository.postgres.RoomRepository.GetByNumber"
 
@@ -67,6 +93,7 @@ func (r *RoomRepository) GetByNumber(ctx context.Context, number string) (*model
 
 	return &room, nil
 }
+
 func (r *RoomRepository) Update(ctx context.Context, room *models.Room) error {
 	const op = "repository.postgres.RoomRepository.Update"
 
@@ -85,6 +112,7 @@ func (r *RoomRepository) Update(ctx context.Context, room *models.Room) error {
 
 	return nil
 }
+
 func (r *RoomRepository) Delete(ctx context.Context, uuid uuid.UUID) error {
 	const op = "repository.postgres.RoomRepository.Delete"
 

@@ -31,6 +31,31 @@ func (r *SubjectRepository) Create(ctx context.Context, subject *models.Subject)
 
 	return nil
 }
+
+func (r *SubjectRepository) Get(ctx context.Context) ([]*models.Subject, error) {
+	const op = "repository.postgres.SubjectRepository.Get"
+
+	query := `SELECT uuid, name
+			  FROM subjects`
+	rows, err := r.db.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	var subjects []*models.Subject
+	for rows.Next() {
+		var subject models.Subject
+		err := rows.Scan(&subject.UUID, &subject.Name)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		subjects = append(subjects, &subject)
+	}
+	
+	return subjects, nil
+}
+
 func (r *SubjectRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.Subject, error) {
 	const op = "repository.postgres.SubjectRepository.GetByUUID"
 
@@ -49,6 +74,7 @@ func (r *SubjectRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*mod
 
 	return &subject, nil
 }
+
 func (r *SubjectRepository) GetByName(ctx context.Context, name string) (*models.Subject, error) {
 	const op = "repository.postgres.SubjectRepository.GetByName"
 
@@ -67,6 +93,7 @@ func (r *SubjectRepository) GetByName(ctx context.Context, name string) (*models
 
 	return &subject, nil
 }
+
 func (r *SubjectRepository) Update(ctx context.Context, subject *models.Subject) error {
 	const op = "repository.postgres.SubjectRepository.Update"
 
@@ -85,6 +112,7 @@ func (r *SubjectRepository) Update(ctx context.Context, subject *models.Subject)
 
 	return nil
 }
+
 func (r *SubjectRepository) Delete(ctx context.Context, uuid uuid.UUID) error {
 	const op = "repository.postgres.SubjectRepository.Delete"
 

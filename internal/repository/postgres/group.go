@@ -51,11 +51,9 @@ func (r *GroupRepository) Get(ctx context.Context) ([]*models.Group, error) {
 		var group models.Group
 		err := rows.Scan(&group.UUID, &group.Number)
 		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
-				return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
-			}
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
+
 		groups = append(groups, &group)
 	}
 

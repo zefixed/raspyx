@@ -8,6 +8,7 @@ import (
 
 type LocationRepository interface {
 	Create(ctx context.Context, location *models.Location) error
+	Get(ctx context.Context) ([]*models.Location, error)
 	GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.Location, error)
 	GetByName(ctx context.Context, name string) (*models.Location, error)
 	Update(ctx context.Context, location *models.Location) error
