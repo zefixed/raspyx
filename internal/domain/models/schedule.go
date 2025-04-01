@@ -6,7 +6,7 @@ import (
 )
 
 type Schedule struct {
-	UUID         uuid.UUID `json:"uuid"`
+	UUID         uuid.UUID `json:"uuid" example:"c555b9e8-0d7a-11f0-adcd-20114d2008d9"`
 	TeacherUUID  uuid.UUID `json:"teacher_uuid,omitempty"`
 	GroupUUID    uuid.UUID `json:"group_uuid"`
 	RoomUUID     uuid.UUID `json:"room_uuid,omitempty"`
@@ -22,7 +22,7 @@ type Schedule struct {
 }
 
 type ScheduleData struct {
-	UUID      uuid.UUID `json:"uuid"`
+	UUID      uuid.UUID `json:"uuid" example:"c555b9e8-0d7a-11f0-adcd-20114d2008d9"`
 	Teacher   string    `json:"teacher,omitempty"`
 	Group     string    `json:"group"`
 	Room      string    `json:"room,omitempty"`
