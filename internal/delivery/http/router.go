@@ -48,4 +48,16 @@ func NewRouter(r *gin.Engine, log *slog.Logger, conn *pgx.Conn) {
 	v1.NewRoomRouteGetByNumber(apiV1Group, roomUseCase, log)
 	v1.NewRoomRouteUpdate(apiV1Group, roomUseCase, log)
 	v1.NewRoomRouteDelete(apiV1Group, roomUseCase, log)
+
+	subjectUseCase := usecase.NewSubjectUseCase(
+		postgres.NewSubjectRepository(conn),
+		*services.NewSubjectService(),
+	)
+
+	v1.NewSubjectRouteCreate(apiV1Group, subjectUseCase, log)
+	v1.NewSubjectRouteGet(apiV1Group, subjectUseCase, log)
+	v1.NewSubjectRouteGetByUUID(apiV1Group, subjectUseCase, log)
+	v1.NewSubjectRouteGetByName(apiV1Group, subjectUseCase, log)
+	v1.NewSubjectRouteUpdate(apiV1Group, subjectUseCase, log)
+	v1.NewSubjectRouteDelete(apiV1Group, subjectUseCase, log)
 }

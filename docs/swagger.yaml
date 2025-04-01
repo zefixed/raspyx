@@ -36,6 +36,14 @@ definitions:
     required:
     - number
     type: object
+  dto.CreateSubjectRequest:
+    properties:
+      name:
+        example: Иностранный язык
+        type: string
+    required:
+    - name
+    type: object
   dto.GetGroupsResponse:
     properties:
       groups:
@@ -63,6 +71,15 @@ definitions:
     required:
     - rooms
     type: object
+  dto.GetSubjectsResponse:
+    properties:
+      subjects:
+        items:
+          $ref: '#/definitions/models.Subject'
+        type: array
+    required:
+    - subjects
+    type: object
   dto.UpdateGroupRequest:
     properties:
       group:
@@ -87,6 +104,14 @@ definitions:
     required:
     - number
     type: object
+  dto.UpdateSubjectRequest:
+    properties:
+      name:
+        example: Иностранный язык
+        type: string
+    required:
+    - name
+    type: object
   models.Group:
     properties:
       number:
@@ -109,6 +134,15 @@ definitions:
     properties:
       number:
         example: ав4805
+        type: string
+      uuid:
+        example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
+        type: string
+    type: object
+  models.Subject:
+    properties:
+      name:
+        example: Иностранный язык
         type: string
       uuid:
         example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
@@ -731,4 +765,203 @@ paths:
       summary: Updating room
       tags:
       - room
+  /api/v1/subjects:
+    get:
+      consumes:
+      - '*/*'
+      description: Get all subjects from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.GetSubjectsResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting subjects
+      tags:
+      - subject
+    post:
+      consumes:
+      - application/json
+      description: Creates a new subject in the database and returns its uuid
+      parameters:
+      - description: Subject name
+        in: body
+        name: subject
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSubjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.CreateSubjectRequest'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Creating a new subject
+      tags:
+      - subject
+  /api/v1/subjects/{uuid}:
+    delete:
+      consumes:
+      - '*/*'
+      description: Deleting existing subject from the database
+      parameters:
+      - description: Subject uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Deleting existing subject
+      tags:
+      - subject
+  /api/v1/subjects/name/{name}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get subject from database with given name
+      parameters:
+      - description: Subject name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  items:
+                    $ref: '#/definitions/models.Subject'
+                  type: array
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting subject by name
+      tags:
+      - subject
+  /api/v1/subjects/uuid/{uuid}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get subject from database with given uuid
+      parameters:
+      - description: Subject uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/models.Subject'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting subject by uuid
+      tags:
+      - subject
+    put:
+      consumes:
+      - application/json
+      description: Update subject in database
+      parameters:
+      - description: Subject uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Subject
+        in: body
+        name: subject
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSubjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Updating subject
+      tags:
+      - subject
 swagger: "2.0"
