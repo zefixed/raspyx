@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
+	"strings"
 )
 
 type RoomRepository struct {
@@ -26,6 +27,9 @@ func (r *RoomRepository) Create(ctx context.Context, room *models.Room) error {
 			  VALUES ($1, $2)`
 	_, err := r.db.Exec(ctx, query, room.UUID, room.Number)
 	if err != nil {
+		if strings.Contains(err.Error(), "23505") {
+			return fmt.Errorf("%s: %w", op, repository.ErrExist)
+		}
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -102,6 +106,9 @@ func (r *RoomRepository) Update(ctx context.Context, room *models.Room) error {
 			  WHERE uuid = $2`
 	result, err := r.db.Exec(ctx, query, room.Number, room.UUID)
 	if err != nil {
+		if strings.Contains(err.Error(), "23505") {
+			return fmt.Errorf("%s: %w", op, repository.ErrExist)
+		}
 		return fmt.Errorf("%s: %w", op, err)
 	}
 

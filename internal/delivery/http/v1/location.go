@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"log/slog"
@@ -159,7 +158,7 @@ func NewLocationRouteGetByName(apiV1Group *gin.RouterGroup, uc *usecase.Location
 // @Accept json
 // @Produce json
 // @Param uuid path string true "Location uuid"
-// @Param group body dto.UpdateLocationRequest true "Location"
+// @Param location body dto.UpdateLocationRequest true "Location"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
 // @Failure 404 {object} ResponseError
@@ -191,7 +190,6 @@ func NewLocationRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 			} else if strings.Contains(err.Error(), "exist") {
 				c.JSON(http.StatusBadRequest, RespError("Location exists"))
 			} else {
-				fmt.Println(err)
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
 			}
 			return
@@ -234,6 +232,7 @@ func NewLocationRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 			}
 			return
 		}
+		
 		c.JSON(http.StatusOK, RespOK(nil))
 	})
 }
