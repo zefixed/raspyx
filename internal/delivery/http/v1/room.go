@@ -228,6 +228,7 @@ func NewRoomRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, lo
 // @Param uuid path string true "Room uuid"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/rooms/{uuid} [delete]
 func NewRoomRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, log *slog.Logger) {
@@ -248,7 +249,7 @@ func NewRoomRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, lo
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {
 				log.Info("Room not found", slog.String("room_uuid", roomUUID.String()))
-				c.JSON(http.StatusBadRequest, RespError("Room not found"))
+				c.JSON(http.StatusNotFound, RespError("Room not found"))
 			} else {
 				log.Error("Internal server error", slog.String("error", err.Error()))
 				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
