@@ -34,9 +34,7 @@ CREATE TABLE IF NOT EXISTS locations (
 
 CREATE TABLE IF NOT EXISTS schedule (
     uuid UUID PRIMARY KEY,
-    teacher_uuid UUID REFERENCES teachers(uuid),
     group_uuid UUID NOT NULL REFERENCES groups(uuid),
-    room_uuid UUID REFERENCES rooms(uuid),
     subject_uuid UUID NOT NULL REFERENCES subjects(uuid),
     type_uuid UUID NOT NULL REFERENCES subj_types(uuid),
     location_uuid UUID NOT NULL REFERENCES locations(uuid),
@@ -48,13 +46,25 @@ CREATE TABLE IF NOT EXISTS schedule (
     link TEXT
 );
 
-CREATE INDEX IF NOT EXISTS idx_schedule_teacher_uuid ON schedule(teacher_uuid);
+CREATE TABLE IF NOT EXISTS teachers_to_schedule(
+    teacher_uuid UUID NOT NULL REFERENCES teachers(uuid),
+    schedule_uuid UUID NOT NULL REFERENCES schedule(uuid),
+    PRIMARY KEY (teacher_uuid, schedule_uuid)
+);
+
+CREATE TABLE IF NOT EXISTS rooms_to_schedule(
+    room_uuid UUID NOT NULL REFERENCES rooms(uuid),
+    schedule_uuid UUID NOT NULL REFERENCES schedule(uuid),
+    PRIMARY KEY (room_uuid, schedule_uuid)
+);
+
 CREATE INDEX IF NOT EXISTS idx_schedule_group_uuid ON schedule(group_uuid);
-CREATE INDEX IF NOT EXISTS idx_schedule_room_uuid ON schedule(room_uuid);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
+DROP TABLE IF EXISTS teachers_to_schedule;
+DROP TABLE IF EXISTS rooms_to_schedule;
 DROP TABLE IF EXISTS schedule;
 DROP TABLE IF EXISTS teachers;
 DROP TABLE IF EXISTS groups;
