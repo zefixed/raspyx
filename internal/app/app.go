@@ -20,7 +20,7 @@ import (
 )
 
 func Run(cfg *config.Config) {
-	//gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 
 	// Logger setup
 	log, err := setupLogger(cfg)

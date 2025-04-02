@@ -981,6 +981,103 @@
                 }
             }
         },
+        "/api/v1/schedules": {
+            "get": {
+                "description": "Get all schedules from database",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule"
+                ],
+                "summary": "Getting schedules",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseOK"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/dto.Week"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new schedule in the database and returns its uuid",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedule"
+                ],
+                "summary": "Creating a new schedule",
+                "parameters": [
+                    {
+                        "description": "Schedule",
+                        "name": "schedule",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateScheduleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseOK"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/dto.CreateScheduleRequest"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/subjects": {
             "get": {
                 "description": "Get all subjects from database",
@@ -2006,6 +2103,71 @@
                 }
             }
         },
+        "dto.CreateScheduleRequest": {
+            "type": "object",
+            "properties": {
+                "end_date": {
+                    "type": "string",
+                    "example": "2025-06-01"
+                },
+                "end_time": {
+                    "type": "string",
+                    "example": "10:30:00"
+                },
+                "group": {
+                    "type": "string",
+                    "example": "221-352"
+                },
+                "link": {
+                    "type": "string",
+                    "example": "https://rasp.dmami.ru"
+                },
+                "location": {
+                    "type": "string",
+                    "example": "Автозаводская"
+                },
+                "rooms": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "ав4805",
+                        "ав4810"
+                    ]
+                },
+                "start_date": {
+                    "type": "string",
+                    "example": "2025-02-01"
+                },
+                "start_time": {
+                    "type": "string",
+                    "example": "09:00:00"
+                },
+                "subject": {
+                    "type": "string",
+                    "example": "c555b9e8-0d7a-11f0-adcd-20114d2008d9"
+                },
+                "teachers_uuid": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "c555b9e8-0d7a-11f0-adcd-20114d2008d9",
+                        "b444b9e8-0d7a-11f0-adcd-20114d2008d9"
+                    ]
+                },
+                "type": {
+                    "type": "string",
+                    "example": "Практика"
+                },
+                "weekday": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "dto.CreateSubjectRequest": {
             "type": "object",
             "required": [
@@ -2048,6 +2210,53 @@
                 "second_name": {
                     "type": "string",
                     "example": "Фамилия"
+                }
+            }
+        },
+        "dto.Day": {
+            "type": "object",
+            "properties": {
+                "1": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Pair"
+                    }
+                },
+                "2": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Pair"
+                    }
+                },
+                "3": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Pair"
+                    }
+                },
+                "4": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Pair"
+                    }
+                },
+                "5": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Pair"
+                    }
+                },
+                "6": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Pair"
+                    }
+                },
+                "7": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Pair"
+                    }
                 }
             }
         },
@@ -2135,6 +2344,51 @@
                 }
             }
         },
+        "dto.Pair": {
+            "type": "object",
+            "properties": {
+                "end_date": {
+                    "type": "string",
+                    "example": "2025-06-01"
+                },
+                "location": {
+                    "type": "string",
+                    "example": "Автозаводская"
+                },
+                "rooms": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "ав4805",
+                        "ав4810"
+                    ]
+                },
+                "start_date": {
+                    "type": "string",
+                    "example": "2025-02-01"
+                },
+                "subject": {
+                    "type": "string",
+                    "example": "Иностранный язык"
+                },
+                "teachers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "Фамилия Имя Отчество",
+                        "Фамилия Имя"
+                    ]
+                },
+                "type": {
+                    "type": "string",
+                    "example": "Практика"
+                }
+            }
+        },
         "dto.TeacherDTO": {
             "type": "object",
             "required": [
@@ -2209,6 +2463,10 @@
         },
         "dto.UpdateTeacherRequest": {
             "type": "object",
+            "required": [
+                "first_name",
+                "second_name"
+            ],
             "properties": {
                 "first_name": {
                     "type": "string",
@@ -2221,6 +2479,29 @@
                 "second_name": {
                     "type": "string",
                     "example": "Фамилия"
+                }
+            }
+        },
+        "dto.Week": {
+            "type": "object",
+            "properties": {
+                "friday": {
+                    "$ref": "#/definitions/dto.Day"
+                },
+                "monday": {
+                    "$ref": "#/definitions/dto.Day"
+                },
+                "saturday": {
+                    "$ref": "#/definitions/dto.Day"
+                },
+                "thursday": {
+                    "$ref": "#/definitions/dto.Day"
+                },
+                "tuesday": {
+                    "$ref": "#/definitions/dto.Day"
+                },
+                "wednesday": {
+                    "$ref": "#/definitions/dto.Day"
                 }
             }
         },
