@@ -46,15 +46,15 @@ CREATE TABLE IF NOT EXISTS schedule (
     link TEXT
 );
 
-CREATE TABLE IF NOT EXISTS teachers_to_schedule(
-    teacher_uuid UUID NOT NULL REFERENCES teachers(uuid),
-    schedule_uuid UUID NOT NULL REFERENCES schedule(uuid),
+CREATE TABLE IF NOT EXISTS teachers_to_schedule (
+    teacher_uuid UUID NOT NULL REFERENCES teachers(uuid) ON DELETE CASCADE,
+    schedule_uuid UUID NOT NULL REFERENCES schedule(uuid) ON DELETE CASCADE,
     PRIMARY KEY (teacher_uuid, schedule_uuid)
 );
 
-CREATE TABLE IF NOT EXISTS rooms_to_schedule(
-    room_uuid UUID NOT NULL REFERENCES rooms(uuid),
-    schedule_uuid UUID NOT NULL REFERENCES schedule(uuid),
+CREATE TABLE IF NOT EXISTS rooms_to_schedule (
+    room_uuid UUID NOT NULL REFERENCES rooms(uuid) ON DELETE CASCADE,
+    schedule_uuid UUID NOT NULL REFERENCES schedule(uuid) ON DELETE CASCADE,
     PRIMARY KEY (room_uuid, schedule_uuid)
 );
 

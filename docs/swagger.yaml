@@ -36,6 +36,53 @@ definitions:
     required:
     - number
     type: object
+  dto.CreateScheduleRequest:
+    properties:
+      end_date:
+        example: "2025-06-01"
+        type: string
+      end_time:
+        example: "10:30:00"
+        type: string
+      group:
+        example: 221-352
+        type: string
+      link:
+        example: https://rasp.dmami.ru
+        type: string
+      location:
+        example: Автозаводская
+        type: string
+      rooms:
+        example:
+        - ав4805
+        - ав4810
+        items:
+          type: string
+        type: array
+      start_date:
+        example: "2025-02-01"
+        type: string
+      start_time:
+        example: "09:00:00"
+        type: string
+      subject:
+        example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
+        type: string
+      teachers_uuid:
+        example:
+        - c555b9e8-0d7a-11f0-adcd-20114d2008d9
+        - b444b9e8-0d7a-11f0-adcd-20114d2008d9
+        items:
+          type: string
+        type: array
+      type:
+        example: Практика
+        type: string
+      weekday:
+        example: 1
+        type: integer
+    type: object
   dto.CreateSubjectRequest:
     properties:
       name:
@@ -66,6 +113,37 @@ definitions:
     required:
     - first_name
     - second_name
+    type: object
+  dto.Day:
+    properties:
+      "1":
+        items:
+          $ref: '#/definitions/dto.Pair'
+        type: array
+      "2":
+        items:
+          $ref: '#/definitions/dto.Pair'
+        type: array
+      "3":
+        items:
+          $ref: '#/definitions/dto.Pair'
+        type: array
+      "4":
+        items:
+          $ref: '#/definitions/dto.Pair'
+        type: array
+      "5":
+        items:
+          $ref: '#/definitions/dto.Pair'
+        type: array
+      "6":
+        items:
+          $ref: '#/definitions/dto.Pair'
+        type: array
+      "7":
+        items:
+          $ref: '#/definitions/dto.Pair'
+        type: array
     type: object
   dto.GetGroupsResponse:
     properties:
@@ -120,6 +198,38 @@ definitions:
         type: array
     required:
     - teachers
+    type: object
+  dto.Pair:
+    properties:
+      end_date:
+        example: "2025-06-01"
+        type: string
+      location:
+        example: Автозаводская
+        type: string
+      rooms:
+        example:
+        - ав4805
+        - ав4810
+        items:
+          type: string
+        type: array
+      start_date:
+        example: "2025-02-01"
+        type: string
+      subject:
+        example: Иностранный язык
+        type: string
+      teachers:
+        example:
+        - Фамилия Имя Отчество
+        - Фамилия Имя
+        items:
+          type: string
+        type: array
+      type:
+        example: Практика
+        type: string
     type: object
   dto.TeacherDTO:
     properties:
@@ -180,6 +290,24 @@ definitions:
       second_name:
         example: Фамилия
         type: string
+    required:
+    - first_name
+    - second_name
+    type: object
+  dto.Week:
+    properties:
+      friday:
+        $ref: '#/definitions/dto.Day'
+      monday:
+        $ref: '#/definitions/dto.Day'
+      saturday:
+        $ref: '#/definitions/dto.Day'
+      thursday:
+        $ref: '#/definitions/dto.Day'
+      tuesday:
+        $ref: '#/definitions/dto.Day'
+      wednesday:
+        $ref: '#/definitions/dto.Day'
     type: object
   models.Group:
     properties:
@@ -870,6 +998,64 @@ paths:
       summary: Updating room
       tags:
       - room
+  /api/v1/schedules:
+    get:
+      consumes:
+      - '*/*'
+      description: Get all schedules from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.Week'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting schedules
+      tags:
+      - schedule
+    post:
+      consumes:
+      - application/json
+      description: Creates a new schedule in the database and returns its uuid
+      parameters:
+      - description: Schedule
+        in: body
+        name: schedule
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateScheduleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.CreateScheduleRequest'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Creating a new schedule
+      tags:
+      - schedule
   /api/v1/subjects:
     get:
       consumes:

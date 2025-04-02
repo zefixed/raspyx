@@ -84,4 +84,20 @@ func NewRouter(r *gin.Engine, log *slog.Logger, conn *pgx.Conn) {
 	v1.NewTeacherRouteGetByFullName(apiV1Group, teacherUseCase, log)
 	v1.NewTeacherRouteUpdate(apiV1Group, teacherUseCase, log)
 	v1.NewTeacherRouteDelete(apiV1Group, teacherUseCase, log)
+
+	scheduleUseCase := usecase.NewScheduleUseCase(
+		postgres.NewScheduleRepository(conn),
+		postgres.NewGroupRepository(conn),
+		postgres.NewSubjectRepository(conn),
+		postgres.NewSubjectTypeRepository(conn),
+		postgres.NewLocationRepository(conn),
+		postgres.NewTeacherRepository(conn),
+		postgres.NewRoomRepository(conn),
+		postgres.NewTeachersToScheduleRepository(conn),
+		postgres.NewRoomsToScheduleRepository(conn),
+		*services.NewScheduleService(),
+	)
+
+	v1.NewScheduleRouteCreate(apiV1Group, scheduleUseCase, log)
+	v1.NewScheduleRouteGet(apiV1Group, scheduleUseCase, log)
 }
