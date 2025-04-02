@@ -82,7 +82,7 @@ func Run(cfg *config.Config) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Error("server forced to shutdown: ", err)
+		log.Error("server forced to shutdown", slog.String("error", err.Error()))
 	}
 
 	log.Info("server stopped")
