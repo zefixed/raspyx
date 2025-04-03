@@ -71,6 +71,7 @@ func (uc *ScheduleUseCase) Create(ctx context.Context, scheduleDTO *dto.CreateSc
 
 	// Adding subjectUUID to model
 	subjectUUID, err := uuid.Parse(scheduleDTO.SubjectUUID)
+	_, err = uc.repoSubject.GetByUUID(ctx, subjectUUID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
