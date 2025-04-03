@@ -108,3 +108,42 @@ func NewScheduleRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUseCas
 		c.JSON(http.StatusOK, RespOK(resp))
 	})
 }
+
+// NewScheduleRouteGetByUUID
+// @Summary Getting schedule by uuid
+// @Description Get schedule from database with given uuid
+// @Tags schedule
+// @Accept */*
+// @Produce json
+// @Param uuid path string true "Schedule uuid"
+// @Success 200 {object} ResponseOK{response=dto.Week}
+// @Failure 500 {object} ResponseError
+// @Router /api/v1/schedules/uuid/{uuid} [get]
+func NewScheduleRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUseCase, log *slog.Logger) {
+	const op = "delivery.http.v1.NewScheduleRouteGetByUUID"
+	log = log.With(slog.String("op", op))
+
+	r := &scheduleRoutes{uc, log}
+
+	scheduleGroup := apiV1Group.Group("/schedules")
+
+	scheduleGroup.GET("/uuid/:uuid", func(c *gin.Context) {
+		reqUUID := c.Param("uuid")
+		resp, err := r.uc.GetByUUID(c, reqUUID)
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				log.Error("Schedule not found", slog.String("error", err.Error()))
+				c.JSON(http.StatusBadRequest, RespError("Schedule not found"))
+			} else if strings.Contains(err.Error(), "invalid uuid") {
+				log.Error("Invalid uuid", slog.String("invalid_uuid", reqUUID))
+				c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
+			} else {
+				log.Error("Internal server error", slog.String("error", err.Error()))
+				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+			}
+			return
+		}
+
+		c.JSON(http.StatusOK, RespOK(resp))
+	})
+}

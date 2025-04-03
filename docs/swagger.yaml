@@ -1056,6 +1056,36 @@ paths:
       summary: Creating a new schedule
       tags:
       - schedule
+  /api/v1/schedules/uuid/{uuid}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get schedule from database with given uuid
+      parameters:
+      - description: Schedule uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.Week'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting schedule by uuid
+      tags:
+      - schedule
   /api/v1/subjects:
     get:
       consumes:

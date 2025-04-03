@@ -212,8 +212,6 @@ func makeWeek(schedules []*models.ScheduleData) *dto.Week {
 			days[schedule.Weekday] = &dto.Day{}
 		}
 
-		fmt.Println(schedule.StartTime.Format("15:04"))
-
 		switch schedule.StartTime.Format("15:04") {
 		case "09:00":
 			days[schedule.Weekday].First = append(days[schedule.Weekday].First, pair)
@@ -245,6 +243,23 @@ func (uc *ScheduleUseCase) Get(ctx context.Context) (*dto.Week, error) {
 	}
 
 	return makeWeek(schedules), nil
+}
+
+func (uc *ScheduleUseCase) GetByUUID(ctx context.Context, UUID string) (*dto.Week, error) {
+	const op = "usecase.schedule.GetByUUID"
+
+	scheduleUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
+	// Getting schedule from db with given uuid
+	schedules, err := uc.repo.GetByUUID(ctx, scheduleUUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return makeWeek([]*models.ScheduleData{schedules}), nil
 }
 
 //func (uc *ScheduleUseCase) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.ScheduleData, error) {

@@ -100,4 +100,5 @@ func NewRouter(r *gin.Engine, log *slog.Logger, conn *pgx.Conn) {
 
 	v1.NewScheduleRouteCreate(apiV1Group, scheduleUseCase, log)
 	v1.NewScheduleRouteGet(apiV1Group, scheduleUseCase, log)
+	v1.NewScheduleRouteGetByUUID(apiV1Group, scheduleUseCase, log)
 }
