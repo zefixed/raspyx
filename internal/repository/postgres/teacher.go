@@ -71,7 +71,13 @@ func (r *TeacherRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*mod
 	row := r.db.QueryRow(ctx, query, uuid)
 
 	var teacher models.Teacher
-	err := row.Scan(&teacher.UUID, &teacher.FirstName, &teacher.SecondName, &teacher.MiddleName)
+	var middleName sql.NullString
+	err := row.Scan(&teacher.UUID, &teacher.FirstName, &teacher.SecondName, &middleName)
+	if middleName.Valid {
+		teacher.MiddleName = middleName.String
+	} else {
+		teacher.MiddleName = ""
+	}
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
@@ -97,7 +103,13 @@ func (r *TeacherRepository) GetByFullName(ctx context.Context, fn string) ([]*mo
 	var teachers []*models.Teacher
 	for rows.Next() {
 		var teacher models.Teacher
-		err := rows.Scan(&teacher.UUID, &teacher.FirstName, &teacher.SecondName, &teacher.MiddleName)
+		var middleName sql.NullString
+		err := rows.Scan(&teacher.UUID, &teacher.FirstName, &teacher.SecondName, &middleName)
+		if middleName.Valid {
+			teacher.MiddleName = middleName.String
+		} else {
+			teacher.MiddleName = ""
+		}
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)

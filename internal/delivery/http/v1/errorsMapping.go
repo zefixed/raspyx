@@ -2,8 +2,19 @@ package v1
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"log/slog"
+	"net/http"
 	"strings"
 )
+
+type ErrResp struct {
+	err      error
+	c        *gin.Context
+	log      *slog.Logger
+	logKey   string
+	logValue any
+}
 
 func mapError(err error) string {
 	other := []struct {
@@ -18,6 +29,7 @@ func mapError(err error) string {
 		{"invalid start date", "Invalid start date"},
 		{"invalid end date", "Invalid end date"},
 		{"invalid weekday", "Invalid weekday"},
+		{"invalid fullname", "Invalid fullname"},
 		{"fk error", "Object with given uuid does not exist"},
 	}
 
@@ -34,10 +46,10 @@ func mapError(err error) string {
 		{"GroupRepository", "Group"},
 		{"LocationRepository", "Location"},
 		{"RoomRepository", "Room"},
-		{"ScheduleRepository", "Schedule"},
 		{"SubjectRepository", "Subject"},
 		{"SubjectTypeRepository", "Subject type"},
 		{"TeacherRepository", "Teacher"},
+		{"ScheduleRepository", "Schedule"},
 	}
 
 	for _, r := range repos {
@@ -53,4 +65,20 @@ func mapError(err error) string {
 	}
 
 	return "Unknown error"
+}
+
+func makeErrResponse(er *ErrResp) {
+	errMes := mapError(er.err)
+	if errMes != "Unknown error" {
+		er.log.Info(errMes, slog.Any(er.logKey, er.logValue))
+		if strings.Contains(errMes, "not found") {
+			er.c.JSON(http.StatusNotFound, RespError(errMes))
+		} else {
+			er.c.JSON(http.StatusBadRequest, RespError(errMes))
+		}
+		return
+	}
+	er.log.Error("Internal server error", slog.String("error", er.err.Error()))
+	er.c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+	return
 }

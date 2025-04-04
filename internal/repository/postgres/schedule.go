@@ -107,6 +107,31 @@ func (r *ScheduleRepository) Get(ctx context.Context) ([]*models.ScheduleData, e
 	return schedules, nil
 }
 
+func (r *ScheduleRepository) GetForUpdate(ctx context.Context, uuid uuid.UUID) (*models.Schedule, error) {
+	const op = "repository.postgres.ScheduleRepository.GetForUpdate"
+
+	query := `SELECT uuid, group_uuid, subject_uuid, type_uuid, location_uuid, start_time,
+					 end_time, start_date, end_date, weekday, link
+			  FROM schedule
+			  WHERE uuid = $1`
+	row := r.db.QueryRow(ctx, query, uuid)
+
+	var schedule models.Schedule
+	err := row.Scan(
+		&schedule.UUID, &schedule.GroupUUID, &schedule.SubjectUUID, &schedule.TypeUUID,
+		&schedule.LocationUUID, &schedule.StartTime, &schedule.EndTime,
+		&schedule.StartDate, &schedule.EndDate, &schedule.Weekday, &schedule.Link,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
+		}
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return &schedule, nil
+}
+
 func (r *ScheduleRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.ScheduleData, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByUUID"
 
