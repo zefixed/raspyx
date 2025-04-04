@@ -43,13 +43,13 @@ func mapError(err error) string {
 		repo    string
 		message string
 	}{
-		{"GroupRepository", "Group"},
-		{"LocationRepository", "Location"},
-		{"RoomRepository", "Room"},
-		{"SubjectRepository", "Subject"},
-		{"SubjectTypeRepository", "Subject type"},
-		{"TeacherRepository", "Teacher"},
-		{"ScheduleRepository", "Schedule"},
+		{"Group", "Group"},
+		{"Location", "Location"},
+		{"Room", "Room"},
+		{"Subject", "Subject"},
+		{"SubjectType", "Subject type"},
+		{"Teacher", "Teacher"},
+		{"Schedule", "Schedule"},
 	}
 
 	for _, r := range repos {
@@ -60,6 +60,8 @@ func mapError(err error) string {
 				return fmt.Sprintf("%v exists", r.message)
 			} else if strings.Contains(strings.ToLower(err.Error()), "not exist") {
 				return fmt.Sprintf("%v does not exist", r.message)
+			} else if strings.Contains(strings.ToLower(err.Error()), "invalid") {
+				return fmt.Sprintf("%v is invalid", r.message)
 			}
 		}
 	}

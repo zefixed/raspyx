@@ -45,8 +45,13 @@ func NewTeacherRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCa
 
 		resp, err := r.uc.Create(c, &teacherDTO)
 		if err != nil {
-			log.Error("Internal server error", slog.String("error", err.Error()))
-			c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "teacher_dto",
+				logValue: teacherDTO,
+			})
 			return
 		}
 
@@ -75,8 +80,13 @@ func NewTeacherRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCase,
 	teacherGroup.GET("/", func(c *gin.Context) {
 		resp, err := r.uc.Get(c)
 		if err != nil {
-			log.Error("Internal server error", slog.String("error", err.Error()))
-			c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "error",
+				logValue: err.Error(),
+			})
 			return
 		}
 
@@ -112,13 +122,13 @@ func NewTeacherRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUs
 
 		resp, err := r.uc.GetByUUID(c, teacherUUID)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Teacher not found", slog.String("teacher_uuid", teacherUUID.String()))
-				c.JSON(http.StatusNotFound, RespError("Teacher not found"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "teacher_uuid",
+				logValue: reqUUID,
+			})
 			return
 		}
 
@@ -144,16 +154,16 @@ func NewTeacherRouteGetByFullName(apiV1Group *gin.RouterGroup, uc *usecase.Teach
 
 	teacherGroup.GET("/fullname/:fullname", func(c *gin.Context) {
 		reqFullName := strings.TrimSpace(c.Param("fullname"))
-		
+
 		resp, err := r.uc.GetByFullName(c, reqFullName)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Teachers not found", slog.String("teacher_fullname", reqFullName))
-				c.JSON(http.StatusNotFound, RespError("Teacher not found"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "teacher_fullname",
+				logValue: reqFullName,
+			})
 			return
 		}
 
@@ -202,13 +212,13 @@ func NewTeacherRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCa
 			MiddleName: teacherDTO.MiddleName,
 		})
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Teacher not found", slog.String("teacher_uuid", teacherUUID.String()))
-				c.JSON(http.StatusNotFound, RespError("Teacher not found"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "teacher",
+				logValue: map[string]any{"uuid": reqUUID, "teacher_dto": teacherDTO},
+			})
 			return
 		}
 
@@ -244,13 +254,13 @@ func NewTeacherRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCa
 
 		err = r.uc.Delete(c, teacherUUID)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Teacher not found", slog.String("teacher_uuid", teacherUUID.String()))
-				c.JSON(http.StatusNotFound, RespError("Teacher not found"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "teacher_uuid",
+				logValue: reqUUID,
+			})
 			return
 		}
 

@@ -8,7 +8,6 @@ import (
 	"raspyx/internal/domain/models"
 	"raspyx/internal/dto"
 	"raspyx/internal/usecase"
-	"strings"
 )
 
 type roomRoutes struct {
@@ -45,13 +44,13 @@ func NewRoomRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, lo
 
 		resp, err := r.uc.Create(c, &roomDTO)
 		if err != nil {
-			if strings.Contains(err.Error(), "exist") {
-				log.Info("Room exist", slog.String("room_number", roomDTO.Number))
-				c.JSON(http.StatusBadRequest, RespError("Room exists"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "room_dto",
+				logValue: roomDTO,
+			})
 			return
 		}
 
@@ -80,8 +79,13 @@ func NewRoomRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, log *
 	roomGroup.GET("/", func(c *gin.Context) {
 		resp, err := r.uc.Get(c)
 		if err != nil {
-			log.Error("Internal server error", slog.String("error", err.Error()))
-			c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "error",
+				logValue: err.Error(),
+			})
 			return
 		}
 
@@ -117,13 +121,13 @@ func NewRoomRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase,
 
 		resp, err := r.uc.GetByUUID(c, roomUUID)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Room not found", slog.String("room_uuid", roomUUID.String()))
-				c.JSON(http.StatusNotFound, RespError("Room not found"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "room_uuid",
+				logValue: reqUUID,
+			})
 			return
 		}
 
@@ -152,13 +156,13 @@ func NewRoomRouteGetByNumber(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCas
 
 		resp, err := r.uc.GetByNumber(c, reqNumber)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Room not found", slog.String("room_number", reqNumber))
-				c.JSON(http.StatusNotFound, RespError("Room not found"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "room_number",
+				logValue: reqNumber,
+			})
 			return
 		}
 
@@ -202,16 +206,17 @@ func NewRoomRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, lo
 
 		err = r.uc.Update(c, &models.Room{UUID: roomUUID, Number: roomDTO.Number})
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Room not found", slog.String("room_uuid", roomUUID.String()))
-				c.JSON(http.StatusNotFound, RespError("Room not found"))
-			} else if strings.Contains(err.Error(), "exist") {
-				log.Info("Room exist", slog.String("room_number", roomDTO.Number))
-				c.JSON(http.StatusBadRequest, RespError("Room exists"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+			type qwe struct {
+				uuid    string
+				roomDTO dto.UpdateRoomRequest
 			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "room",
+				logValue: map[string]any{"uuid": reqUUID, "room_dto": roomDTO},
+			})
 			return
 		}
 
@@ -247,13 +252,13 @@ func NewRoomRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, lo
 
 		err = r.uc.Delete(c, roomUUID)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Room not found", slog.String("room_uuid", roomUUID.String()))
-				c.JSON(http.StatusNotFound, RespError("Room not found"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "room_uuid",
+				logValue: reqUUID,
+			})
 			return
 		}
 

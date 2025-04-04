@@ -34,7 +34,7 @@ func (uc *GroupUseCase) Create(ctx context.Context, groupDTO *dto.CreateGroupReq
 
 	// Validation request group number
 	if valid := uc.svc.Validate(group); valid != true {
-		return nil, fmt.Errorf("%s: %w", op, errors.New("group is not valid"))
+		return nil, fmt.Errorf("%s: %w", op, errors.New("group is invalid"))
 	}
 
 	// Adding group to db
@@ -76,7 +76,7 @@ func (uc *GroupUseCase) GetByNumber(ctx context.Context, number string) (*models
 	// Validating given group number
 	valid := uc.svc.Validate(&models.Group{Number: number})
 	if !valid {
-		return nil, fmt.Errorf("%s: %w", op, errors.New("group is not valid"))
+		return nil, fmt.Errorf("%s: %w", op, errors.New("group is invalid"))
 	}
 
 	// Getting group from db with given number
@@ -93,7 +93,7 @@ func (uc *GroupUseCase) Update(ctx context.Context, group *models.Group) error {
 
 	valid := uc.svc.Validate(group)
 	if !valid {
-		return fmt.Errorf("%s: %w", op, errors.New("group is not valid"))
+		return fmt.Errorf("%s: %w", op, errors.New("group is invalid"))
 	}
 
 	// Updating group in db with given group
