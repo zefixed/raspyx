@@ -2,10 +2,8 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"log/slog"
 	"net/http"
-	"raspyx/internal/domain/models"
 	"raspyx/internal/dto"
 	"raspyx/internal/usecase"
 	"strings"
@@ -113,14 +111,7 @@ func NewTeacherRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUs
 
 	teacherGroup.GET("/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		teacherUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
-
-		resp, err := r.uc.GetByUUID(c, teacherUUID)
+		resp, err := r.uc.GetByUUID(c, reqUUID)
 		if err != nil {
 			makeErrResponse(&ErrResp{
 				err:      err,
@@ -191,12 +182,6 @@ func NewTeacherRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCa
 
 	teacherGroup.PUT("/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		teacherUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
 
 		var teacherDTO dto.UpdateTeacherRequest
 		if err := c.ShouldBindJSON(&teacherDTO); err != nil {
@@ -205,12 +190,7 @@ func NewTeacherRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCa
 			return
 		}
 
-		err = r.uc.Update(c, &models.Teacher{
-			UUID:       teacherUUID,
-			FirstName:  teacherDTO.FirstName,
-			SecondName: teacherDTO.SecondName,
-			MiddleName: teacherDTO.MiddleName,
-		})
+		err := r.uc.Update(c, reqUUID, &teacherDTO)
 		if err != nil {
 			makeErrResponse(&ErrResp{
 				err:      err,
@@ -245,14 +225,7 @@ func NewTeacherRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCa
 
 	teacherGroup.DELETE("/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		teacherUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
-
-		err = r.uc.Delete(c, teacherUUID)
+		err := r.uc.Delete(c, reqUUID)
 		if err != nil {
 			makeErrResponse(&ErrResp{
 				err:      err,

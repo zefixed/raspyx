@@ -58,11 +58,17 @@ func (uc *GroupUseCase) Get(ctx context.Context) ([]*models.Group, error) {
 	return groups, nil
 }
 
-func (uc *GroupUseCase) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.Group, error) {
+func (uc *GroupUseCase) GetByUUID(ctx context.Context, UUID string) (*models.Group, error) {
 	const op = "usecase.group.GetByUUID"
 
+	// Parsing group uuid
+	groupUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
 	// Getting group from db with given uuid
-	group, err := uc.repo.GetByUUID(ctx, uuid)
+	group, err := uc.repo.GetByUUID(ctx, groupUUID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -88,16 +94,25 @@ func (uc *GroupUseCase) GetByNumber(ctx context.Context, number string) (*models
 	return group, nil
 }
 
-func (uc *GroupUseCase) Update(ctx context.Context, group *models.Group) error {
+func (uc *GroupUseCase) Update(ctx context.Context, UUID string, groupDTO *dto.UpdateGroupRequest) error {
 	const op = "usecase.group.Update"
 
+	// Parsing group uuid
+	groupUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
+	group := &models.Group{UUID: groupUUID, Number: groupDTO.Group}
+
+	// Validating group number
 	valid := uc.svc.Validate(group)
 	if !valid {
 		return fmt.Errorf("%s: %w", op, errors.New("group is invalid"))
 	}
 
 	// Updating group in db with given group
-	err := uc.repo.Update(ctx, group)
+	err = uc.repo.Update(ctx, group)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -105,11 +120,17 @@ func (uc *GroupUseCase) Update(ctx context.Context, group *models.Group) error {
 	return nil
 }
 
-func (uc *GroupUseCase) Delete(ctx context.Context, uuid uuid.UUID) error {
+func (uc *GroupUseCase) Delete(ctx context.Context, UUID string) error {
 	const op = "usecase.group.Delete"
 
+	// Parsing group uuid
+	groupUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
 	// Deleting groups from db with given uuid
-	err := uc.repo.Delete(ctx, uuid)
+	err = uc.repo.Delete(ctx, groupUUID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

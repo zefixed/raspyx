@@ -2,10 +2,8 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"log/slog"
 	"net/http"
-	"raspyx/internal/domain/models"
 	"raspyx/internal/dto"
 	"raspyx/internal/usecase"
 )
@@ -112,14 +110,7 @@ func NewSubjectTypeRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.Subje
 
 	subjectTypeGroup.GET("/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		subjectTypeUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
-
-		resp, err := r.uc.GetByUUID(c, subjectTypeUUID)
+		resp, err := r.uc.GetByUUID(c, reqUUID)
 		if err != nil {
 			makeErrResponse(&ErrResp{
 				err:      err,
@@ -190,12 +181,6 @@ func NewSubjectTypeRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectT
 
 	subjectTypeGroup.PUT("/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		subjectTypeUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
 
 		var subjectTypeDTO dto.UpdateSubjectTypeRequest
 		if err := c.ShouldBindJSON(&subjectTypeDTO); err != nil {
@@ -204,7 +189,7 @@ func NewSubjectTypeRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectT
 			return
 		}
 
-		err = r.uc.Update(c, &models.SubjectType{UUID: subjectTypeUUID, Type: subjectTypeDTO.Type})
+		err := r.uc.Update(c, reqUUID, &subjectTypeDTO)
 		if err != nil {
 			makeErrResponse(&ErrResp{
 				err:      err,
@@ -239,14 +224,7 @@ func NewSubjectTypeRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.SubjectT
 
 	subjectTypeGroup.DELETE("/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		subjectTypeUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
-
-		err = r.uc.Delete(c, subjectTypeUUID)
+		err := r.uc.Delete(c, reqUUID)
 		if err != nil {
 			makeErrResponse(&ErrResp{
 				err:      err,

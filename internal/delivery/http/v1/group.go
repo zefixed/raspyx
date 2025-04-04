@@ -2,10 +2,8 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"log/slog"
 	"net/http"
-	"raspyx/internal/domain/models"
 	"raspyx/internal/dto"
 	"raspyx/internal/usecase"
 )
@@ -106,14 +104,7 @@ func NewGroupRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCas
 
 	groupGroup.GET("/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		groupUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
-
-		resp, err := r.uc.GetByUUID(c, groupUUID)
+		resp, err := r.uc.GetByUUID(c, reqUUID)
 		if err != nil {
 			makeErrResponse(&ErrResp{
 				err:      err,
@@ -148,7 +139,6 @@ func NewGroupRouteGetByNumber(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseC
 
 	groupGroup.GET("/number/:number", func(c *gin.Context) {
 		reqNumber := c.Param("number")
-
 		resp, err := r.uc.GetByNumber(c, reqNumber)
 		if err != nil {
 			makeErrResponse(&ErrResp{
@@ -185,12 +175,6 @@ func NewGroupRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 
 	groupGroup.PUT("/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		groupUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
 
 		var groupDTO dto.UpdateGroupRequest
 		if err := c.ShouldBindJSON(&groupDTO); err != nil {
@@ -199,7 +183,7 @@ func NewGroupRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 			return
 		}
 
-		err = r.uc.Update(c, &models.Group{UUID: groupUUID, Number: groupDTO.Group})
+		err := r.uc.Update(c, reqUUID, &groupDTO)
 		if err != nil {
 			makeErrResponse(&ErrResp{
 				err:      err,
@@ -234,14 +218,7 @@ func NewGroupRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 
 	groupGroup.DELETE("/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		groupUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
-
-		err = r.uc.Delete(c, groupUUID)
+		err := r.uc.Delete(c, reqUUID)
 		if err != nil {
 			makeErrResponse(&ErrResp{
 				err:      err,
