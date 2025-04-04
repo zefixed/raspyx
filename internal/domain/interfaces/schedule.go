@@ -9,6 +9,7 @@ import (
 type ScheduleRepository interface {
 	Create(ctx context.Context, schedule *models.Schedule) error
 	Get(ctx context.Context) ([]*models.ScheduleData, error)
+	GetForUpdate(ctx context.Context, uuid uuid.UUID) (*models.Schedule, error)
 	GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.ScheduleData, error)
 	GetByTeacher(ctx context.Context, firstName, secondName, middleName string) ([]*models.ScheduleData, error)
 	GetByTeacherUUID(ctx context.Context, teacherUUID uuid.UUID) ([]*models.ScheduleData, error)

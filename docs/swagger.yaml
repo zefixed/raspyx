@@ -36,53 +36,6 @@ definitions:
     required:
     - number
     type: object
-  dto.CreateScheduleRequest:
-    properties:
-      end_date:
-        example: "2025-06-01"
-        type: string
-      end_time:
-        example: "10:30:00"
-        type: string
-      group:
-        example: 221-352
-        type: string
-      link:
-        example: https://rasp.dmami.ru
-        type: string
-      location:
-        example: Автозаводская
-        type: string
-      rooms:
-        example:
-        - ав4805
-        - ав4810
-        items:
-          type: string
-        type: array
-      start_date:
-        example: "2025-02-01"
-        type: string
-      start_time:
-        example: "09:00:00"
-        type: string
-      subject:
-        example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
-        type: string
-      teachers_uuid:
-        example:
-        - c555b9e8-0d7a-11f0-adcd-20114d2008d9
-        - b444b9e8-0d7a-11f0-adcd-20114d2008d9
-        items:
-          type: string
-        type: array
-      type:
-        example: Практика
-        type: string
-      weekday:
-        example: 1
-        type: integer
-    type: object
   dto.CreateSubjectRequest:
     properties:
       name:
@@ -230,6 +183,53 @@ definitions:
       type:
         example: Практика
         type: string
+    type: object
+  dto.ScheduleRequest:
+    properties:
+      end_date:
+        example: "2025-06-01"
+        type: string
+      end_time:
+        example: "10:30:00"
+        type: string
+      group:
+        example: 221-352
+        type: string
+      link:
+        example: https://rasp.dmami.ru
+        type: string
+      location:
+        example: Автозаводская
+        type: string
+      rooms:
+        example:
+        - ав4805
+        - ав4810
+        items:
+          type: string
+        type: array
+      start_date:
+        example: "2025-02-01"
+        type: string
+      start_time:
+        example: "09:00:00"
+        type: string
+      subject:
+        example: c555b9e8-0d7a-11f0-adcd-20114d2008d9
+        type: string
+      teachers_uuid:
+        example:
+        - c555b9e8-0d7a-11f0-adcd-20114d2008d9
+        - b444b9e8-0d7a-11f0-adcd-20114d2008d9
+        items:
+          type: string
+        type: array
+      type:
+        example: Практика
+        type: string
+      weekday:
+        example: 1
+        type: integer
     type: object
   dto.TeacherDTO:
     properties:
@@ -998,6 +998,78 @@ paths:
       summary: Updating room
       tags:
       - room
+  /api/v1/schedule/{uuid}:
+    delete:
+      consumes:
+      - '*/*'
+      description: Deleting existing schedule from the database
+      parameters:
+      - description: Schedule uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Deleting existing schedule
+      tags:
+      - schedule
+  /api/v1/schedule/uuid/{uuid}:
+    put:
+      consumes:
+      - application/json
+      description: Update room in database
+      parameters:
+      - description: Schedule uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Schedule
+        in: body
+        name: room
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ScheduleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Updating room
+      tags:
+      - schedule
   /api/v1/schedules:
     get:
       consumes:
@@ -1015,6 +1087,14 @@ paths:
                 response:
                   $ref: '#/definitions/dto.Week'
               type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
         "500":
           description: Internal Server Error
           schema:
@@ -1032,7 +1112,7 @@ paths:
         name: schedule
         required: true
         schema:
-          $ref: '#/definitions/dto.CreateScheduleRequest'
+          $ref: '#/definitions/dto.ScheduleRequest'
       produces:
       - application/json
       responses:
@@ -1043,10 +1123,14 @@ paths:
             - $ref: '#/definitions/v1.ResponseOK'
             - properties:
                 response:
-                  $ref: '#/definitions/dto.CreateScheduleRequest'
+                  $ref: '#/definitions/dto.ScheduleRequest'
               type: object
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/v1.ResponseError'
         "500":
@@ -1054,6 +1138,424 @@ paths:
           schema:
             $ref: '#/definitions/v1.ResponseError'
       summary: Creating a new schedule
+      tags:
+      - schedule
+  /api/v1/schedules/group/number/{number}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get schedule from database with given group number
+      parameters:
+      - description: Group number
+        in: path
+        name: number
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.Week'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting schedule by group number
+      tags:
+      - schedule
+  /api/v1/schedules/group/uuid/{uuid}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get schedule from database with given group uuid
+      parameters:
+      - description: Group uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.Week'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting schedule by group uuid
+      tags:
+      - schedule
+  /api/v1/schedules/location/name/{name}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get schedule from database with given location name
+      parameters:
+      - description: Location name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.Week'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting schedule by location name
+      tags:
+      - schedule
+  /api/v1/schedules/location/uuid/{uuid}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get schedule from database with given location uuid
+      parameters:
+      - description: Location uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.Week'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting schedule by location uuid
+      tags:
+      - schedule
+  /api/v1/schedules/room/number/{number}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get schedule from database with given room number
+      parameters:
+      - description: Room number
+        in: path
+        name: number
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.Week'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting schedule by room number
+      tags:
+      - schedule
+  /api/v1/schedules/room/uuid/{uuid}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get schedule from database with given room uuid
+      parameters:
+      - description: Room uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.Week'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting schedule by room uuid
+      tags:
+      - schedule
+  /api/v1/schedules/subject/name/{name}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get schedule from database with given subject name
+      parameters:
+      - description: Subject name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.Week'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting schedule by subject name
+      tags:
+      - schedule
+  /api/v1/schedules/subject/uuid/{uuid}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get schedule from database with given subject uuid
+      parameters:
+      - description: Subject uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.Week'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting schedule by subject uuid
+      tags:
+      - schedule
+  /api/v1/schedules/teacher/fn/{fn}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get schedule from database with given teacher fullname
+      parameters:
+      - description: Teacher fullname
+        in: path
+        name: fn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.Week'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting schedule by teacher fullname
+      tags:
+      - schedule
+  /api/v1/schedules/teacher/uuid/{uuid}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get schedule from database with given teacher uuid
+      parameters:
+      - description: Teacher uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.Week'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting schedule by teacher uuid
+      tags:
+      - schedule
+  /api/v1/schedules/uuid/{uuid}:
+    get:
+      consumes:
+      - '*/*'
+      description: Get schedule from database with given uuid
+      parameters:
+      - description: Schedule uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.Week'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      summary: Getting schedule by uuid
       tags:
       - schedule
   /api/v1/subjects:

@@ -9,6 +9,7 @@ import (
 	"raspyx/internal/domain/models"
 	"raspyx/internal/domain/services"
 	"raspyx/internal/dto"
+	"strings"
 	"time"
 )
 
@@ -51,17 +52,11 @@ func NewScheduleUseCase(
 	}
 }
 
-func (uc *ScheduleUseCase) Create(ctx context.Context, scheduleDTO *dto.CreateScheduleRequest) (*dto.CreateScheduleResponse, error) {
-	const op = "usecase.schedule.Create"
+func (uc *ScheduleUseCase) scheduleDTOToScheduleModel(ctx context.Context, scheduleDTO *dto.ScheduleRequest) (*models.Schedule, error) {
+	const op = "usecase.schedule.scheduleDTOToScheduleModel"
 
-	// Generating new uuid
-	newUUID, err := uuid.NewUUID()
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, errors.New("internal error"))
-	}
+	schedule := &models.Schedule{}
 
-	// DTO to model
-	schedule := &models.Schedule{UUID: newUUID}
 	// Adding groupUUID to model
 	groupUUID, err := uc.repoGroup.GetByNumber(ctx, scheduleDTO.Group)
 	if err != nil {
@@ -71,6 +66,10 @@ func (uc *ScheduleUseCase) Create(ctx context.Context, scheduleDTO *dto.CreateSc
 
 	// Adding subjectUUID to model
 	subjectUUID, err := uuid.Parse(scheduleDTO.SubjectUUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+	_, err = uc.repoSubject.GetByUUID(ctx, subjectUUID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -119,7 +118,7 @@ func (uc *ScheduleUseCase) Create(ctx context.Context, scheduleDTO *dto.CreateSc
 	schedule.EndDate = endDate
 
 	// Adding weekday to model
-	if scheduleDTO.Weekday < 1 || scheduleDTO.Weekday > 7 {
+	if scheduleDTO.Weekday < 1 || scheduleDTO.Weekday > 6 {
 		return nil, fmt.Errorf("%s: %w", op, errors.New("invalid weekday"))
 	}
 	schedule.Weekday = scheduleDTO.Weekday
@@ -127,67 +126,7 @@ func (uc *ScheduleUseCase) Create(ctx context.Context, scheduleDTO *dto.CreateSc
 	// Adding link to model
 	schedule.Link = scheduleDTO.Link
 
-	// Adding schedule to db
-	err = uc.repo.Create(ctx, schedule)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
-	}
-
-	var teachers []*models.Teacher
-	for _, UUID := range scheduleDTO.TeachersUUID {
-		teacherUUID, err := uuid.Parse(UUID)
-		if err != nil {
-			_ = uc.repo.Delete(ctx, schedule.UUID)
-			return nil, fmt.Errorf("%s: %w", op, err)
-		}
-
-		teacher, err := uc.repoTeacher.GetByUUID(ctx, teacherUUID)
-		if err != nil {
-			_ = uc.repo.Delete(ctx, schedule.UUID)
-			return nil, fmt.Errorf("%s: %w", op, err)
-		}
-
-		teachers = append(teachers, teacher)
-	}
-
-	for _, teacher := range teachers {
-		err = uc.repoTToS.Create(ctx, &models.TeachersToSchedule{
-			TeacherUUID: teacher.UUID, ScheduleUUID: schedule.UUID,
-		})
-		if err != nil {
-			_ = uc.repo.Delete(ctx, schedule.UUID)
-			return nil, fmt.Errorf("%s: %w", op, err)
-		}
-	}
-
-	var rooms []*models.Room
-	for _, roomNumber := range scheduleDTO.Rooms {
-		roomUUID, err := uc.repoRoom.GetByNumber(ctx, roomNumber)
-		if err != nil {
-			_ = uc.repo.Delete(ctx, schedule.UUID)
-			return nil, fmt.Errorf("%s: %w", op, err)
-		}
-
-		room, err := uc.repoRoom.GetByUUID(ctx, roomUUID.UUID)
-		if err != nil {
-			_ = uc.repo.Delete(ctx, schedule.UUID)
-			return nil, fmt.Errorf("%s: %w", op, err)
-		}
-
-		rooms = append(rooms, room)
-	}
-
-	for _, room := range rooms {
-		err = uc.repoRToS.Create(ctx, &models.RoomsToSchedule{
-			RoomUUID: room.UUID, ScheduleUUID: schedule.UUID,
-		})
-		if err != nil {
-			_ = uc.repo.Delete(ctx, schedule.UUID)
-			return nil, fmt.Errorf("%s: %w", op, err)
-		}
-	}
-
-	return &dto.CreateScheduleResponse{UUID: schedule.UUID}, nil
+	return schedule, nil
 }
 
 func makeWeek(schedules []*models.ScheduleData) *dto.Week {
@@ -212,8 +151,6 @@ func makeWeek(schedules []*models.ScheduleData) *dto.Week {
 			days[schedule.Weekday] = &dto.Day{}
 		}
 
-		fmt.Println(schedule.StartTime.Format("15:04"))
-
 		switch schedule.StartTime.Format("15:04") {
 		case "09:00":
 			days[schedule.Weekday].First = append(days[schedule.Weekday].First, pair)
@@ -235,6 +172,71 @@ func makeWeek(schedules []*models.ScheduleData) *dto.Week {
 	return week
 }
 
+func (uc *ScheduleUseCase) Create(ctx context.Context, scheduleDTO *dto.ScheduleRequest) (*dto.CreateScheduleResponse, error) {
+	const op = "usecase.schedule.Create"
+
+	// DTO to model
+	schedule, err := uc.scheduleDTOToScheduleModel(ctx, scheduleDTO)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	// Generating new uuid
+	newUUID, err := uuid.NewUUID()
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, errors.New("internal error"))
+	}
+	schedule.UUID = newUUID
+
+	// Adding schedule to db
+	err = uc.repo.Create(ctx, schedule)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	// Adding teachers to created schedule
+	for _, UUID := range scheduleDTO.TeachersUUID {
+		teacherUUID, err := uuid.Parse(UUID)
+		if err != nil {
+			_ = uc.repo.Delete(ctx, schedule.UUID)
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		teacher, err := uc.repoTeacher.GetByUUID(ctx, teacherUUID)
+		if err != nil {
+			_ = uc.repo.Delete(ctx, schedule.UUID)
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		err = uc.repoTToS.Create(ctx, &models.TeachersToSchedule{
+			TeacherUUID: teacher.UUID, ScheduleUUID: schedule.UUID,
+		})
+		if err != nil {
+			_ = uc.repo.Delete(ctx, schedule.UUID)
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	// Adding rooms to created schedule
+	for _, roomNumber := range scheduleDTO.Rooms {
+		room, err := uc.repoRoom.GetByNumber(ctx, roomNumber)
+		if err != nil {
+			_ = uc.repo.Delete(ctx, schedule.UUID)
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		err = uc.repoRToS.Create(ctx, &models.RoomsToSchedule{
+			RoomUUID: room.UUID, ScheduleUUID: schedule.UUID,
+		})
+		if err != nil {
+			_ = uc.repo.Delete(ctx, schedule.UUID)
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	return &dto.CreateScheduleResponse{UUID: schedule.UUID}, nil
+}
+
 func (uc *ScheduleUseCase) Get(ctx context.Context) (*dto.Week, error) {
 	const op = "usecase.schedule.Get"
 
@@ -245,6 +247,346 @@ func (uc *ScheduleUseCase) Get(ctx context.Context) (*dto.Week, error) {
 	}
 
 	return makeWeek(schedules), nil
+}
+
+func (uc *ScheduleUseCase) GetByUUID(ctx context.Context, UUID string) (*dto.Week, error) {
+	const op = "usecase.schedule.GetByUUID"
+
+	scheduleUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
+	// Getting schedule from db with given uuid
+	schedules, err := uc.repo.GetByUUID(ctx, scheduleUUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return makeWeek([]*models.ScheduleData{schedules}), nil
+}
+
+func (uc *ScheduleUseCase) GetByTeacher(ctx context.Context, fn string) (*dto.Week, error) {
+	const op = "usecase.schedule.GetByTeacher"
+
+	fnArr := strings.Split(strings.TrimSpace(fn), " ")
+	for i := 0; i < len(fnArr); i++ {
+		if fnArr[i] == "" {
+			fnArr = append(fnArr[:i], fnArr[i+1:]...)
+			i--
+		}
+	}
+	if len(fnArr) < 2 || len(fnArr) > 3 {
+		return nil, fmt.Errorf("%s: %w", op, errors.New("invalid fullname"))
+	}
+
+	// Getting schedule from db with given teacher fullname
+	fnArr = append(fnArr, "")
+	schedules, err := uc.repo.GetByTeacher(ctx, fnArr[1], fnArr[0], fnArr[2])
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return makeWeek(schedules), nil
+}
+
+func (uc *ScheduleUseCase) GetByTeacherUUID(ctx context.Context, UUID string) (*dto.Week, error) {
+	const op = "usecase.schedule.GetByTeacherUUID"
+
+	teacherUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
+	// Getting schedule from db with given teacher uuid
+	schedules, err := uc.repo.GetByTeacherUUID(ctx, teacherUUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return makeWeek(schedules), nil
+}
+
+func (uc *ScheduleUseCase) GetByGroup(ctx context.Context, groupNumber string) (*dto.Week, error) {
+	const op = "usecase.schedule.GetByGroup"
+
+	groupNumber = strings.TrimSpace(groupNumber)
+
+	// Getting schedule from db with given group number
+	schedules, err := uc.repo.GetByGroup(ctx, groupNumber)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return makeWeek(schedules), nil
+}
+
+func (uc *ScheduleUseCase) GetByGroupUUID(ctx context.Context, UUID string) (*dto.Week, error) {
+	const op = "usecase.schedule.GetByGroupUUID"
+
+	groupUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
+	// Getting schedule from db with given group uuid
+	schedules, err := uc.repo.GetByGroupUUID(ctx, groupUUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return makeWeek(schedules), nil
+}
+
+func (uc *ScheduleUseCase) GetByRoom(ctx context.Context, roomNumber string) (*dto.Week, error) {
+	const op = "usecase.schedule.GetByRoom"
+
+	roomNumber = strings.TrimSpace(roomNumber)
+
+	// Getting schedule from db with given room number
+	schedules, err := uc.repo.GetByRoom(ctx, roomNumber)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return makeWeek(schedules), nil
+}
+
+func (uc *ScheduleUseCase) GetByRoomUUID(ctx context.Context, UUID string) (*dto.Week, error) {
+	const op = "usecase.schedule.GetByRoomUUID"
+
+	roomUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
+	// Getting schedule from db with given room uuid
+	schedules, err := uc.repo.GetByRoomUUID(ctx, roomUUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return makeWeek(schedules), nil
+}
+
+func (uc *ScheduleUseCase) GetBySubject(ctx context.Context, subjectName string) (*dto.Week, error) {
+	const op = "usecase.schedule.GetBySubject"
+
+	subjectName = strings.TrimSpace(subjectName)
+
+	// Getting schedule from db with given subject name
+	schedules, err := uc.repo.GetBySubject(ctx, subjectName)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return makeWeek(schedules), nil
+}
+
+func (uc *ScheduleUseCase) GetBySubjectUUID(ctx context.Context, UUID string) (*dto.Week, error) {
+	const op = "usecase.schedule.GetBySubjectUUID"
+
+	subjectUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
+	// Getting schedule from db with given subject uuid
+	schedules, err := uc.repo.GetBySubjectUUID(ctx, subjectUUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return makeWeek(schedules), nil
+}
+
+func (uc *ScheduleUseCase) GetByLocation(ctx context.Context, locationName string) (*dto.Week, error) {
+	const op = "usecase.schedule.GetByLocation"
+
+	locationName = strings.TrimSpace(locationName)
+
+	// Getting schedule from db with given location name
+	schedules, err := uc.repo.GetByLocation(ctx, locationName)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return makeWeek(schedules), nil
+}
+
+func (uc *ScheduleUseCase) GetByLocationUUID(ctx context.Context, UUID string) (*dto.Week, error) {
+	const op = "usecase.schedule.GetByLocationUUID"
+
+	locationUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
+	// Getting schedule from db with given location uuid
+	schedules, err := uc.repo.GetByLocationUUID(ctx, locationUUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return makeWeek(schedules), nil
+}
+
+func (uc *ScheduleUseCase) rollbackUpdate(
+	ctx context.Context,
+	schedule *models.Schedule,
+	TToS []*models.TeachersToSchedule,
+	RToS []*models.RoomsToSchedule,
+) error {
+	const op = "usecase.schedule.rollbackUpdate"
+
+	err := uc.repo.Delete(ctx, schedule.UUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = uc.repo.Create(ctx, schedule)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	for _, t := range TToS {
+		err = uc.repoTToS.Create(ctx, t)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	for _, r := range RToS {
+		err = uc.repoRToS.Create(ctx, r)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	return nil
+}
+
+func (uc *ScheduleUseCase) Update(ctx context.Context, UUID string, scheduleDTO *dto.ScheduleRequest) error {
+	const op = "usecase.schedule.Update"
+
+	// Parsing given UUID
+	scheduleUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
+	// Getting old schedule
+	oldSchedule, err := uc.repo.GetForUpdate(ctx, scheduleUUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	// Getting old TToS
+	oldTTos, err := uc.repoTToS.GetByScheduleUUID(ctx, scheduleUUID)
+	if err != nil && !strings.Contains(err.Error(), "not found") {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	// Getting old RToS
+	oldRToS, err := uc.repoRToS.GetByScheduleUUID(ctx, scheduleUUID)
+	if err != nil && !strings.Contains(err.Error(), "not found") {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	// DTO to model
+	newSchedule, err := uc.scheduleDTOToScheduleModel(ctx, scheduleDTO)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	newSchedule.UUID = scheduleUUID
+
+	// Updating schedule
+	err = uc.repo.Delete(ctx, scheduleUUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = uc.repo.Create(ctx, newSchedule)
+	if err != nil {
+		er := uc.rollbackUpdate(ctx, oldSchedule, oldTTos, oldRToS)
+		if er != nil {
+			return fmt.Errorf("%s: %w, %w", op, err, er)
+		}
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	// Adding teachers to created schedule
+	for _, UUID := range scheduleDTO.TeachersUUID {
+		teacherUUID, err := uuid.Parse(UUID)
+		if err != nil {
+			er := uc.rollbackUpdate(ctx, oldSchedule, oldTTos, oldRToS)
+			if er != nil {
+				return fmt.Errorf("%s: %w, %w", op, err, er)
+			}
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		teacher, err := uc.repoTeacher.GetByUUID(ctx, teacherUUID)
+		if err != nil {
+			er := uc.rollbackUpdate(ctx, oldSchedule, oldTTos, oldRToS)
+			if er != nil {
+				return fmt.Errorf("%s: %w, %w", op, err, er)
+			}
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		err = uc.repoTToS.Create(ctx, &models.TeachersToSchedule{
+			TeacherUUID: teacher.UUID, ScheduleUUID: scheduleUUID,
+		})
+		if err != nil {
+			er := uc.rollbackUpdate(ctx, oldSchedule, oldTTos, oldRToS)
+			if er != nil {
+				return fmt.Errorf("%s: %w, %w", op, err, er)
+			}
+			return fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	// Adding rooms to created schedule
+	for _, roomNumber := range scheduleDTO.Rooms {
+		room, err := uc.repoRoom.GetByNumber(ctx, roomNumber)
+		if err != nil {
+			er := uc.rollbackUpdate(ctx, oldSchedule, oldTTos, oldRToS)
+			if er != nil {
+				return fmt.Errorf("%s: %w, %w", op, err, er)
+			}
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		err = uc.repoRToS.Create(ctx, &models.RoomsToSchedule{
+			RoomUUID: room.UUID, ScheduleUUID: scheduleUUID,
+		})
+		if err != nil {
+			er := uc.rollbackUpdate(ctx, oldSchedule, oldTTos, oldRToS)
+			if er != nil {
+				return fmt.Errorf("%s: %w, %w", op, err, er)
+			}
+			return fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	return nil
+}
+
+func (uc *ScheduleUseCase) Delete(ctx context.Context, UUID string) error {
+	const op = "usecase.schedule.Delete"
+
+	scheduleUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
+	// Deleting schedule from db with given uuid
+	err = uc.repo.Delete(ctx, scheduleUUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
 }
 
 //func (uc *ScheduleUseCase) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.ScheduleData, error) {
@@ -271,13 +613,3 @@ func (uc *ScheduleUseCase) Get(ctx context.Context) (*dto.Week, error) {
 //	return nil
 //}
 //
-//func (uc *ScheduleUseCase) Delete(ctx context.Context, uuid uuid.UUID) error {
-//	const op = "usecase.schedule.Delete"
-//
-//	// Deleting schedule from db with given uuid
-//	err := uc.repo.Delete(ctx, uuid)
-//	if err != nil {
-//		return fmt.Errorf("%s: %w", op, err)
-//	}
-//	return nil
-//}

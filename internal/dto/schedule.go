@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type CreateScheduleRequest struct {
+type ScheduleRequest struct {
 	Group        string   `json:"group" example:"221-352"`
 	TeachersUUID []string `json:"teachers_uuid,omitempty" example:"c555b9e8-0d7a-11f0-adcd-20114d2008d9,b444b9e8-0d7a-11f0-adcd-20114d2008d9"`
 	Rooms        []string `json:"rooms,omitempty" example:"ав4805,ав4810"`
