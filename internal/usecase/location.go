@@ -52,11 +52,17 @@ func (uc *LocationUseCase) Get(ctx context.Context) ([]*models.Location, error) 
 	return locations, nil
 }
 
-func (uc *LocationUseCase) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.Location, error) {
+func (uc *LocationUseCase) GetByUUID(ctx context.Context, UUID string) (*models.Location, error) {
 	const op = "usecase.location.GetByUUID"
 
+	// Parsing location uuid
+	locationUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
 	// Getting location from db with given uuid
-	location, err := uc.repo.GetByUUID(ctx, uuid)
+	location, err := uc.repo.GetByUUID(ctx, locationUUID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -76,11 +82,17 @@ func (uc *LocationUseCase) GetByName(ctx context.Context, name string) (*models.
 	return location, nil
 }
 
-func (uc *LocationUseCase) Update(ctx context.Context, location *models.Location) error {
+func (uc *LocationUseCase) Update(ctx context.Context, UUID string, locationDTO *dto.UpdateLocationRequest) error {
 	const op = "usecase.location.Update"
 
+	// Parsing location uuid
+	locationUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
 	// Updating location in db with given location
-	err := uc.repo.Update(ctx, location)
+	err = uc.repo.Update(ctx, &models.Location{UUID: locationUUID, Name: locationDTO.Name})
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -88,11 +100,17 @@ func (uc *LocationUseCase) Update(ctx context.Context, location *models.Location
 	return nil
 }
 
-func (uc *LocationUseCase) Delete(ctx context.Context, uuid uuid.UUID) error {
+func (uc *LocationUseCase) Delete(ctx context.Context, UUID string) error {
 	const op = "usecase.location.Delete"
 
+	// Parsing location uuid
+	locationUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
 	// Deleting location from db with given uuid
-	err := uc.repo.Delete(ctx, uuid)
+	err = uc.repo.Delete(ctx, locationUUID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

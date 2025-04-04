@@ -66,11 +66,17 @@ func (uc *TeacherUseCase) Get(ctx context.Context) ([]*dto.TeacherDTO, error) {
 	return teachersDTO, nil
 }
 
-func (uc *TeacherUseCase) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.Teacher, error) {
+func (uc *TeacherUseCase) GetByUUID(ctx context.Context, UUID string) (*models.Teacher, error) {
 	const op = "usecase.teacher.GetByUUID"
 
+	// Parsing teacher uuid
+	teacherUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
 	// Getting teacher from db with given uuid
-	teacher, err := uc.repo.GetByUUID(ctx, uuid)
+	teacher, err := uc.repo.GetByUUID(ctx, teacherUUID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -90,11 +96,22 @@ func (uc *TeacherUseCase) GetByFullName(ctx context.Context, fullname string) ([
 	return teachers, nil
 }
 
-func (uc *TeacherUseCase) Update(ctx context.Context, teacher *models.Teacher) error {
+func (uc *TeacherUseCase) Update(ctx context.Context, UUID string, teacherDTO *dto.UpdateTeacherRequest) error {
 	const op = "usecase.teacher.Update"
 
+	// Parsing teacher uuid
+	teacherUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
 	// Updating teacher in db with given teacher
-	err := uc.repo.Update(ctx, teacher)
+	err = uc.repo.Update(ctx, &models.Teacher{
+		UUID:       teacherUUID,
+		FirstName:  teacherDTO.FirstName,
+		SecondName: teacherDTO.SecondName,
+		MiddleName: teacherDTO.MiddleName,
+	})
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -102,11 +119,17 @@ func (uc *TeacherUseCase) Update(ctx context.Context, teacher *models.Teacher) e
 	return nil
 }
 
-func (uc *TeacherUseCase) Delete(ctx context.Context, uuid uuid.UUID) error {
+func (uc *TeacherUseCase) Delete(ctx context.Context, UUID string) error {
 	const op = "usecase.teacher.Delete"
 
+	// Parsing teacher uuid
+	teacherUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+	
 	// Deleting teacher from db with given uuid
-	err := uc.repo.Delete(ctx, uuid)
+	err = uc.repo.Delete(ctx, teacherUUID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

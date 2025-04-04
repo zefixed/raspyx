@@ -2,10 +2,8 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"log/slog"
 	"net/http"
-	"raspyx/internal/domain/models"
 	"raspyx/internal/dto"
 	"raspyx/internal/usecase"
 )
@@ -105,14 +103,7 @@ func NewLocationRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.Location
 
 	locationGroup.GET("/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		locationUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
-
-		resp, err := r.uc.GetByUUID(c, locationUUID)
+		resp, err := r.uc.GetByUUID(c, reqUUID)
 		if err != nil {
 			makeErrResponse(&ErrResp{
 				err:      err,
@@ -146,7 +137,6 @@ func NewLocationRouteGetByName(apiV1Group *gin.RouterGroup, uc *usecase.Location
 
 	locationGroup.GET("/name/:name", func(c *gin.Context) {
 		reqName := c.Param("name")
-
 		resp, err := r.uc.GetByName(c, reqName)
 		if err != nil {
 			makeErrResponse(&ErrResp{
@@ -183,12 +173,6 @@ func NewLocationRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 
 	locationGroup.PUT("/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		locationUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
 
 		var locationDTO dto.UpdateLocationRequest
 		if err := c.ShouldBindJSON(&locationDTO); err != nil {
@@ -197,7 +181,7 @@ func NewLocationRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 			return
 		}
 
-		err = r.uc.Update(c, &models.Location{UUID: locationUUID, Name: locationDTO.Name})
+		err := r.uc.Update(c, reqUUID, &locationDTO)
 		if err != nil {
 			makeErrResponse(&ErrResp{
 				err:      err,
@@ -232,14 +216,7 @@ func NewLocationRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 
 	locationGroup.DELETE("/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		locationUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
-
-		err = r.uc.Delete(c, locationUUID)
+		err := r.uc.Delete(c, reqUUID)
 		if err != nil {
 			makeErrResponse(&ErrResp{
 				err:      err,

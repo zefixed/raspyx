@@ -52,11 +52,17 @@ func (uc *SubjectTypeUseCase) Get(ctx context.Context) ([]*models.SubjectType, e
 	return subjectTypes, nil
 }
 
-func (uc *SubjectTypeUseCase) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.SubjectType, error) {
+func (uc *SubjectTypeUseCase) GetByUUID(ctx context.Context, UUID string) (*models.SubjectType, error) {
 	const op = "usecase.subjectType.GetByUUID"
 
+	// Parsing subject type uuid
+	subjectTypeUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
 	// Getting subjectType from db with given uuid
-	subjectType, err := uc.repo.GetByUUID(ctx, uuid)
+	subjectType, err := uc.repo.GetByUUID(ctx, subjectTypeUUID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -76,11 +82,17 @@ func (uc *SubjectTypeUseCase) GetByType(ctx context.Context, number string) (*mo
 	return subjectType, nil
 }
 
-func (uc *SubjectTypeUseCase) Update(ctx context.Context, subjectType *models.SubjectType) error {
+func (uc *SubjectTypeUseCase) Update(ctx context.Context, UUID string, subjectTypeDTO *dto.UpdateSubjectTypeRequest) error {
 	const op = "usecase.subjectType.Update"
 
+	// Parsing subject type uuid
+	subjectTypeUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
 	// Updating subjectType in db with given subjectType
-	err := uc.repo.Update(ctx, subjectType)
+	err = uc.repo.Update(ctx, &models.SubjectType{UUID: subjectTypeUUID, Type: subjectTypeDTO.Type})
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -88,11 +100,17 @@ func (uc *SubjectTypeUseCase) Update(ctx context.Context, subjectType *models.Su
 	return nil
 }
 
-func (uc *SubjectTypeUseCase) Delete(ctx context.Context, uuid uuid.UUID) error {
+func (uc *SubjectTypeUseCase) Delete(ctx context.Context, UUID string) error {
 	const op = "usecase.subjectType.Delete"
 
+	// Parsing subject type uuid
+	subjectTypeUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
 	// Deleting subjectType from db with given uuid
-	err := uc.repo.Delete(ctx, uuid)
+	err = uc.repo.Delete(ctx, subjectTypeUUID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

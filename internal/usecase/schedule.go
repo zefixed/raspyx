@@ -252,6 +252,7 @@ func (uc *ScheduleUseCase) Get(ctx context.Context) (*dto.Week, error) {
 func (uc *ScheduleUseCase) GetByUUID(ctx context.Context, UUID string) (*dto.Week, error) {
 	const op = "usecase.schedule.GetByUUID"
 
+	// Parsing schedule uuid
 	scheduleUUID, err := uuid.Parse(UUID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
@@ -293,6 +294,7 @@ func (uc *ScheduleUseCase) GetByTeacher(ctx context.Context, fn string) (*dto.We
 func (uc *ScheduleUseCase) GetByTeacherUUID(ctx context.Context, UUID string) (*dto.Week, error) {
 	const op = "usecase.schedule.GetByTeacherUUID"
 
+	// Parsing teacher uuid
 	teacherUUID, err := uuid.Parse(UUID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
@@ -324,6 +326,7 @@ func (uc *ScheduleUseCase) GetByGroup(ctx context.Context, groupNumber string) (
 func (uc *ScheduleUseCase) GetByGroupUUID(ctx context.Context, UUID string) (*dto.Week, error) {
 	const op = "usecase.schedule.GetByGroupUUID"
 
+	// Parsing group uuid
 	groupUUID, err := uuid.Parse(UUID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
@@ -355,6 +358,7 @@ func (uc *ScheduleUseCase) GetByRoom(ctx context.Context, roomNumber string) (*d
 func (uc *ScheduleUseCase) GetByRoomUUID(ctx context.Context, UUID string) (*dto.Week, error) {
 	const op = "usecase.schedule.GetByRoomUUID"
 
+	// Parsing room uuid
 	roomUUID, err := uuid.Parse(UUID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
@@ -386,6 +390,7 @@ func (uc *ScheduleUseCase) GetBySubject(ctx context.Context, subjectName string)
 func (uc *ScheduleUseCase) GetBySubjectUUID(ctx context.Context, UUID string) (*dto.Week, error) {
 	const op = "usecase.schedule.GetBySubjectUUID"
 
+	// Parsing subject uuid
 	subjectUUID, err := uuid.Parse(UUID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
@@ -417,6 +422,7 @@ func (uc *ScheduleUseCase) GetByLocation(ctx context.Context, locationName strin
 func (uc *ScheduleUseCase) GetByLocationUUID(ctx context.Context, UUID string) (*dto.Week, error) {
 	const op = "usecase.schedule.GetByLocationUUID"
 
+	// Parsing location uuid
 	locationUUID, err := uuid.Parse(UUID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
@@ -469,7 +475,7 @@ func (uc *ScheduleUseCase) rollbackUpdate(
 func (uc *ScheduleUseCase) Update(ctx context.Context, UUID string, scheduleDTO *dto.ScheduleRequest) error {
 	const op = "usecase.schedule.Update"
 
-	// Parsing given UUID
+	// Parsing schedule UUID
 	scheduleUUID, err := uuid.Parse(UUID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
@@ -576,6 +582,7 @@ func (uc *ScheduleUseCase) Update(ctx context.Context, UUID string, scheduleDTO 
 func (uc *ScheduleUseCase) Delete(ctx context.Context, UUID string) error {
 	const op = "usecase.schedule.Delete"
 
+	// Parsing schedule uuid
 	scheduleUUID, err := uuid.Parse(UUID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
@@ -588,28 +595,3 @@ func (uc *ScheduleUseCase) Delete(ctx context.Context, UUID string) error {
 	}
 	return nil
 }
-
-//func (uc *ScheduleUseCase) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.ScheduleData, error) {
-//	const op = "usecase.schedule.GetByUUID"
-//
-//	// Getting schedule from db with given uuid
-//	schedule, err := uc.repo.GetByUUID(ctx, uuid)
-//	if err != nil {
-//		return nil, fmt.Errorf("%s: %w", op, err)
-//	}
-//
-//	return schedule, nil
-//}
-//
-//func (uc *ScheduleUseCase) Update(ctx context.Context, schedule *models.Schedule) error {
-//	const op = "usecase.schedule.Update"
-//
-//	// Updating schedule in db with given schedule
-//	err := uc.repo.Update(ctx, schedule)
-//	if err != nil {
-//		return fmt.Errorf("%s: %w", op, err)
-//	}
-//
-//	return nil
-//}
-//

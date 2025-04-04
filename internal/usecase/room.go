@@ -52,11 +52,17 @@ func (uc *RoomUseCase) Get(ctx context.Context) ([]*models.Room, error) {
 	return rooms, nil
 }
 
-func (uc *RoomUseCase) GetByUUID(ctx context.Context, uuid uuid.UUID) (*models.Room, error) {
+func (uc *RoomUseCase) GetByUUID(ctx context.Context, UUID string) (*models.Room, error) {
 	const op = "usecase.room.GetByUUID"
 
+	// Parsing room uuid
+	roomUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
 	// Getting room from db with given uuid
-	room, err := uc.repo.GetByUUID(ctx, uuid)
+	room, err := uc.repo.GetByUUID(ctx, roomUUID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -76,11 +82,17 @@ func (uc *RoomUseCase) GetByNumber(ctx context.Context, number string) (*models.
 	return room, nil
 }
 
-func (uc *RoomUseCase) Update(ctx context.Context, room *models.Room) error {
+func (uc *RoomUseCase) Update(ctx context.Context, UUID string, roomDTO *dto.UpdateRoomRequest) error {
 	const op = "usecase.room.Update"
 
+	// Parsing room uuid
+	roomUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
 	// Updating room in db with given room
-	err := uc.repo.Update(ctx, room)
+	err = uc.repo.Update(ctx, &models.Room{UUID: roomUUID, Number: roomDTO.Number})
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -88,11 +100,17 @@ func (uc *RoomUseCase) Update(ctx context.Context, room *models.Room) error {
 	return nil
 }
 
-func (uc *RoomUseCase) Delete(ctx context.Context, uuid uuid.UUID) error {
+func (uc *RoomUseCase) Delete(ctx context.Context, UUID string) error {
 	const op = "usecase.room.Delete"
 
+	// Parsing room uuid
+	roomUUID, err := uuid.Parse(UUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
+	}
+
 	// Deleting room from db with given uuid
-	err := uc.repo.Delete(ctx, uuid)
+	err = uc.repo.Delete(ctx, roomUUID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

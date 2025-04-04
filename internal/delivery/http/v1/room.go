@@ -2,10 +2,8 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"log/slog"
 	"net/http"
-	"raspyx/internal/domain/models"
 	"raspyx/internal/dto"
 	"raspyx/internal/usecase"
 )
@@ -112,14 +110,7 @@ func NewRoomRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase,
 
 	roomGroup.GET("/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		roomUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
-
-		resp, err := r.uc.GetByUUID(c, roomUUID)
+		resp, err := r.uc.GetByUUID(c, reqUUID)
 		if err != nil {
 			makeErrResponse(&ErrResp{
 				err:      err,
@@ -153,7 +144,6 @@ func NewRoomRouteGetByNumber(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCas
 
 	roomGroup.GET("/number/:number", func(c *gin.Context) {
 		reqNumber := c.Param("number")
-
 		resp, err := r.uc.GetByNumber(c, reqNumber)
 		if err != nil {
 			makeErrResponse(&ErrResp{
@@ -190,12 +180,6 @@ func NewRoomRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, lo
 
 	roomGroup.PUT("/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		roomUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
 
 		var roomDTO dto.UpdateRoomRequest
 		if err := c.ShouldBindJSON(&roomDTO); err != nil {
@@ -204,12 +188,8 @@ func NewRoomRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, lo
 			return
 		}
 
-		err = r.uc.Update(c, &models.Room{UUID: roomUUID, Number: roomDTO.Number})
+		err := r.uc.Update(c, reqUUID, &roomDTO)
 		if err != nil {
-			type qwe struct {
-				uuid    string
-				roomDTO dto.UpdateRoomRequest
-			}
 			makeErrResponse(&ErrResp{
 				err:      err,
 				c:        c,
@@ -243,14 +223,7 @@ func NewRoomRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, lo
 
 	roomGroup.DELETE("/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		roomUUID, err := uuid.Parse(reqUUID)
-		if err != nil {
-			log.Warn("Invalid uuid", slog.String("error", err.Error()), slog.String("uuid", reqUUID))
-			c.JSON(http.StatusBadRequest, RespError("Invalid uuid"))
-			return
-		}
-
-		err = r.uc.Delete(c, roomUUID)
+		err := r.uc.Delete(c, reqUUID)
 		if err != nil {
 			makeErrResponse(&ErrResp{
 				err:      err,
