@@ -546,8 +546,8 @@ func NewScheduleRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUse
 				err:      err,
 				c:        c,
 				log:      log,
-				logKey:   "schedule_uuid",
-				logValue: reqUUID,
+				logKey:   "schedule",
+				logValue: map[string]any{"uuid": reqUUID, "schedule_dto": scheduleDTO},
 			})
 			return
 		}

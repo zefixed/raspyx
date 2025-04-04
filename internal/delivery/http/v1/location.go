@@ -8,7 +8,6 @@ import (
 	"raspyx/internal/domain/models"
 	"raspyx/internal/dto"
 	"raspyx/internal/usecase"
-	"strings"
 )
 
 type locationRoutes struct {
@@ -42,14 +41,13 @@ func NewLocationRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 
 		resp, err := r.uc.Create(c, &locationDTO)
 		if err != nil {
-			if strings.Contains(err.Error(), "exist") {
-				log.Info("Location exist", slog.String("location_name", locationDTO.Name))
-				c.JSON(http.StatusBadRequest, RespError("Location exists"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
-			return
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "location_dto",
+				logValue: locationDTO,
+			})
 		}
 
 		c.JSON(http.StatusOK, RespOK(resp))
@@ -74,8 +72,13 @@ func NewLocationRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.LocationUseCas
 	locationGroup.GET("/", func(c *gin.Context) {
 		resp, err := r.uc.Get(c)
 		if err != nil {
-			log.Error("Internal server error", slog.String("error", err.Error()))
-			c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "error",
+				logValue: err.Error(),
+			})
 			return
 		}
 
@@ -111,13 +114,13 @@ func NewLocationRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.Location
 
 		resp, err := r.uc.GetByUUID(c, locationUUID)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Location not found", slog.String("location_uuid", locationUUID.String()))
-				c.JSON(http.StatusNotFound, RespError("Location not found"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "location_uuid",
+				logValue: reqUUID,
+			})
 			return
 		}
 
@@ -146,13 +149,13 @@ func NewLocationRouteGetByName(apiV1Group *gin.RouterGroup, uc *usecase.Location
 
 		resp, err := r.uc.GetByName(c, reqName)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Location not found", slog.String("location_number", reqName))
-				c.JSON(http.StatusNotFound, RespError("Location not found"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "location_name",
+				logValue: reqName,
+			})
 			return
 		}
 
@@ -196,16 +199,13 @@ func NewLocationRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 
 		err = r.uc.Update(c, &models.Location{UUID: locationUUID, Name: locationDTO.Name})
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Location not found", slog.String("location_uuid", locationUUID.String()))
-				c.JSON(http.StatusNotFound, RespError("Location not found"))
-			} else if strings.Contains(err.Error(), "exist") {
-				log.Info("Location exist", slog.String("location_name", locationDTO.Name))
-				c.JSON(http.StatusBadRequest, RespError("Location exists"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "location",
+				logValue: map[string]any{"uuid": reqUUID, "location_dto": locationDTO},
+			})
 			return
 		}
 
@@ -241,13 +241,13 @@ func NewLocationRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 
 		err = r.uc.Delete(c, locationUUID)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Location not found", slog.String("location_uuid", locationUUID.String()))
-				c.JSON(http.StatusNotFound, RespError("Location not found"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "location_uuid",
+				logValue: reqUUID,
+			})
 			return
 		}
 

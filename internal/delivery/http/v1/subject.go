@@ -8,7 +8,6 @@ import (
 	"raspyx/internal/domain/models"
 	"raspyx/internal/dto"
 	"raspyx/internal/usecase"
-	"strings"
 )
 
 type subjectRoutes struct {
@@ -45,13 +44,13 @@ func NewSubjectRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCa
 
 		resp, err := r.uc.Create(c, &subjectDTO)
 		if err != nil {
-			if strings.Contains(err.Error(), "exist") {
-				log.Info("Subject exist", slog.String("subject_name", subjectDTO.Name))
-				c.JSON(http.StatusBadRequest, RespError("Subject exists"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "subject_dto",
+				logValue: subjectDTO,
+			})
 			return
 		}
 
@@ -80,8 +79,13 @@ func NewSubjectRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCase,
 	subjectGroup.GET("/", func(c *gin.Context) {
 		resp, err := r.uc.Get(c)
 		if err != nil {
-			log.Error("Internal server error", slog.String("error", err.Error()))
-			c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "error",
+				logValue: err.Error(),
+			})
 			return
 		}
 
@@ -117,13 +121,13 @@ func NewSubjectRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUs
 
 		resp, err := r.uc.GetByUUID(c, subjectUUID)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Subject not found", slog.String("subject_uuid", subjectUUID.String()))
-				c.JSON(http.StatusNotFound, RespError("Subject not found"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "subject_uuid",
+				logValue: reqUUID,
+			})
 			return
 		}
 
@@ -152,13 +156,13 @@ func NewSubjectRouteGetByName(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUs
 
 		resp, err := r.uc.GetByName(c, reqName)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Subject not found", slog.String("subject_name", reqName))
-				c.JSON(http.StatusNotFound, RespError("Subject not found"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "subject_name",
+				logValue: reqName,
+			})
 			return
 		}
 
@@ -202,16 +206,13 @@ func NewSubjectRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCa
 
 		err = r.uc.Update(c, &models.Subject{UUID: subjectUUID, Name: subjectDTO.Name})
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("Subject not found", slog.String("subject_uuid", subjectUUID.String()))
-				c.JSON(http.StatusNotFound, RespError("Subject not found"))
-			} else if strings.Contains(err.Error(), "exist") {
-				log.Info("Subject exist", slog.String("subject_name", subjectDTO.Name))
-				c.JSON(http.StatusBadRequest, RespError("Subject exists"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "subject",
+				logValue: map[string]any{"uuid": reqUUID, "subject_dto": subjectDTO},
+			})
 			return
 		}
 
@@ -247,13 +248,13 @@ func NewSubjectRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCa
 
 		err = r.uc.Delete(c, subjectUUID)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				log.Info("subject not found", slog.String("subject_uuid", subjectUUID.String()))
-				c.JSON(http.StatusNotFound, RespError("Subject not found"))
-			} else {
-				log.Error("Internal server error", slog.String("error", err.Error()))
-				c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
-			}
+			makeErrResponse(&ErrResp{
+				err:      err,
+				c:        c,
+				log:      log,
+				logKey:   "subject_uuid",
+				logValue: reqUUID,
+			})
 			return
 		}
 
