@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"raspyx/internal/domain/interfaces"
@@ -25,7 +24,7 @@ func (uc *LocationUseCase) Create(ctx context.Context, locationDTO *dto.CreateLo
 	// Generating new uuid
 	newUUID, err := uuid.NewUUID()
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, errors.New("internal error"))
+		return nil, fmt.Errorf("%s: %w", op, ErrGeneratingUUID)
 	}
 
 	// DTO to model

@@ -16,12 +16,15 @@ type locationRoutes struct {
 // NewLocationRouteCreate
 // @Summary Creating a new location
 // @Description Creates a new location in the database and returns its uuid
+// @Security ApiKeyAuth
 // @Tags location
 // @Accept json
 // @Produce json
 // @Param location body dto.CreateLocationRequest true "Location name"
 // @Success 200 {object} ResponseOK{response=dto.CreateLocationResponse}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/locations [post]
 func NewLocationRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUseCase, log *slog.Logger) {
@@ -56,10 +59,13 @@ func NewLocationRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 // NewLocationRouteGet
 // @Summary Getting locations
 // @Description Get all locations from database
+// @Security ApiKeyAuth
 // @Tags location
 // @Accept */*
 // @Produce json
 // @Success 200 {object} ResponseOK{response=dto.GetLocationsResponse}
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/locations [get]
 func NewLocationRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.LocationUseCase, log *slog.Logger) {
@@ -87,12 +93,15 @@ func NewLocationRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.LocationUseCas
 // NewLocationRouteGetByUUID
 // @Summary Getting location by uuid
 // @Description Get location from database with given uuid
+// @Security ApiKeyAuth
 // @Tags location
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Location uuid"
 // @Success 200 {object} ResponseOK{response=models.Location}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/locations/uuid/{uuid} [get]
@@ -122,11 +131,14 @@ func NewLocationRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.Location
 // NewLocationRouteGetByName
 // @Summary Getting location by name
 // @Description Get location from database with given name
+// @Security ApiKeyAuth
 // @Tags location
 // @Accept */*
 // @Produce json
 // @Param name path string true "Location name"
 // @Success 200 {object} ResponseOK{response=models.Location}
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/locations/name/{name} [get]
@@ -156,6 +168,7 @@ func NewLocationRouteGetByName(apiV1Group *gin.RouterGroup, uc *usecase.Location
 // NewLocationRouteUpdate
 // @Summary Updating location
 // @Description Update location in database
+// @Security ApiKeyAuth
 // @Tags location
 // @Accept json
 // @Produce json
@@ -163,15 +176,17 @@ func NewLocationRouteGetByName(apiV1Group *gin.RouterGroup, uc *usecase.Location
 // @Param location body dto.UpdateLocationRequest true "Location"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/locations/uuid/{uuid} [put]
+// @Router /api/v1/locations/{uuid} [put]
 func NewLocationRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUseCase, log *slog.Logger) {
 	r := &locationRoutes{uc, log}
 
 	locationGroup := apiV1Group.Group("/locations")
 
-	locationGroup.PUT("/uuid/:uuid", func(c *gin.Context) {
+	locationGroup.PUT("/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
 
 		var locationDTO dto.UpdateLocationRequest
@@ -200,12 +215,15 @@ func NewLocationRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 // NewLocationRouteDelete
 // @Summary Deleting existing location
 // @Description Deleting existing location from the database
+// @Security ApiKeyAuth
 // @Tags location
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Location uuid"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/locations/{uuid} [delete]

@@ -16,12 +16,15 @@ type scheduleRoutes struct {
 // NewScheduleRouteCreate
 // @Summary Creating a new schedule
 // @Description Creates a new schedule in the database and returns its uuid
+// @Security ApiKeyAuth
 // @Tags schedule
 // @Accept json
 // @Produce json
 // @Param schedule body dto.ScheduleRequest true "Schedule"
 // @Success 200 {object} ResponseOK{response=dto.ScheduleRequest}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/schedules [post]
@@ -61,11 +64,14 @@ func NewScheduleRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUse
 // NewScheduleRouteGet
 // @Summary Getting schedules
 // @Description Get all schedules from database
+// @Security ApiKeyAuth
 // @Tags schedule
 // @Accept */*
 // @Produce json
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/schedules [get]
@@ -97,12 +103,15 @@ func NewScheduleRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUseCas
 // NewScheduleRouteGetByUUID
 // @Summary Getting schedule by uuid
 // @Description Get schedule from database with given uuid
+// @Security ApiKeyAuth
 // @Tags schedule
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Schedule uuid"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/schedules/uuid/{uuid} [get]
@@ -135,12 +144,15 @@ func NewScheduleRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.Schedule
 // NewScheduleRouteGetByTeacher
 // @Summary Getting schedule by teacher fullname
 // @Description Get schedule from database with given teacher fullname
+// @Security ApiKeyAuth
 // @Tags schedule
 // @Accept */*
 // @Produce json
 // @Param fn path string true "Teacher fullname"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/schedules/teacher/fn/{fn} [get]
@@ -173,12 +185,15 @@ func NewScheduleRouteGetByTeacher(apiV1Group *gin.RouterGroup, uc *usecase.Sched
 // NewScheduleRouteGetByTeacherUUID
 // @Summary Getting schedule by teacher uuid
 // @Description Get schedule from database with given teacher uuid
+// @Security ApiKeyAuth
 // @Tags schedule
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Teacher uuid"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/schedules/teacher/uuid/{uuid} [get]
@@ -217,6 +232,7 @@ func NewScheduleRouteGetByTeacherUUID(apiV1Group *gin.RouterGroup, uc *usecase.S
 // @Param number path string true "Group number"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/schedules/group/number/{number} [get]
@@ -249,12 +265,15 @@ func NewScheduleRouteGetByGroup(apiV1Group *gin.RouterGroup, uc *usecase.Schedul
 // NewScheduleRouteGetByGroupUUID
 // @Summary Getting schedule by group uuid
 // @Description Get schedule from database with given group uuid
+// @Security ApiKeyAuth
 // @Tags schedule
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Group uuid"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/schedules/group/uuid/{uuid} [get]
@@ -287,12 +306,15 @@ func NewScheduleRouteGetByGroupUUID(apiV1Group *gin.RouterGroup, uc *usecase.Sch
 // NewScheduleRouteGetByRoom
 // @Summary Getting schedule by room number
 // @Description Get schedule from database with given room number
+// @Security ApiKeyAuth
 // @Tags schedule
 // @Accept */*
 // @Produce json
 // @Param number path string true "Room number"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/schedules/room/number/{number} [get]
@@ -325,12 +347,15 @@ func NewScheduleRouteGetByRoom(apiV1Group *gin.RouterGroup, uc *usecase.Schedule
 // NewScheduleRouteGetByRoomUUID
 // @Summary Getting schedule by room uuid
 // @Description Get schedule from database with given room uuid
+// @Security ApiKeyAuth
 // @Tags schedule
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Room uuid"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/schedules/room/uuid/{uuid} [get]
@@ -363,12 +388,15 @@ func NewScheduleRouteGetByRoomUUID(apiV1Group *gin.RouterGroup, uc *usecase.Sche
 // NewScheduleRouteGetBySubject
 // @Summary Getting schedule by subject name
 // @Description Get schedule from database with given subject name
+// @Security ApiKeyAuth
 // @Tags schedule
 // @Accept */*
 // @Produce json
 // @Param name path string true "Subject name"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/schedules/subject/name/{name} [get]
@@ -401,12 +429,15 @@ func NewScheduleRouteGetBySubject(apiV1Group *gin.RouterGroup, uc *usecase.Sched
 // NewScheduleRouteGetBySubjectUUID
 // @Summary Getting schedule by subject uuid
 // @Description Get schedule from database with given subject uuid
+// @Security ApiKeyAuth
 // @Tags schedule
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Subject uuid"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/schedules/subject/uuid/{uuid} [get]
@@ -439,12 +470,15 @@ func NewScheduleRouteGetBySubjectUUID(apiV1Group *gin.RouterGroup, uc *usecase.S
 // NewScheduleRouteGetByLocation
 // @Summary Getting schedule by location name
 // @Description Get schedule from database with given location name
+// @Security ApiKeyAuth
 // @Tags schedule
 // @Accept */*
 // @Produce json
 // @Param name path string true "Location name"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/schedules/location/name/{name} [get]
@@ -477,12 +511,15 @@ func NewScheduleRouteGetByLocation(apiV1Group *gin.RouterGroup, uc *usecase.Sche
 // NewScheduleRouteGetByLocationUUID
 // @Summary Getting schedule by location uuid
 // @Description Get schedule from database with given location uuid
+// @Security ApiKeyAuth
 // @Tags schedule
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Location uuid"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/schedules/location/uuid/{uuid} [get]
@@ -515,6 +552,7 @@ func NewScheduleRouteGetByLocationUUID(apiV1Group *gin.RouterGroup, uc *usecase.
 // NewScheduleRouteUpdate
 // @Summary Updating room
 // @Description Update room in database
+// @Security ApiKeyAuth
 // @Tags schedule
 // @Accept json
 // @Produce json
@@ -522,15 +560,17 @@ func NewScheduleRouteGetByLocationUUID(apiV1Group *gin.RouterGroup, uc *usecase.
 // @Param room body dto.ScheduleRequest true "Schedule"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/schedule/uuid/{uuid} [put]
+// @Router /api/v1/schedule/{uuid} [put]
 func NewScheduleRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUseCase, log *slog.Logger) {
 	r := &scheduleRoutes{uc, log}
 
 	scheduleGroup := apiV1Group.Group("/schedule")
 
-	scheduleGroup.PUT("/uuid/:uuid", func(c *gin.Context) {
+	scheduleGroup.PUT("/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
 
 		var scheduleDTO dto.ScheduleRequest
@@ -559,12 +599,15 @@ func NewScheduleRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUse
 // NewScheduleRouteDelete
 // @Summary Deleting existing schedule
 // @Description Deleting existing schedule from the database
+// @Security ApiKeyAuth
 // @Tags schedule
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Schedule uuid"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/schedule/{uuid} [delete]

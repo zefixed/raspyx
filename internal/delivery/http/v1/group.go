@@ -16,12 +16,15 @@ type groupRoutes struct {
 // NewGroupRouteCreate
 // @Summary Creating a new group
 // @Description Creates a new group in the database and returns its uuid
+// @Security ApiKeyAuth
 // @Tags group
 // @Accept json
 // @Produce json
 // @Param group body dto.CreateGroupRequest true "Group number"
 // @Success 200 {object} ResponseOK{response=dto.CreateGroupResponse}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/groups [post]
 func NewGroupRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, log *slog.Logger) {
@@ -57,10 +60,14 @@ func NewGroupRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 // NewGroupRouteGet
 // @Summary Getting groups
 // @Description Get all groups from database
+// @Security ApiKeyAuth
+// @Security ApiKeyAuth
 // @Tags group
 // @Accept */*
 // @Produce json
 // @Success 200 {object} ResponseOK{response=dto.GetGroupsResponse}
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/groups [get]
 func NewGroupRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, log *slog.Logger) {
@@ -88,12 +95,15 @@ func NewGroupRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, log
 // NewGroupRouteGetByUUID
 // @Summary Getting group by uuid
 // @Description Get group from database with given uuid
+// @Security ApiKeyAuth
 // @Tags group
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Group uuid"
 // @Success 200 {object} ResponseOK{response=models.Group}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/groups/uuid/{uuid} [get]
@@ -123,12 +133,15 @@ func NewGroupRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCas
 // NewGroupRouteGetByNumber
 // @Summary Getting group by number
 // @Description Get group from database with given number
+// @Security ApiKeyAuth
 // @Tags group
 // @Accept */*
 // @Produce json
 // @Param number path string true "Group number"
 // @Success 200 {object} ResponseOK{response=models.Group}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/groups/number/{number} [get]
@@ -158,6 +171,7 @@ func NewGroupRouteGetByNumber(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseC
 // NewGroupRouteUpdate
 // @Summary Updating group
 // @Description Update group in database
+// @Security ApiKeyAuth
 // @Tags group
 // @Accept json
 // @Produce json
@@ -165,15 +179,17 @@ func NewGroupRouteGetByNumber(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseC
 // @Param group body dto.UpdateGroupRequest true "Group"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/groups/uuid/{uuid} [put]
+// @Router /api/v1/groups/{uuid} [put]
 func NewGroupRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, log *slog.Logger) {
 	r := &groupRoutes{uc, log}
 
 	groupGroup := apiV1Group.Group("/groups")
 
-	groupGroup.PUT("/uuid/:uuid", func(c *gin.Context) {
+	groupGroup.PUT("/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
 
 		var groupDTO dto.UpdateGroupRequest
@@ -202,12 +218,15 @@ func NewGroupRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 // NewGroupRouteDelete
 // @Summary Deleting existing group
 // @Description Deleting existing group from the database
+// @Security ApiKeyAuth
 // @Tags group
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Group uuid"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/groups/{uuid} [delete]

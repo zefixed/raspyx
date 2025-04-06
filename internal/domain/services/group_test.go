@@ -12,17 +12,17 @@ func TestGroupService_Validate(t *testing.T) {
 		wantValid bool
 	}{
 		{
-			name:      "wantValid format with 3 letters",
+			name:      "valid format with 3 letters",
 			group:     &models.Group{Number: "12A-345 XYZ"},
 			wantValid: true,
 		},
 		{
-			name:      "wantValid format with letter",
+			name:      "valid format with letter",
 			group:     &models.Group{Number: "12A-345"},
 			wantValid: true,
 		},
 		{
-			name:      "wantValid format with no letters",
+			name:      "valid format with no letters",
 			group:     &models.Group{Number: "123-345"},
 			wantValid: true,
 		},
@@ -47,7 +47,7 @@ func TestGroupService_Validate(t *testing.T) {
 			wantValid: false,
 		},
 		{
-			name:      "wantValid format with Cyrillic letters",
+			name:      "valid format with Cyrillic letters",
 			group:     &models.Group{Number: "12А-345 ПИШ"},
 			wantValid: true,
 		},
@@ -69,7 +69,7 @@ func TestGroupService_Validate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			valid := groupService.Validate(tt.group)
 			if valid != tt.wantValid {
-				t.Errorf("GroupService.Validate() wantValid = %v, wantValid %v", valid, tt.wantValid)
+				t.Errorf("GroupService.Validate() valid = %v, wantValid %v", valid, tt.wantValid)
 			}
 		})
 	}

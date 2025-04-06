@@ -16,12 +16,15 @@ type subjectRoutes struct {
 // NewSubjectRouteCreate
 // @Summary Creating a new subject
 // @Description Creates a new subject in the database and returns its uuid
+// @Security ApiKeyAuth
 // @Tags subject
 // @Accept json
 // @Produce json
 // @Param subject body dto.CreateSubjectRequest true "Subject name"
 // @Success 200 {object} ResponseOK{response=dto.CreateSubjectRequest}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/subjects [post]
 func NewSubjectRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCase, log *slog.Logger) {
@@ -60,10 +63,13 @@ func NewSubjectRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCa
 // NewSubjectRouteGet
 // @Summary Getting subjects
 // @Description Get all subjects from database
+// @Security ApiKeyAuth
 // @Tags subject
 // @Accept */*
 // @Produce json
 // @Success 200 {object} ResponseOK{response=dto.GetSubjectsResponse}
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/subjects [get]
 func NewSubjectRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCase, log *slog.Logger) {
@@ -94,12 +100,15 @@ func NewSubjectRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCase,
 // NewSubjectRouteGetByUUID
 // @Summary Getting subject by uuid
 // @Description Get subject from database with given uuid
+// @Security ApiKeyAuth
 // @Tags subject
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Subject uuid"
 // @Success 200 {object} ResponseOK{response=models.Subject}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/subjects/uuid/{uuid} [get]
@@ -129,11 +138,14 @@ func NewSubjectRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUs
 // NewSubjectRouteGetByName
 // @Summary Getting subject by name
 // @Description Get subject from database with given name
+// @Security ApiKeyAuth
 // @Tags subject
 // @Accept */*
 // @Produce json
 // @Param name path string true "Subject name"
 // @Success 200 {object} ResponseOK{response=[]models.Subject}
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/subjects/name/{name} [get]
@@ -164,6 +176,7 @@ func NewSubjectRouteGetByName(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUs
 // NewSubjectRouteUpdate
 // @Summary Updating subject
 // @Description Update subject in database
+// @Security ApiKeyAuth
 // @Tags subject
 // @Accept json
 // @Produce json
@@ -171,15 +184,17 @@ func NewSubjectRouteGetByName(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUs
 // @Param subject body dto.UpdateSubjectRequest true "Subject"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/subjects/uuid/{uuid} [put]
+// @Router /api/v1/subjects/{uuid} [put]
 func NewSubjectRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCase, log *slog.Logger) {
 	r := &subjectRoutes{uc, log}
 
 	subjectGroup := apiV1Group.Group("/subjects")
 
-	subjectGroup.PUT("/uuid/:uuid", func(c *gin.Context) {
+	subjectGroup.PUT("/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
 
 		var subjectDTO dto.UpdateSubjectRequest
@@ -208,12 +223,15 @@ func NewSubjectRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCa
 // NewSubjectRouteDelete
 // @Summary Deleting existing subject
 // @Description Deleting existing subject from the database
+// @Security ApiKeyAuth
 // @Tags subject
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Subject uuid"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/subjects/{uuid} [delete]

@@ -34,7 +34,7 @@ func Run(cfg *config.Config) {
 	// Creating db connection
 	conn, err := pgx.Connect(context.Background(), cfg.PG.PGURL)
 	if err != nil {
-		log.Error("error db connection: %v", err)
+		log.Error(fmt.Sprintf("error db connection: %v", err))
 		panic(err)
 	}
 	defer conn.Close(context.Background())
@@ -57,7 +57,7 @@ func Run(cfg *config.Config) {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// All routes
-	v1.NewRouter(r, log, conn)
+	v1.NewRouter(r, log, conn, cfg)
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%v", cfg.HTTP.Port),

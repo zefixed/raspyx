@@ -12,6 +12,7 @@ type (
 		Log  Log
 		HTTP HTTP
 		PG   PG
+		JWT  JWT
 	}
 	App struct {
 		Name    string `env:"APP_NAME,required"`
@@ -28,6 +29,10 @@ type (
 
 	PG struct {
 		PGURL string `env:"PG_URL,required"`
+	}
+
+	JWT struct {
+		JWTSecret string `env:"JWT_SECRET,required"`
 	}
 )
 
