@@ -46,7 +46,7 @@ func NewTeacherRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCa
 
 		resp, err := r.uc.Create(c, &teacherDTO)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -84,7 +84,7 @@ func NewTeacherRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCase,
 	teacherGroup.GET("/", func(c *gin.Context) {
 		resp, err := r.uc.Get(c)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -122,7 +122,7 @@ func NewTeacherRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUs
 		reqUUID := c.Param("uuid")
 		resp, err := r.uc.GetByUUID(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -160,7 +160,7 @@ func NewTeacherRouteGetByFullName(apiV1Group *gin.RouterGroup, uc *usecase.Teach
 
 		resp, err := r.uc.GetByFullName(c, reqFullName)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -207,7 +207,7 @@ func NewTeacherRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCa
 
 		err := r.uc.Update(c, reqUUID, &teacherDTO)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -245,7 +245,7 @@ func NewTeacherRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCa
 		reqUUID := c.Param("uuid")
 		err := r.uc.Delete(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,

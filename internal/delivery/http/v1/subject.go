@@ -45,7 +45,7 @@ func NewSubjectRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCa
 
 		resp, err := r.uc.Create(c, &subjectDTO)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -83,7 +83,7 @@ func NewSubjectRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCase,
 	subjectGroup.GET("/", func(c *gin.Context) {
 		resp, err := r.uc.Get(c)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -121,7 +121,7 @@ func NewSubjectRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUs
 		reqUUID := c.Param("uuid")
 		resp, err := r.uc.GetByUUID(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -159,7 +159,7 @@ func NewSubjectRouteGetByName(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUs
 
 		resp, err := r.uc.GetByName(c, reqName)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -206,7 +206,7 @@ func NewSubjectRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCa
 
 		err := r.uc.Update(c, reqUUID, &subjectDTO)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -244,7 +244,7 @@ func NewSubjectRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCa
 		reqUUID := c.Param("uuid")
 		err := r.uc.Delete(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,

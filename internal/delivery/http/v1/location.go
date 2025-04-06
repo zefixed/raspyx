@@ -42,7 +42,7 @@ func NewLocationRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 
 		resp, err := r.uc.Create(c, &locationDTO)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -76,7 +76,7 @@ func NewLocationRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.LocationUseCas
 	locationGroup.GET("/", func(c *gin.Context) {
 		resp, err := r.uc.Get(c)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -114,7 +114,7 @@ func NewLocationRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.Location
 		reqUUID := c.Param("uuid")
 		resp, err := r.uc.GetByUUID(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -151,7 +151,7 @@ func NewLocationRouteGetByName(apiV1Group *gin.RouterGroup, uc *usecase.Location
 		reqName := c.Param("name")
 		resp, err := r.uc.GetByName(c, reqName)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -198,7 +198,7 @@ func NewLocationRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 
 		err := r.uc.Update(c, reqUUID, &locationDTO)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -236,7 +236,7 @@ func NewLocationRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 		reqUUID := c.Param("uuid")
 		err := r.uc.Delete(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,

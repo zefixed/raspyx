@@ -86,7 +86,7 @@ func mapError(err error) string {
 	return "Unknown error"
 }
 
-func makeErrResponse(er *ErrResp) {
+func makeErrResponse(c *gin.Context, er *ErrResp) {
 	errMes := mapError(er.err)
 	if errMes != "Unknown error" {
 		er.log.Info(errMes, slog.Any(er.logKey, er.logValue))
@@ -97,7 +97,14 @@ func makeErrResponse(er *ErrResp) {
 		}
 		return
 	}
-	er.log.Error("Internal server error", slog.String("error", er.err.Error()))
-	er.c.JSON(http.StatusInternalServerError, RespError("Internal server error"))
+	er.log.Error(
+		"Internal server error",
+		slog.String("error", er.err.Error()),
+		slog.String("request_id", c.GetString("request_id")),
+	)
+	er.c.JSON(http.StatusInternalServerError, RespError(map[string]string{
+		"error":      "Internal server error",
+		"request_id": c.GetString("request_id"),
+	}))
 	return
 }

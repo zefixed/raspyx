@@ -18,6 +18,7 @@ func Logger(log *slog.Logger) gin.HandlerFunc {
 		// after request
 		log.Info("request",
 			slog.String("component", "middleware/logger"),
+			slog.String("request_id", fmt.Sprintf("%v", c.GetString("request_id"))),
 			slog.String("method", fmt.Sprintf("%v", c.Request.Method)),
 			slog.String("status", fmt.Sprintf("%v", c.Writer.Status())),
 			slog.String("url", fmt.Sprintf("%v", c.Request.URL.Path)),

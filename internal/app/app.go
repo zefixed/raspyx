@@ -14,7 +14,7 @@ import (
 	"raspyx/config"
 	_ "raspyx/docs"
 	v1 "raspyx/internal/delivery/http"
-	"raspyx/internal/delivery/http/middleware"
+	mw "raspyx/internal/delivery/http/middleware"
 	"syscall"
 	"time"
 )
@@ -43,8 +43,9 @@ func Run(cfg *config.Config) {
 	defer stop()
 
 	r := gin.New()
-	r.Use(middleware.Logger(log))
+	r.Use(mw.Logger(log))
 	r.Use(gin.Recovery())
+	r.Use(mw.RequestIDMiddleware())
 
 	// Pinger
 	r.GET("/ping", func(c *gin.Context) {
