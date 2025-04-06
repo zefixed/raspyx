@@ -43,7 +43,7 @@ func NewUserRouteRegister(apiV1Group *gin.RouterGroup, uc *usecase.UserUseCase, 
 
 		resp, err := r.uc.Create(c, &userDTO)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err: err,
 				c:   c,
 				log: log,
@@ -88,7 +88,7 @@ func NewUserRouteLogin(apiV1Group *gin.RouterGroup, uc *usecase.UserUseCase, log
 
 		resp, err := r.uc.Login(c, jwt, &userDTO)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -126,7 +126,7 @@ func NewUserRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.UserUseCase, log *
 	userGroup.GET("/", func(c *gin.Context) {
 		resp, err := r.uc.Get(c)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -164,7 +164,7 @@ func NewUserRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.UserUseCase,
 		reqUUID := c.Param("uuid")
 		resp, err := r.uc.GetByUUID(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -202,7 +202,7 @@ func NewUserRouteGetByUsername(apiV1Group *gin.RouterGroup, uc *usecase.UserUseC
 		reqUsername := c.Param("username")
 		resp, err := r.uc.GetByUsername(c, reqUsername)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -240,7 +240,7 @@ func NewUserRouteGetByAccessLevel(apiV1Group *gin.RouterGroup, uc *usecase.UserU
 		reqAccessLevel := c.Param("al")
 		resp, err := r.uc.GetByAccessLevel(c, reqAccessLevel)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -288,7 +288,7 @@ func NewUserRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.UserUseCase, lo
 
 		err := r.uc.Update(c, reqUUID, &userDTO)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -326,7 +326,7 @@ func NewUserRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.UserUseCase, lo
 		reqUUID := c.Param("uuid")
 		err := r.uc.Delete(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,

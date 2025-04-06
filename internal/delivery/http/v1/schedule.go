@@ -46,7 +46,7 @@ func NewScheduleRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUse
 
 		resp, err := r.uc.Create(c, &scheduleDTO)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -86,7 +86,7 @@ func NewScheduleRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUseCas
 	scheduleGroup.GET("/", func(c *gin.Context) {
 		resp, err := r.uc.Get(c)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -127,7 +127,7 @@ func NewScheduleRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.Schedule
 		reqUUID := c.Param("uuid")
 		resp, err := r.uc.GetByUUID(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -168,7 +168,7 @@ func NewScheduleRouteGetByTeacher(apiV1Group *gin.RouterGroup, uc *usecase.Sched
 		reqfn := c.Param("fn")
 		resp, err := r.uc.GetByTeacher(c, reqfn)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -209,7 +209,7 @@ func NewScheduleRouteGetByTeacherUUID(apiV1Group *gin.RouterGroup, uc *usecase.S
 		reqUUID := c.Param("uuid")
 		resp, err := r.uc.GetByTeacherUUID(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -248,7 +248,7 @@ func NewScheduleRouteGetByGroup(apiV1Group *gin.RouterGroup, uc *usecase.Schedul
 		reqNumber := c.Param("number")
 		resp, err := r.uc.GetByGroup(c, reqNumber)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -289,7 +289,7 @@ func NewScheduleRouteGetByGroupUUID(apiV1Group *gin.RouterGroup, uc *usecase.Sch
 		reqUUID := c.Param("uuid")
 		resp, err := r.uc.GetByGroupUUID(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -330,7 +330,7 @@ func NewScheduleRouteGetByRoom(apiV1Group *gin.RouterGroup, uc *usecase.Schedule
 		reqNumber := c.Param("number")
 		resp, err := r.uc.GetByRoom(c, reqNumber)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -371,7 +371,7 @@ func NewScheduleRouteGetByRoomUUID(apiV1Group *gin.RouterGroup, uc *usecase.Sche
 		reqUUID := c.Param("uuid")
 		resp, err := r.uc.GetByRoomUUID(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -412,7 +412,7 @@ func NewScheduleRouteGetBySubject(apiV1Group *gin.RouterGroup, uc *usecase.Sched
 		reqName := c.Param("name")
 		resp, err := r.uc.GetBySubject(c, reqName)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -453,7 +453,7 @@ func NewScheduleRouteGetBySubjectUUID(apiV1Group *gin.RouterGroup, uc *usecase.S
 		reqUUID := c.Param("uuid")
 		resp, err := r.uc.GetBySubjectUUID(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -494,7 +494,7 @@ func NewScheduleRouteGetByLocation(apiV1Group *gin.RouterGroup, uc *usecase.Sche
 		reqName := c.Param("name")
 		resp, err := r.uc.GetByLocation(c, reqName)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -535,7 +535,7 @@ func NewScheduleRouteGetByLocationUUID(apiV1Group *gin.RouterGroup, uc *usecase.
 		reqUUID := c.Param("uuid")
 		resp, err := r.uc.GetByLocationUUID(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -582,7 +582,7 @@ func NewScheduleRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUse
 
 		err := r.uc.Update(c, reqUUID, &scheduleDTO)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -620,7 +620,7 @@ func NewScheduleRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUse
 		reqUUID := c.Param("uuid")
 		err := r.uc.Delete(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,

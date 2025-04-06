@@ -45,7 +45,7 @@ func NewRoomRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, lo
 
 		resp, err := r.uc.Create(c, &roomDTO)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -83,7 +83,7 @@ func NewRoomRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, log *
 	roomGroup.GET("/", func(c *gin.Context) {
 		resp, err := r.uc.Get(c)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -121,7 +121,7 @@ func NewRoomRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase,
 		reqUUID := c.Param("uuid")
 		resp, err := r.uc.GetByUUID(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -158,7 +158,7 @@ func NewRoomRouteGetByNumber(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCas
 		reqNumber := c.Param("number")
 		resp, err := r.uc.GetByNumber(c, reqNumber)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -205,7 +205,7 @@ func NewRoomRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, lo
 
 		err := r.uc.Update(c, reqUUID, &roomDTO)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,
@@ -243,7 +243,7 @@ func NewRoomRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, lo
 		reqUUID := c.Param("uuid")
 		err := r.uc.Delete(c, reqUUID)
 		if err != nil {
-			makeErrResponse(&ErrResp{
+			makeErrResponse(c, &ErrResp{
 				err:      err,
 				c:        c,
 				log:      log,

@@ -6,8 +6,8 @@ type ResponseOK struct {
 }
 
 type ResponseError struct {
-	Status string `json:"status"  example:"Error"`
-	Error  string `json:"error,omitempty"`
+	Status string      `json:"status"  example:"Error"`
+	Error  interface{} `json:"error,omitempty"`
 }
 
 const (
@@ -22,7 +22,7 @@ func RespOK(response interface{}) ResponseOK {
 	}
 }
 
-func RespError(msg string) ResponseError {
+func RespError(msg interface{}) ResponseError {
 	return ResponseError{
 		Status: StatusError,
 		Error:  msg,
