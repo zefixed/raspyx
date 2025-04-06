@@ -26,7 +26,7 @@ func (uc *GroupUseCase) Create(ctx context.Context, groupDTO *dto.CreateGroupReq
 	// Generating new uuid
 	newUUID, err := uuid.NewUUID()
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, errors.New("internal error"))
+		return nil, fmt.Errorf("%s: %w", op, ErrGeneratingUUID)
 	}
 
 	// DTO to model

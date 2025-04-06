@@ -1,5 +1,12 @@
 -- +goose Up
 -- +goose StatementBegin
+CREATE TABLE IF NOT EXISTS users (
+    uuid UUID PRIMARY KEY,
+    username VARCHAR NOT NULL UNIQUE,
+    password_hash VARCHAR NOT NULL,
+    access_level INT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS teachers (
     uuid UUID PRIMARY KEY,
     first_name VARCHAR NOT NULL,
@@ -59,6 +66,7 @@ CREATE TABLE IF NOT EXISTS rooms_to_schedule (
 );
 
 CREATE INDEX IF NOT EXISTS idx_schedule_group_uuid ON schedule(group_uuid);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 -- +goose StatementEnd
 
 -- +goose Down
@@ -72,4 +80,5 @@ DROP TABLE IF EXISTS rooms;
 DROP TABLE IF EXISTS subjects;
 DROP TABLE IF EXISTS subj_types;
 DROP TABLE IF EXISTS locations;
+DROP TABLE IF EXISTS users;
 -- +goose StatementEnd

@@ -16,12 +16,15 @@ type roomRoutes struct {
 // NewRoomRouteCreate
 // @Summary Creating a new room
 // @Description Creates a new room in the database and returns its uuid
+// @Security ApiKeyAuth
 // @Tags room
 // @Accept json
 // @Produce json
 // @Param room body dto.CreateRoomRequest true "Room number"
 // @Success 200 {object} ResponseOK{response=dto.CreateRoomRequest}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/rooms [post]
 func NewRoomRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, log *slog.Logger) {
@@ -60,10 +63,13 @@ func NewRoomRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, lo
 // NewRoomRouteGet
 // @Summary Getting rooms
 // @Description Get all rooms from database
+// @Security ApiKeyAuth
 // @Tags room
 // @Accept */*
 // @Produce json
 // @Success 200 {object} ResponseOK{response=dto.GetRoomsResponse}
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/rooms [get]
 func NewRoomRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, log *slog.Logger) {
@@ -94,12 +100,15 @@ func NewRoomRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, log *
 // NewRoomRouteGetByUUID
 // @Summary Getting room by uuid
 // @Description Get room from database with given uuid
+// @Security ApiKeyAuth
 // @Tags room
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Room uuid"
 // @Success 200 {object} ResponseOK{response=models.Room}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/rooms/uuid/{uuid} [get]
@@ -129,11 +138,14 @@ func NewRoomRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase,
 // NewRoomRouteGetByNumber
 // @Summary Getting room by number
 // @Description Get room from database with given number
+// @Security ApiKeyAuth
 // @Tags room
 // @Accept */*
 // @Produce json
 // @Param number path string true "Room number"
 // @Success 200 {object} ResponseOK{response=models.Room}
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/rooms/number/{number} [get]
@@ -163,6 +175,7 @@ func NewRoomRouteGetByNumber(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCas
 // NewRoomRouteUpdate
 // @Summary Updating room
 // @Description Update room in database
+// @Security ApiKeyAuth
 // @Tags room
 // @Accept json
 // @Produce json
@@ -170,15 +183,17 @@ func NewRoomRouteGetByNumber(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCas
 // @Param room body dto.UpdateRoomRequest true "Room"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/rooms/uuid/{uuid} [put]
+// @Router /api/v1/rooms/{uuid} [put]
 func NewRoomRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, log *slog.Logger) {
 	r := &roomRoutes{uc, log}
 
 	roomGroup := apiV1Group.Group("/rooms")
 
-	roomGroup.PUT("/uuid/:uuid", func(c *gin.Context) {
+	roomGroup.PUT("/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
 
 		var roomDTO dto.UpdateRoomRequest
@@ -207,12 +222,15 @@ func NewRoomRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, lo
 // NewRoomRouteDelete
 // @Summary Deleting existing room
 // @Description Deleting existing room from the database
+// @Security ApiKeyAuth
 // @Tags room
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Room uuid"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/rooms/{uuid} [delete]

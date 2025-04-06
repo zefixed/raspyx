@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"raspyx/internal/domain/interfaces"
@@ -25,7 +24,7 @@ func (uc *SubjectUseCase) Create(ctx context.Context, SubjectDTO *dto.CreateSubj
 	// Generating new uuid
 	newUUID, err := uuid.NewUUID()
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, errors.New("internal error"))
+		return nil, fmt.Errorf("%s: %w", op, ErrGeneratingUUID)
 	}
 
 	// DTO to model
@@ -108,7 +107,7 @@ func (uc *SubjectUseCase) Delete(ctx context.Context, UUID string) error {
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, ErrInvalidUUID)
 	}
-	
+
 	// Deleting subject from db with given uuid
 	err = uc.repo.Delete(ctx, subjectUUID)
 	if err != nil {

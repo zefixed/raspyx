@@ -17,7 +17,7 @@ type ErrResp struct {
 }
 
 func mapError(err error) string {
-	other := []struct {
+	withErr := []struct {
 		e       string
 		message string
 	}{
@@ -31,11 +31,27 @@ func mapError(err error) string {
 		{"invalid weekday", "Invalid weekday"},
 		{"invalid fullname", "Invalid fullname"},
 		{"fk error", "Object with given uuid does not exist"},
+		{"failed to generate uuid", "Failed to generate uuid"},
+		{"invalid user", "Invalid user"},
 	}
 
-	for _, o := range other {
-		if strings.Contains(strings.ToLower(err.Error()), strings.ToLower(o.e)) {
-			return o.message
+	for _, we := range withErr {
+		if strings.Contains(strings.ToLower(err.Error()), strings.ToLower(we.e)) {
+			return we.message
+		}
+	}
+
+	withoutErr := []struct {
+		e       string
+		message string
+	}{
+		{"invalid creds", "Wrong username or password"},
+		{"AccessLevel: strconv.Atoi", "Access level must be int"},
+	}
+
+	for _, woe := range withoutErr {
+		if strings.Contains(strings.ToLower(err.Error()), strings.ToLower(woe.e)) {
+			return woe.message
 		}
 	}
 
@@ -50,6 +66,7 @@ func mapError(err error) string {
 		{"SubjectType", "Subject type"},
 		{"Teacher", "Teacher"},
 		{"Schedule", "Schedule"},
+		{"UserRepository", "User"},
 	}
 
 	for _, r := range repos {

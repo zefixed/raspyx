@@ -17,12 +17,15 @@ type teacherRoutes struct {
 // NewTeacherRouteCreate
 // @Summary Creating a new teacher
 // @Description Creates a new teacher in the database and returns its uuid
+// @Security ApiKeyAuth
 // @Tags teacher
 // @Accept json
 // @Produce json
 // @Param teacher body dto.CreateTeacherRequest true "Teacher"
 // @Success 200 {object} ResponseOK{response=dto.CreateTeacherRequest}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/teachers [post]
 func NewTeacherRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCase, log *slog.Logger) {
@@ -61,10 +64,13 @@ func NewTeacherRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCa
 // NewTeacherRouteGet
 // @Summary Getting teachers
 // @Description Get all teachers from database
+// @Security ApiKeyAuth
 // @Tags teacher
 // @Accept */*
 // @Produce json
 // @Success 200 {object} ResponseOK{response=dto.GetTeachersResponse}
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/teachers [get]
 func NewTeacherRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCase, log *slog.Logger) {
@@ -95,12 +101,15 @@ func NewTeacherRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCase,
 // NewTeacherRouteGetByUUID
 // @Summary Getting teacher by uuid
 // @Description Get teacher from database with given uuid
+// @Security ApiKeyAuth
 // @Tags teacher
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Teacher uuid"
 // @Success 200 {object} ResponseOK{response=models.Teacher}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/teachers/uuid/{uuid} [get]
@@ -130,11 +139,14 @@ func NewTeacherRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUs
 // NewTeacherRouteGetByFullName
 // @Summary Getting teacher by fullname
 // @Description Get teacher from database with given fullname
+// @Security ApiKeyAuth
 // @Tags teacher
 // @Accept */*
 // @Produce json
 // @Param fullname path string true "Teacher fullname"
 // @Success 200 {object} ResponseOK{response=models.Teacher}
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/teachers/fullname/{fullname} [get]
@@ -165,6 +177,7 @@ func NewTeacherRouteGetByFullName(apiV1Group *gin.RouterGroup, uc *usecase.Teach
 // NewTeacherRouteUpdate
 // @Summary Updating teacher
 // @Description Update teacher in database
+// @Security ApiKeyAuth
 // @Tags teacher
 // @Accept json
 // @Produce json
@@ -172,15 +185,17 @@ func NewTeacherRouteGetByFullName(apiV1Group *gin.RouterGroup, uc *usecase.Teach
 // @Param teacher body dto.UpdateTeacherRequest true "Teacher"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/teachers/uuid/{uuid} [put]
+// @Router /api/v1/teachers/{uuid} [put]
 func NewTeacherRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCase, log *slog.Logger) {
 	r := &teacherRoutes{uc, log}
 
 	teacherGroup := apiV1Group.Group("/teachers")
 
-	teacherGroup.PUT("/uuid/:uuid", func(c *gin.Context) {
+	teacherGroup.PUT("/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
 
 		var teacherDTO dto.UpdateTeacherRequest
@@ -209,12 +224,15 @@ func NewTeacherRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCa
 // NewTeacherRouteDelete
 // @Summary Deleting existing teacher
 // @Description Deleting existing teacher from the database
+// @Security ApiKeyAuth
 // @Tags teacher
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Teacher uuid"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/teachers/{uuid} [delete]

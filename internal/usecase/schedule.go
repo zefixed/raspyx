@@ -184,7 +184,7 @@ func (uc *ScheduleUseCase) Create(ctx context.Context, scheduleDTO *dto.Schedule
 	// Generating new uuid
 	newUUID, err := uuid.NewUUID()
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, errors.New("internal error"))
+		return nil, fmt.Errorf("%s: %w", op, ErrGeneratingUUID)
 	}
 	schedule.UUID = newUUID
 

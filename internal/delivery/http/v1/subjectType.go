@@ -16,12 +16,15 @@ type subjectTypeRoutes struct {
 // NewSubjectTypeRouteCreate
 // @Summary Creating a new subjectType
 // @Description Creates a new subjectType in the database and returns its uuid
+// @Security ApiKeyAuth
 // @Tags subjectType
 // @Accept json
 // @Produce json
 // @Param subjectType body dto.CreateSubjectTypeRequest true "Subject type"
 // @Success 200 {object} ResponseOK{response=dto.CreateSubjectTypeRequest}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/subjecttypes [post]
 func NewSubjectTypeRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectTypeUseCase, log *slog.Logger) {
@@ -60,10 +63,13 @@ func NewSubjectTypeRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectT
 // NewSubjectTypeRouteGet
 // @Summary Getting subjectTypes
 // @Description Get all subjectTypes from database
+// @Security ApiKeyAuth
 // @Tags subjectType
 // @Accept */*
 // @Produce json
 // @Success 200 {object} ResponseOK{response=dto.GetSubjectTypesResponse}
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/subjecttypes [get]
 func NewSubjectTypeRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.SubjectTypeUseCase, log *slog.Logger) {
@@ -94,12 +100,15 @@ func NewSubjectTypeRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.SubjectType
 // NewSubjectTypeRouteGetByUUID
 // @Summary Getting subjectType by uuid
 // @Description Get subjectType from database with given uuid
+// @Security ApiKeyAuth
 // @Tags subjectType
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "SubjectType uuid"
 // @Success 200 {object} ResponseOK{response=models.SubjectType}
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/subjecttypes/uuid/{uuid} [get]
@@ -129,11 +138,14 @@ func NewSubjectTypeRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.Subje
 // NewSubjectTypeRouteGetByType
 // @Summary Getting subjectType by type
 // @Description Get subjectType from database with given type
+// @Security ApiKeyAuth
 // @Tags subjectType
 // @Accept */*
 // @Produce json
 // @Param type path string true "Subject type"
 // @Success 200 {object} ResponseOK{response=models.SubjectType}
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/subjecttypes/type/{type} [get]
@@ -164,6 +176,7 @@ func NewSubjectTypeRouteGetByType(apiV1Group *gin.RouterGroup, uc *usecase.Subje
 // NewSubjectTypeRouteUpdate
 // @Summary Updating subjectType
 // @Description Update subjectType in database
+// @Security ApiKeyAuth
 // @Tags subjectType
 // @Accept json
 // @Produce json
@@ -171,15 +184,17 @@ func NewSubjectTypeRouteGetByType(apiV1Group *gin.RouterGroup, uc *usecase.Subje
 // @Param subjectType body dto.UpdateSubjectTypeRequest true "SubjectType"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/subjecttypes/uuid/{uuid} [put]
+// @Router /api/v1/subjecttypes/{uuid} [put]
 func NewSubjectTypeRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectTypeUseCase, log *slog.Logger) {
 	r := &subjectTypeRoutes{uc, log}
 
 	subjectTypeGroup := apiV1Group.Group("/subjecttypes")
 
-	subjectTypeGroup.PUT("/uuid/:uuid", func(c *gin.Context) {
+	subjectTypeGroup.PUT("/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
 
 		var subjectTypeDTO dto.UpdateSubjectTypeRequest
@@ -208,12 +223,15 @@ func NewSubjectTypeRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectT
 // NewSubjectTypeRouteDelete
 // @Summary Deleting existing subjectType
 // @Description Deleting existing subjectType from the database
+// @Security ApiKeyAuth
 // @Tags subjectType
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "SubjectType uuid"
 // @Success 200 {object} ResponseOK
 // @Failure 400 {object} ResponseError
+// @Failure 401 {object} ResponseError
+// @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
 // @Router /api/v1/subjecttypes/{uuid} [delete]
