@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
@@ -24,6 +25,7 @@ type ScheduleUseCase struct {
 	repoTToS     interfaces.TeachersToScheduleRepository
 	repoRToS     interfaces.RoomsToScheduleRepository
 	svc          services.ScheduleService
+	cache        interfaces.Cache
 }
 
 func NewScheduleUseCase(
@@ -37,6 +39,7 @@ func NewScheduleUseCase(
 	repoTToS interfaces.TeachersToScheduleRepository,
 	repoRToS interfaces.RoomsToScheduleRepository,
 	svc services.ScheduleService,
+	cache interfaces.Cache,
 ) *ScheduleUseCase {
 	return &ScheduleUseCase{
 		repo:         repo,
@@ -49,6 +52,7 @@ func NewScheduleUseCase(
 		repoTToS:     repoTToS,
 		repoRToS:     repoRToS,
 		svc:          svc,
+		cache:        cache,
 	}
 }
 
@@ -311,8 +315,15 @@ func (uc *ScheduleUseCase) GetByTeacherUUID(ctx context.Context, UUID string) (*
 
 func (uc *ScheduleUseCase) GetByGroup(ctx context.Context, groupNumber string) (*dto.Week, error) {
 	const op = "usecase.schedule.GetByGroup"
+	cacheKey := "schedule:" + groupNumber
 
 	groupNumber = strings.TrimSpace(groupNumber)
+
+	if cached, err := uc.cache.Get(ctx, cacheKey); err == nil {
+		var week dto.Week
+		_ = json.Unmarshal([]byte(cached), &week)
+		return &week, nil
+	}
 
 	// Getting schedule from db with given group number
 	schedules, err := uc.repo.GetByGroup(ctx, groupNumber)
@@ -320,7 +331,11 @@ func (uc *ScheduleUseCase) GetByGroup(ctx context.Context, groupNumber string) (
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return makeWeek(schedules), nil
+	week := makeWeek(schedules)
+	data, _ := json.Marshal(week)
+	_ = uc.cache.Set(ctx, cacheKey, string(data), 10*time.Minute)
+
+	return week, nil
 }
 
 func (uc *ScheduleUseCase) GetByGroupUUID(ctx context.Context, UUID string) (*dto.Week, error) {
