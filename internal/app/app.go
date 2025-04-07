@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
+	"github.com/redis/go-redis/v9"
 	swaggerFiles "github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
 	"log/slog"
@@ -31,21 +32,33 @@ func Run(cfg *config.Config) {
 	log.Info(fmt.Sprintf("starting %v v%v", cfg.App.Name, cfg.App.Version), slog.String("logLevel", cfg.Log.Level))
 	log.Debug("debug messages are enabled")
 
-	// Creating db connection
-	conn, err := pgx.Connect(context.Background(), cfg.PG.PGURL)
+	// db connection
+	conn, err := dbConn(cfg)
 	if err != nil {
 		log.Error(fmt.Sprintf("error db connection: %v", err))
 		panic(err)
 	}
 	defer conn.Close(context.Background())
 
+	// redis client
+	redisClient, err := cacheClient(cfg)
+	if err != nil {
+		log.Error(fmt.Sprintf("error redis cache: %v", err))
+		panic(err)
+	}
+	defer redisClient.Close()
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
+	// Router
 	r := gin.New()
 	r.Use(mw.Logger(log))
 	r.Use(gin.Recovery())
 	r.Use(mw.RequestIDMiddleware())
+
+	// All routes
+	v1.NewRouter(r, log, conn, redisClient, cfg)
 
 	// Pinger
 	r.GET("/ping", func(c *gin.Context) {
@@ -56,9 +69,6 @@ func Run(cfg *config.Config) {
 
 	// Swagger documentation
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	// All routes
-	v1.NewRouter(r, log, conn, cfg)
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%v", cfg.HTTP.Port),
@@ -87,6 +97,38 @@ func Run(cfg *config.Config) {
 	}
 
 	log.Info("server stopped")
+}
+
+func dbConn(cfg *config.Config) (*pgx.Conn, error) {
+	// Creating db connection
+	conn, err := pgx.Connect(context.Background(), cfg.PG.PGURL)
+	if err != nil {
+		return nil, err
+	}
+
+	// Ping db connection
+	err = conn.Ping(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return conn, nil
+}
+
+func cacheClient(cfg *config.Config) (*redis.Client, error) {
+	// Parsing redis url from config
+	opt, err := redis.ParseURL(cfg.Redis.REDIS_URL)
+	if err != nil {
+		return nil, err
+	}
+
+	// Creating new redis client and ping it
+	redisClient := redis.NewClient(opt)
+	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+		return nil, err
+	}
+
+	return redisClient, nil
 }
 
 func setupLogger(cfg *config.Config) (*slog.Logger, error) {

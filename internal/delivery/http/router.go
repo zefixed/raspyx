@@ -3,16 +3,18 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
+	"github.com/redis/go-redis/v9"
 	"log/slog"
 	"raspyx/config"
 	mw "raspyx/internal/delivery/http/middleware"
 	v1 "raspyx/internal/delivery/http/v1"
 	"raspyx/internal/domain/services"
 	"raspyx/internal/repository/postgres"
+	myredis "raspyx/internal/repository/redis"
 	"raspyx/internal/usecase"
 )
 
-func NewRouter(r *gin.Engine, log *slog.Logger, conn *pgx.Conn, cfg *config.Config) {
+func NewRouter(r *gin.Engine, log *slog.Logger, conn *pgx.Conn, redisClient *redis.Client, cfg *config.Config) {
 	apiV1GroupUser := r.Group("/api/v1")
 	apiV1GroupModerator := r.Group("/api/v1")
 	apiV1GroupModerator.Use(mw.AuthMiddleware(cfg.JWT), mw.AccessLevelMiddleware(50))
@@ -102,6 +104,7 @@ func NewRouter(r *gin.Engine, log *slog.Logger, conn *pgx.Conn, cfg *config.Conf
 		postgres.NewTeachersToScheduleRepository(conn),
 		postgres.NewRoomsToScheduleRepository(conn),
 		*services.NewScheduleService(),
+		myredis.NewRedisCache(redisClient),
 	)
 
 	v1.NewScheduleRouteCreate(apiV1GroupModerator, scheduleUseCase, log)

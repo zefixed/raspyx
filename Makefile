@@ -1,7 +1,7 @@
 include .env.example
 export
 
-all: db-create migrate-up
+all: redis-create db-create migrate-up
 .PHONY: all
 
 migrate-up: ### migration up
@@ -22,6 +22,16 @@ db-delete: ### Deletion postgres db docker instance
 	docker stop $(APP_NAME)db
 	docker rm $(APP_NAME)db
 .PHONY: db-delete
+
+redis-create: ### Creation Redis docker instance
+	docker run -p 6379:6379 --restart unless-stopped --name $(APP_NAME)redis -e REDIS_PASSWORD=root -d redis \
+	redis-server --requirepass root
+.PHONY: redis-create
+
+redis-delete: ### Deletion Redis docker instance
+	docker stop $(APP_NAME)redis
+	docker rm $(APP_NAME)redis
+.PHONY: redis-delete
 
 swag: ### Generation swagger documentation
 	swag init -g cmd/app/main.go

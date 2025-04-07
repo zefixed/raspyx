@@ -8,11 +8,12 @@ import (
 
 type (
 	Config struct {
-		App  App
-		Log  Log
-		HTTP HTTP
-		PG   PG
-		JWT  JWT
+		App   App
+		Log   Log
+		HTTP  HTTP
+		PG    PG
+		JWT   JWT
+		Redis Redis
 	}
 	App struct {
 		Name    string `env:"APP_NAME,required"`
@@ -33,6 +34,10 @@ type (
 
 	JWT struct {
 		JWTSecret string `env:"JWT_SECRET,required"`
+	}
+
+	Redis struct {
+		REDIS_URL string `env:"REDIS_URL,required"`
 	}
 )
 
