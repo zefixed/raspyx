@@ -6,6 +6,7 @@ import (
 	"raspyx/internal/domain/models"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@latest --name=GroupRepository
 type GroupRepository interface {
 	Create(ctx context.Context, group *models.Group) error
 	Get(ctx context.Context) ([]*models.Group, error)

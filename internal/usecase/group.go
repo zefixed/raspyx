@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"raspyx/internal/domain/interfaces"
@@ -34,7 +33,7 @@ func (uc *GroupUseCase) Create(ctx context.Context, groupDTO *dto.CreateGroupReq
 
 	// Validation request group number
 	if valid := uc.svc.Validate(group); valid != true {
-		return nil, fmt.Errorf("%s: %w", op, errors.New("group is invalid"))
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidGroup)
 	}
 
 	// Adding group to db
@@ -82,7 +81,7 @@ func (uc *GroupUseCase) GetByNumber(ctx context.Context, number string) (*models
 	// Validating given group number
 	valid := uc.svc.Validate(&models.Group{Number: number})
 	if !valid {
-		return nil, fmt.Errorf("%s: %w", op, errors.New("group is invalid"))
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidGroup)
 	}
 
 	// Getting group from db with given number
@@ -108,7 +107,7 @@ func (uc *GroupUseCase) Update(ctx context.Context, UUID string, groupDTO *dto.U
 	// Validating group number
 	valid := uc.svc.Validate(group)
 	if !valid {
-		return fmt.Errorf("%s: %w", op, errors.New("group is invalid"))
+		return fmt.Errorf("%s: %w", op, ErrInvalidGroup)
 	}
 
 	// Updating group in db with given group
