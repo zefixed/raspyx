@@ -1,4 +1,4 @@
-include .env.example
+include .env
 export
 
 all: clear redis-create db-create migrate-up build run
