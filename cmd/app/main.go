@@ -8,7 +8,7 @@ import (
 )
 
 // @title           Raspyx
-// @version         0.0.1
+// @version         1.0.0
 // @description     API for schedules
 
 // @host      localhost:8080

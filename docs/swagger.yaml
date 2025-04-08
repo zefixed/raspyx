@@ -426,8 +426,7 @@ definitions:
     type: object
   v1.ResponseError:
     properties:
-      error:
-        type: string
+      error: {}
       status:
         example: Error
         type: string
@@ -444,7 +443,7 @@ info:
   contact: {}
   description: API for schedules
   title: Raspyx
-  version: 0.0.1
+  version: 1.0.0
 paths:
   /api/v1/groups:
     get:

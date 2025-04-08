@@ -4,7 +4,7 @@
         "description": "API for schedules",
         "title": "Raspyx",
         "contact": {},
-        "version": "0.0.1"
+        "version": "1.0.0"
     },
     "host": "localhost:8080",
     "basePath": "/",
@@ -4895,9 +4895,7 @@
         "v1.ResponseError": {
             "type": "object",
             "properties": {
-                "error": {
-                    "type": "string"
-                },
+                "error": {},
                 "status": {
                     "type": "string",
                     "example": "Error"
