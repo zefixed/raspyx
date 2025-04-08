@@ -43,7 +43,9 @@ git clone https://github.com/zefixed/raspyx.git
 cd raspyx
 ```
 
-Before using rename `.env.example` to `.env` and set up your parameters
+> ❗ **Important**: Before using rename `.env.example` to `.env` and set up your parameters
+
+> ❗ **Important**: The database initially has the user admin:admin with maximum permissions it is strongly recommended to create another user with such permissions and delete the existing admin user.
 
 ### Local Setup
 
