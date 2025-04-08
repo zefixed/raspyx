@@ -80,7 +80,7 @@ To run the application with Docker, follow these steps:
 1. Run the docker-compose:
 
     ```bash
-    docker-compose up --build -d
+    docker compose up --build -d
     ```
 
 The API will be available at `http://localhost:8080`.
