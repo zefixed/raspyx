@@ -1,7 +1,7 @@
 include .env.example
 export
 
-all: redis-create db-create migrate-up
+all: clear redis-create db-create migrate-up build run
 .PHONY: all
 
 migrate-up: ### migration up
@@ -13,9 +13,9 @@ migrate-down: ### migration down
 .PHONY: migrate-down
 
 db-create: ### Creation postgres db docker instance
-	docker run -p 5432:5432 --restart unless-stopped --name $(APP_NAME)db -e POSTGRES_PASSWORD=root -d postgres
+	docker run -p $(PG_PORT):$(PG_PORT) --restart unless-stopped --name $(APP_NAME)db -e POSTGRES_PASSWORD=$(PG_PASSWORD) -d postgres:17-alpine
 	docker exec $(APP_NAME)db sh -c 'until pg_isready -U postgres; do sleep 0.5; done'
-	docker exec -it $(APP_NAME)db psql -U postgres -c "CREATE DATABASE $(APP_NAME)db;"
+	docker exec -it $(APP_NAME)db psql -U $(PG_USER) -c "CREATE DATABASE $(APP_NAME)db;"
 .PHONY: db-create
 
 db-delete: ### Deletion postgres db docker instance
@@ -24,14 +24,27 @@ db-delete: ### Deletion postgres db docker instance
 .PHONY: db-delete
 
 redis-create: ### Creation Redis docker instance
-	docker run -p 6379:6379 --restart unless-stopped --name $(APP_NAME)redis -e REDIS_PASSWORD=root -d redis \
-	redis-server --requirepass root
+	docker run -p $(REDIS_PORT):$(REDIS_PORT) --restart unless-stopped --name $(APP_NAME)redis -e REDIS_PASSWORD=$(REDIS_PASSWORD) -d redis:7-alpine \
+	redis-server --requirepass $(REDIS_PASSWORD)
 .PHONY: redis-create
 
 redis-delete: ### Deletion Redis docker instance
 	docker stop $(APP_NAME)redis
 	docker rm $(APP_NAME)redis
 .PHONY: redis-delete
+
+build: ### Building app
+	go build -o ${APP_NAME} ./cmd/app
+.PHONY: build
+
+run: ### Running app
+	./${APP_NAME}
+.PHONY: run
+
+clear: ### Cleaning up
+	docker stop $(APP_NAME) $(APP_NAME)db $(APP_NAME)redis || true
+	docker rm $(APP_NAME) $(APP_NAME)db $(APP_NAME)redis || true
+.PHONY: clear
 
 swag: ### Generation swagger documentation
 	swag init -g cmd/app/main.go

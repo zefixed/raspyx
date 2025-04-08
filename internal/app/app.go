@@ -16,6 +16,7 @@ import (
 	_ "raspyx/docs"
 	v1 "raspyx/internal/delivery/http"
 	mw "raspyx/internal/delivery/http/middleware"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -136,13 +137,13 @@ func setupLogger(cfg *config.Config) (*slog.Logger, error) {
 	var err error
 
 	var handler slog.Handler
-	level := getLogLevel(cfg.Log.Level)
+	level := getLogLevel(strings.TrimSpace(cfg.Log.Level))
 
 	if level == nil {
 		return nil, fmt.Errorf("invalid LOG_LEVEL=%v", cfg.Log.Level)
 	}
 
-	switch cfg.Log.Type {
+	switch strings.TrimSpace(cfg.Log.Type) {
 	case "text":
 		handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: *level})
 	case "json":
