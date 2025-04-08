@@ -8,8 +8,12 @@ import (
 
 type (
 	Config struct {
-		App App
-		Log Log
+		App   App
+		Log   Log
+		HTTP  HTTP
+		PG    PG
+		JWT   JWT
+		Redis Redis
 	}
 	App struct {
 		Name    string `env:"APP_NAME,required"`
@@ -19,11 +23,27 @@ type (
 		Level string `env:"LOG_LEVEL,required"`
 		Type  string `env:"LOG_TYPE,required"`
 	}
+
+	HTTP struct {
+		Port string `env:"HTTP_PORT,required"`
+	}
+
+	PG struct {
+		PGURL string `env:"PG_URL,required"`
+	}
+
+	JWT struct {
+		JWTSecret string `env:"JWT_SECRET,required"`
+	}
+
+	Redis struct {
+		REDIS_URL string `env:"REDIS_URL,required"`
+	}
 )
 
 func NewConfig() (*Config, error) {
 	cfg := &Config{}
-	err := godotenv.Load("local.env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		return nil, fmt.Errorf("config error: %w", err)
 	}
