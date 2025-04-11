@@ -24,7 +24,7 @@ services:
       redis:
         condition: service_started
     command: >
-      bash -c "make migrate-up; ./${APP_NAME}"
+      sh -c "make migrate-up; ./${APP_NAME}"
 
   postgres:
     image: postgres:17-alpine
