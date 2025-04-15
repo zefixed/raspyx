@@ -16,6 +16,7 @@ import (
 	_ "raspyx/docs"
 	v1 "raspyx/internal/delivery/http"
 	mw "raspyx/internal/delivery/http/middleware"
+	"raspyx/internal/parser"
 	"strings"
 	"syscall"
 	"time"
@@ -24,33 +25,34 @@ import (
 func Run(cfg *config.Config) {
 	gin.SetMode(gin.ReleaseMode)
 
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
 	// Logger setup
 	log, err := setupLogger(cfg)
 	if err != nil {
-		panic(err)
+		log.Error(fmt.Sprintf("error setting up loger: %v", err))
+		return
 	}
 
 	log.Info(fmt.Sprintf("starting %v v%v", cfg.App.Name, cfg.App.Version), slog.String("logLevel", cfg.Log.Level))
 	log.Debug("debug messages are enabled")
 
 	// db connection
-	conn, err := dbConn(cfg)
+	conn, err := dbConn(ctx, cfg)
 	if err != nil {
 		log.Error(fmt.Sprintf("error db connection: %v", err))
-		panic(err)
+		return
 	}
-	defer conn.Close(context.Background())
+	defer conn.Close(ctx)
 
 	// redis client
-	redisClient, err := cacheClient(cfg)
+	redisClient, err := cacheClient(ctx, cfg)
 	if err != nil {
 		log.Error(fmt.Sprintf("error redis cache: %v", err))
-		panic(err)
+		return
 	}
 	defer redisClient.Close()
-
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
 
 	// Router
 	r := gin.New()
@@ -81,9 +83,12 @@ func Run(cfg *config.Config) {
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Error(fmt.Sprintf("error starting server: %v", err))
-			panic(err)
+			return
 		}
 	}()
+
+	// Schedule parser
+	parser.NewScheduleParser(10*time.Second, conn, log, cfg.Parser).New(ctx)
 
 	// shutdown
 	<-ctx.Done()
@@ -100,15 +105,15 @@ func Run(cfg *config.Config) {
 	log.Info("server stopped")
 }
 
-func dbConn(cfg *config.Config) (*pgx.Conn, error) {
+func dbConn(ctx context.Context, cfg *config.Config) (*pgx.Conn, error) {
 	// Creating db connection
-	conn, err := pgx.Connect(context.Background(), cfg.PG.PGURL)
+	conn, err := pgx.Connect(ctx, cfg.PG.PGURL)
 	if err != nil {
 		return nil, err
 	}
 
 	// Ping db connection
-	err = conn.Ping(context.Background())
+	err = conn.Ping(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +121,7 @@ func dbConn(cfg *config.Config) (*pgx.Conn, error) {
 	return conn, nil
 }
 
-func cacheClient(cfg *config.Config) (*redis.Client, error) {
+func cacheClient(ctx context.Context, cfg *config.Config) (*redis.Client, error) {
 	// Parsing redis url from config
 	opt, err := redis.ParseURL(cfg.Redis.REDIS_URL)
 	if err != nil {
@@ -125,7 +130,7 @@ func cacheClient(cfg *config.Config) (*redis.Client, error) {
 
 	// Creating new redis client and ping it
 	redisClient := redis.NewClient(opt)
-	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+	if err := redisClient.Ping(ctx).Err(); err != nil {
 		return nil, err
 	}
 

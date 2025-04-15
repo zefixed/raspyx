@@ -8,12 +8,13 @@ import (
 
 type (
 	Config struct {
-		App   App
-		Log   Log
-		HTTP  HTTP
-		PG    PG
-		JWT   JWT
-		Redis Redis
+		App    App
+		Log    Log
+		HTTP   HTTP
+		PG     PG
+		JWT    JWT
+		Redis  Redis
+		Parser Parser
 	}
 	App struct {
 		Name    string `env:"APP_NAME,required"`
@@ -38,6 +39,10 @@ type (
 
 	Redis struct {
 		REDIS_URL string `env:"REDIS_URL,required"`
+	}
+
+	Parser struct {
+		Timeout int `env:"PARSER_TIMEOUT,required"`
 	}
 )
 
