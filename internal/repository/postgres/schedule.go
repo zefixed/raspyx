@@ -7,15 +7,17 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
+	"time"
 )
 
 type ScheduleRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewScheduleRepository(db *pgx.Conn) *ScheduleRepository {
+func NewScheduleRepository(db *pgxpool.Pool) *ScheduleRepository {
 	return &ScheduleRepository{db: db}
 }
 
@@ -44,7 +46,7 @@ var (
 	baseSelectStatement = `
 		SELECT schedule.uuid AS "uuid",
 			groups.number AS "group_number",
-       		ARRAY_AGG(DISTINCT(TRIM(CONCAT(first_name, ' ', second_name, ' ', COALESCE(middle_name, ''))))) AS "teachers",
+       		ARRAY_AGG(DISTINCT(TRIM(CONCAT(second_name, ' ', first_name, ' ', COALESCE(middle_name, ''))))) AS "teachers",
        		ARRAY_AGG(DISTINCT COALESCE(rooms.number, '')) AS "rooms",
 			subjects.name AS "subject_name",
 			subj_types.type AS "subject_type",
@@ -54,7 +56,7 @@ var (
 			schedule.start_date AS "start_date",
 			schedule.end_date AS "end_date",
 			schedule.weekday AS "weekday",
-			schedule.link AS "link"
+			COALESCE(schedule.link, '') AS "link"
 		FROM schedule
 			LEFT JOIN groups ON schedule.group_uuid = groups.uuid
 			LEFT JOIN subjects ON schedule.subject_uuid = subjects.uuid
@@ -94,6 +96,7 @@ func (r *ScheduleRepository) Get(ctx context.Context) ([]*models.ScheduleData, e
 
 	query := baseSelectStatement + baseGroupByStatement
 	rows, err := r.db.Query(ctx, query)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -196,6 +199,7 @@ func (r *ScheduleRepository) GetByTeacherUUID(ctx context.Context, teacherUUID u
 			WHERE teacher_uuid = $1
 		) ` + baseGroupByStatement
 	rows, err := r.db.Query(ctx, query, teacherUUID)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -240,6 +244,7 @@ func (r *ScheduleRepository) GetByGroupUUID(ctx context.Context, groupUUID uuid.
 
 	query := baseSelectStatement + ` WHERE groups.uuid = $1 ` + baseGroupByStatement
 	rows, err := r.db.Query(ctx, query, groupUUID)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -288,6 +293,7 @@ func (r *ScheduleRepository) GetByRoomUUID(ctx context.Context, roomUUID uuid.UU
 			WHERE room_uuid = $1
 		) ` + baseGroupByStatement
 	rows, err := r.db.Query(ctx, query, roomUUID)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -331,6 +337,7 @@ func (r *ScheduleRepository) GetBySubjectUUID(ctx context.Context, subjectUUID u
 
 	query := baseSelectStatement + ` WHERE subjects.uuid = $1 ` + baseGroupByStatement
 	rows, err := r.db.Query(ctx, query, subjectUUID)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -374,6 +381,7 @@ func (r *ScheduleRepository) GetByLocationUUID(ctx context.Context, locationUUID
 
 	query := baseSelectStatement + ` WHERE locations.uuid = $1 ` + baseGroupByStatement
 	rows, err := r.db.Query(ctx, query, locationUUID)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -416,6 +424,24 @@ func (r *ScheduleRepository) Delete(ctx context.Context, uuid uuid.UUID) error {
 
 	query := `DELETE FROM schedule WHERE uuid = $1`
 	result, err := r.db.Exec(ctx, query, uuid)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	rowsAffected := result.RowsAffected()
+	if rowsAffected == 0 {
+		return fmt.Errorf("%s: %w", op, repository.ErrNotFound)
+	}
+
+	return nil
+}
+
+func (r *ScheduleRepository) DeletePairsByGroupWeekdayTime(ctx context.Context, groupUUID uuid.UUID, weekday int, t time.Time) error {
+	const op = "repository.postgres.ScheduleRepository.DeletePairsByGroupWeekdayTime"
+
+	query := `DELETE FROM schedule 
+       		  WHERE group_uuid = $1 AND weekday = $2 AND start_time = $3`
+	result, err := r.db.Exec(ctx, query, groupUUID, weekday, t)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

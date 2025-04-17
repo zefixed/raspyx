@@ -1,7 +1,7 @@
 include .env
 export
 
-all: clear redis-create db-create migrate-up build run
+all: clear redis-create db-create migrate-up db-admin build run
 .PHONY: all
 
 migrate-up: ### migration up
@@ -45,6 +45,11 @@ clear: ### Cleaning up
 	docker stop $(APP_NAME) $(APP_NAME)db $(APP_NAME)redis || true
 	docker rm $(APP_NAME) $(APP_NAME)db $(APP_NAME)redis || true
 .PHONY: clear
+
+ADMIN_PASSWORD_HASH = $(shell sh -c 'htpasswd -nbB admin admin | cut -d: -f2 | sed -e "s/\\$$/\\\\$$/g"')
+db-admin: ### Creation admin user in db
+	docker exec -it $(APP_NAME)db psql -U $(PG_USER) -d $(APP_NAME)db -c "INSERT INTO users (uuid, username, password_hash, access_level) VALUES ('00000000-0000-0000-0000-000000000000', 'admin', '$(ADMIN_PASSWORD_HASH)', 99)"
+.PHONY: db-admin
 
 swag: ### Generation swagger documentation
 	swag init -g cmd/app/main.go

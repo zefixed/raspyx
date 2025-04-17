@@ -6,17 +6,17 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
 	"strings"
 )
 
 type SubjectTypeRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewSubjectTypeRepository(db *pgx.Conn) *SubjectTypeRepository {
+func NewSubjectTypeRepository(db *pgxpool.Pool) *SubjectTypeRepository {
 	return &SubjectTypeRepository{db: db}
 }
 
@@ -42,6 +42,7 @@ func (r *SubjectTypeRepository) Get(ctx context.Context) ([]*models.SubjectType,
 	query := `SELECT uuid, type
 			  FROM subj_types`
 	rows, err := r.db.Query(ctx, query)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

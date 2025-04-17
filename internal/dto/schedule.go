@@ -23,6 +23,12 @@ type CreateScheduleResponse struct {
 	UUID uuid.UUID `json:"uuid" example:"c555b9e8-0d7a-11f0-adcd-20114d2008d9"`
 }
 
+type DeletePBGWTRequest struct {
+	Group   string `json:"group" example:"221-352"`
+	Weekday int    `json:"weekday" example:"1"`
+	PairNum int    `json:"pair_num" example:"1"`
+}
+
 type Week struct {
 	Monday    Day `json:"monday"`
 	Tuesday   Day `json:"tuesday"`
@@ -50,4 +56,5 @@ type Pair struct {
 	Rooms     []string `json:"rooms,omitempty" example:"ав4805,ав4810"`
 	Location  string   `json:"location" example:"Автозаводская"`
 	Type      string   `json:"type" example:"Практика"`
+	Link      string   `json:"link,omitempty" example:"https://online.mospolytech.ru/"`
 }

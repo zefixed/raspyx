@@ -178,6 +178,9 @@ definitions:
       end_date:
         example: "2025-06-01"
         type: string
+      link:
+        example: https://online.mospolytech.ru/
+        type: string
       location:
         example: Автозаводская
         type: string
@@ -443,7 +446,7 @@ info:
   contact: {}
   description: API for schedules
   title: Raspyx
-  version: 1.0.0
+  version: 1.1.0
 paths:
   /api/v1/groups:
     get:
@@ -1233,97 +1236,6 @@ paths:
       summary: Getting room by uuid
       tags:
       - room
-  /api/v1/schedule/{uuid}:
-    delete:
-      consumes:
-      - '*/*'
-      description: Deleting existing schedule from the database
-      parameters:
-      - description: Schedule uuid
-        in: path
-        name: uuid
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/v1.ResponseOK'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-      security:
-      - ApiKeyAuth: []
-      summary: Deleting existing schedule
-      tags:
-      - schedule
-    put:
-      consumes:
-      - application/json
-      description: Update room in database
-      parameters:
-      - description: Schedule uuid
-        in: path
-        name: uuid
-        required: true
-        type: string
-      - description: Schedule
-        in: body
-        name: room
-        required: true
-        schema:
-          $ref: '#/definitions/dto.ScheduleRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/v1.ResponseOK'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-      security:
-      - ApiKeyAuth: []
-      summary: Updating room
-      tags:
-      - schedule
   /api/v1/schedules:
     get:
       consumes:
@@ -1412,6 +1324,97 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Creating a new schedule
+      tags:
+      - schedule
+  /api/v1/schedules/{uuid}:
+    delete:
+      consumes:
+      - '*/*'
+      description: Deleting existing schedule from the database
+      parameters:
+      - description: Schedule uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Deleting existing schedule
+      tags:
+      - schedule
+    put:
+      consumes:
+      - application/json
+      description: Update room in database
+      parameters:
+      - description: Schedule uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Schedule
+        in: body
+        name: room
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ScheduleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ResponseOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Updating room
       tags:
       - schedule
   /api/v1/schedules/group/number/{number}:

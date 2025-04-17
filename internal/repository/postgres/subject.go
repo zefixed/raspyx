@@ -6,16 +6,16 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
 )
 
 type SubjectRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewSubjectRepository(db *pgx.Conn) *SubjectRepository {
+func NewSubjectRepository(db *pgxpool.Pool) *SubjectRepository {
 	return &SubjectRepository{db: db}
 }
 
@@ -38,6 +38,7 @@ func (r *SubjectRepository) Get(ctx context.Context) ([]*models.Subject, error) 
 	query := `SELECT uuid, name
 			  FROM subjects`
 	rows, err := r.db.Query(ctx, query)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -82,6 +83,7 @@ func (r *SubjectRepository) GetByName(ctx context.Context, name string) ([]*mode
 			  FROM subjects
 			  WHERE name = $1`
 	rows, err := r.db.Query(ctx, query, name)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -91,9 +93,6 @@ func (r *SubjectRepository) GetByName(ctx context.Context, name string) ([]*mode
 		var subject models.Subject
 		err := rows.Scan(&subject.UUID, &subject.Name)
 		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
-				return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
-			}
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 
