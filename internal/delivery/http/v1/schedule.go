@@ -564,11 +564,11 @@ func NewScheduleRouteGetByLocationUUID(apiV1Group *gin.RouterGroup, uc *usecase.
 // @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/schedule/{uuid} [put]
+// @Router /api/v1/schedules/{uuid} [put]
 func NewScheduleRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUseCase, log *slog.Logger) {
 	r := &scheduleRoutes{uc, log}
 
-	scheduleGroup := apiV1Group.Group("/schedule")
+	scheduleGroup := apiV1Group.Group("/schedules")
 
 	scheduleGroup.PUT("/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
@@ -610,11 +610,11 @@ func NewScheduleRouteUpdate(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUse
 // @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/schedule/{uuid} [delete]
+// @Router /api/v1/schedules/{uuid} [delete]
 func NewScheduleRouteDelete(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUseCase, log *slog.Logger) {
 	r := &scheduleRoutes{uc, log}
 
-	scheduleGroup := apiV1Group.Group("/schedule")
+	scheduleGroup := apiV1Group.Group("/schedules")
 
 	scheduleGroup.DELETE("/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")

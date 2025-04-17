@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 	swaggerFiles "github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
@@ -39,12 +39,12 @@ func Run(cfg *config.Config) {
 	log.Debug("debug messages are enabled")
 
 	// db connection
-	conn, err := dbConn(ctx, cfg)
+	conn, err := InitDBPool(ctx, cfg)
 	if err != nil {
 		log.Error(fmt.Sprintf("error db connection: %v", err))
 		return
 	}
-	defer conn.Close(ctx)
+	defer conn.Close()
 
 	// redis client
 	redisClient, err := cacheClient(ctx, cfg)
@@ -88,7 +88,7 @@ func Run(cfg *config.Config) {
 	}()
 
 	// Schedule parser
-	parser.NewScheduleParser(10*time.Second, conn, log, cfg.Parser).New(ctx)
+	parser.NewScheduleParser(10*time.Second, conn, redisClient, log, cfg.Parser).New(ctx)
 
 	// shutdown
 	<-ctx.Done()
@@ -105,21 +105,42 @@ func Run(cfg *config.Config) {
 	log.Info("server stopped")
 }
 
-func dbConn(ctx context.Context, cfg *config.Config) (*pgx.Conn, error) {
-	// Creating db connection
-	conn, err := pgx.Connect(ctx, cfg.PG.PGURL)
+func InitDBPool(ctx context.Context, cfg *config.Config) (*pgxpool.Pool, error) {
+	// Parsing config
+	poolConfig, err := pgxpool.ParseConfig(cfg.PG.PGURL)
 	if err != nil {
 		return nil, err
 	}
 
-	// Ping db connection
-	err = conn.Ping(ctx)
+	// Creating pool
+	pool, err := pgxpool.NewWithConfig(ctx, poolConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	return conn, nil
+	// Ping connection
+	if err := pool.Ping(ctx); err != nil {
+		return nil, err
+	}
+
+	return pool, nil
 }
+
+//func dbConn(ctx context.Context, cfg *config.Config) (*pgx.Conn, error) {
+//	// Creating db connection
+//	conn, err := pgx.Connect(ctx, cfg.PG.PGURL)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	// Ping db connection
+//	err = conn.Ping(ctx)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	return conn, nil
+//}
 
 func cacheClient(ctx context.Context, cfg *config.Config) (*redis.Client, error) {
 	// Parsing redis url from config

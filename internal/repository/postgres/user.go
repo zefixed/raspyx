@@ -6,17 +6,17 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
 	"strings"
 )
 
 type UserRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewUserRepository(db *pgx.Conn) *UserRepository {
+func NewUserRepository(db *pgxpool.Pool) *UserRepository {
 	return &UserRepository{db: db}
 }
 
@@ -42,6 +42,7 @@ func (r *UserRepository) Get(ctx context.Context) ([]*models.User, error) {
 	query := `SELECT uuid, username, password_hash, access_level
 			  FROM users`
 	rows, err := r.db.Query(ctx, query)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -105,6 +106,7 @@ func (r *UserRepository) GetByAccessLevel(ctx context.Context, accessLevel int) 
 			  FROM users
 			  WHERE access_level <= $1`
 	rows, err := r.db.Query(ctx, query, accessLevel)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

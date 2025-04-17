@@ -6,16 +6,16 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
 )
 
 type TeacherRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewTeacherRepository(db *pgx.Conn) *TeacherRepository {
+func NewTeacherRepository(db *pgxpool.Pool) *TeacherRepository {
 	return &TeacherRepository{db: db}
 }
 
@@ -43,6 +43,7 @@ func (r *TeacherRepository) Get(ctx context.Context) ([]*models.Teacher, error) 
 	query := `SELECT uuid, first_name, second_name, middle_name 
 			  FROM teachers`
 	rows, err := r.db.Query(ctx, query)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -93,9 +94,10 @@ func (r *TeacherRepository) GetByFullName(ctx context.Context, fn string) ([]*mo
 
 	query := `SELECT uuid, first_name, second_name, middle_name 
 			  FROM teachers 
-			  WHERE CONCAT(second_name, ' ', first_name, ' ', middle_name) = $1`
+			  WHERE TRIM(CONCAT(second_name, ' ', first_name, ' ', middle_name)) = $1`
 
 	rows, err := r.db.Query(ctx, query, fn)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

@@ -4,17 +4,17 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
 	"strings"
 )
 
 type TeachersToScheduleRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewTeachersToScheduleRepository(db *pgx.Conn) *TeachersToScheduleRepository {
+func NewTeachersToScheduleRepository(db *pgxpool.Pool) *TeachersToScheduleRepository {
 	return &TeachersToScheduleRepository{db: db}
 }
 
@@ -42,6 +42,7 @@ func (r *TeachersToScheduleRepository) Get(ctx context.Context) ([]*models.Teach
 	query := `SELECT teacher_uuid, schedule_uuid
 			  FROM teachers_to_schedule`
 	rows, err := r.db.Query(ctx, query)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -66,6 +67,7 @@ func (r *TeachersToScheduleRepository) GetByTeacherUUID(ctx context.Context, tea
 			  FROM teachers_to_schedule
 			  WHERE teacher_uuid = $1`
 	rows, err := r.db.Query(ctx, query, teacherUUID)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -94,6 +96,7 @@ func (r *TeachersToScheduleRepository) GetByScheduleUUID(ctx context.Context, sc
 			  FROM teachers_to_schedule
 			  WHERE schedule_uuid = $1`
 	rows, err := r.db.Query(ctx, query, scheduleUUID)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

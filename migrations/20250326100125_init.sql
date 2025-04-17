@@ -67,9 +67,6 @@ CREATE TABLE IF NOT EXISTS rooms_to_schedule (
 
 CREATE INDEX IF NOT EXISTS idx_schedule_group_uuid ON schedule(group_uuid);
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
-
-INSERT INTO users (uuid, username, password_hash, access_level)
-VALUES ('00000000-0000-0000-0000-000000000000', 'admin', '$2a$10$AjlOKZFQj3WT6o7kkwoglO9LlEeck2lq0cEi/GJLMIeU4LWWInb/a', 99)
 -- +goose StatementEnd
 
 -- +goose Down

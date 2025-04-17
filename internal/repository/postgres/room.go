@@ -6,17 +6,17 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
 	"strings"
 )
 
 type RoomRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewRoomRepository(db *pgx.Conn) *RoomRepository {
+func NewRoomRepository(db *pgxpool.Pool) *RoomRepository {
 	return &RoomRepository{db: db}
 }
 
@@ -42,6 +42,7 @@ func (r *RoomRepository) Get(ctx context.Context) ([]*models.Room, error) {
 	query := `SELECT uuid, number
 			  FROM rooms`
 	rows, err := r.db.Query(ctx, query)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
