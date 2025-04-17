@@ -10,6 +10,7 @@ import (
 	"raspyx/internal/domain/models"
 	"raspyx/internal/domain/services"
 	"raspyx/internal/dto"
+	"raspyx/internal/repository"
 	"strings"
 	"time"
 )
@@ -149,6 +150,7 @@ func makeWeek(schedules []*models.ScheduleData) *dto.Week {
 			Rooms:     schedule.Rooms,
 			Location:  schedule.Location,
 			Type:      schedule.Type,
+			Link:      schedule.Link,
 		}
 
 		if days[schedule.Weekday] == nil {
@@ -608,5 +610,53 @@ func (uc *ScheduleUseCase) Delete(ctx context.Context, UUID string) error {
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
+
+	return nil
+}
+
+func (uc *ScheduleUseCase) DeletePairsByGroupWeekdayTime(ctx context.Context, data *dto.DeletePBGWTRequest) error {
+	const op = "usecase.schedule.DeletePairsByGroupWeekdayTime"
+
+	// Getting group from db by given group number
+	group, err := uc.repoGroup.GetByNumber(ctx, data.Group)
+	if err != nil {
+		if strings.Contains(err.Error(), repository.ErrNotFound.Error()) {
+			return fmt.Errorf("%s: group %v", op, repository.ErrNotFound)
+		}
+		return fmt.Errorf("%s: %v", op, err)
+	}
+
+	// Validation weekday
+	if data.Weekday < 1 || data.Weekday > 6 {
+		return fmt.Errorf("%s: invalid weekday", op)
+	}
+
+	// Parsing pair start time
+	var startTime time.Time
+	switch data.PairNum {
+	case 1:
+		startTime, _ = time.Parse(time.TimeOnly, "09:00:00")
+	case 2:
+		startTime, _ = time.Parse(time.TimeOnly, "10:40:00")
+	case 3:
+		startTime, _ = time.Parse(time.TimeOnly, "12:20:00")
+	case 4:
+		startTime, _ = time.Parse(time.TimeOnly, "14:30:00")
+	case 5:
+		startTime, _ = time.Parse(time.TimeOnly, "16:10:00")
+	case 6:
+		startTime, _ = time.Parse(time.TimeOnly, "17:50:00")
+	case 7:
+		startTime, _ = time.Parse(time.TimeOnly, "19:30:00")
+	default:
+		return fmt.Errorf("%s: invalid pair num", op)
+	}
+
+	// Deleting schedule from db with given data
+	err = uc.repo.DeletePairsByGroupWeekdayTime(ctx, group.UUID, data.Weekday, startTime)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
 	return nil
 }

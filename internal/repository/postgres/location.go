@@ -6,17 +6,17 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
 	"strings"
 )
 
 type LocationRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewLocationRepository(db *pgx.Conn) *LocationRepository {
+func NewLocationRepository(db *pgxpool.Pool) *LocationRepository {
 	return &LocationRepository{db: db}
 }
 
@@ -44,6 +44,7 @@ func (r *LocationRepository) Get(ctx context.Context) ([]*models.Location, error
 	query := `SELECT uuid, name
 			  FROM locations`
 	rows, err := r.db.Query(ctx, query)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

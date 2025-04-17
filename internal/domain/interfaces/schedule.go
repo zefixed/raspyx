@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"raspyx/internal/domain/models"
+	"time"
 )
 
 type ScheduleRepository interface {
@@ -23,4 +24,5 @@ type ScheduleRepository interface {
 	GetByLocationUUID(ctx context.Context, locationUUID uuid.UUID) ([]*models.ScheduleData, error)
 	Update(ctx context.Context, schedule *models.Schedule) error
 	Delete(ctx context.Context, uuid uuid.UUID) error
+	DeletePairsByGroupWeekdayTime(ctx context.Context, group uuid.UUID, weekday int, t time.Time) error
 }

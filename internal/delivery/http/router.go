@@ -2,7 +2,7 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 	"log/slog"
 	"raspyx/config"
@@ -14,7 +14,7 @@ import (
 	"raspyx/internal/usecase"
 )
 
-func NewRouter(r *gin.Engine, log *slog.Logger, conn *pgx.Conn, redisClient *redis.Client, cfg *config.Config) {
+func NewRouter(r *gin.Engine, log *slog.Logger, conn *pgxpool.Pool, redisClient *redis.Client, cfg *config.Config) {
 	apiV1GroupUser := r.Group("/api/v1")
 	apiV1GroupModerator := r.Group("/api/v1")
 	apiV1GroupModerator.Use(mw.AuthMiddleware(cfg.JWT), mw.AccessLevelMiddleware(50))

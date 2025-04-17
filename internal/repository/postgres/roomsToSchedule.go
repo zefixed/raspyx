@@ -4,17 +4,17 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
 	"strings"
 )
 
 type RoomsToScheduleRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewRoomsToScheduleRepository(db *pgx.Conn) *RoomsToScheduleRepository {
+func NewRoomsToScheduleRepository(db *pgxpool.Pool) *RoomsToScheduleRepository {
 	return &RoomsToScheduleRepository{db: db}
 }
 
@@ -42,6 +42,7 @@ func (r *RoomsToScheduleRepository) Get(ctx context.Context) ([]*models.RoomsToS
 	query := `SELECT room_uuid, schedule_uuid
 			  FROM rooms_to_schedule`
 	rows, err := r.db.Query(ctx, query)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -67,6 +68,7 @@ func (r *RoomsToScheduleRepository) GetByRoomUUID(ctx context.Context, roomUUID 
 			  FROM rooms_to_schedule
 			  WHERE room_uuid = $1`
 	rows, err := r.db.Query(ctx, query, roomUUID)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -96,6 +98,7 @@ func (r *RoomsToScheduleRepository) GetByScheduleUUID(ctx context.Context, sched
 			  FROM rooms_to_schedule
 			  WHERE schedule_uuid = $1`
 	rows, err := r.db.Query(ctx, query, scheduleUUID)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

@@ -6,17 +6,17 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
 	"strings"
 )
 
 type GroupRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewGroupRepository(db *pgx.Conn) *GroupRepository {
+func NewGroupRepository(db *pgxpool.Pool) *GroupRepository {
 	return &GroupRepository{db: db}
 }
 
@@ -42,6 +42,7 @@ func (r *GroupRepository) Get(ctx context.Context) ([]*models.Group, error) {
 	query := `SELECT uuid, number
 			  FROM groups`
 	rows, err := r.db.Query(ctx, query)
+	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
