@@ -1,7 +1,7 @@
 include .env
 export
 
-all: clear redis-create db-create migrate-up build run
+all: clear redis-create db-create migrate-up db-admin build run
 .PHONY: all
 
 migrate-up: ### migration up

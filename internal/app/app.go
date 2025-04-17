@@ -126,22 +126,6 @@ func InitDBPool(ctx context.Context, cfg *config.Config) (*pgxpool.Pool, error) 
 	return pool, nil
 }
 
-//func dbConn(ctx context.Context, cfg *config.Config) (*pgx.Conn, error) {
-//	// Creating db connection
-//	conn, err := pgx.Connect(ctx, cfg.PG.PGURL)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	// Ping db connection
-//	err = conn.Ping(ctx)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return conn, nil
-//}
-
 func cacheClient(ctx context.Context, cfg *config.Config) (*redis.Client, error) {
 	// Parsing redis url from config
 	opt, err := redis.ParseURL(cfg.Redis.REDIS_URL)
