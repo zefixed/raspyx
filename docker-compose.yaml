@@ -25,6 +25,7 @@ services:
         condition: service_started
     command: >
       sh -c "make migrate-up; ./${APP_NAME}"
+    restart: always
 
   postgres:
     image: postgres:17-alpine
