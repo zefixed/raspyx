@@ -75,14 +75,14 @@ var (
 func (r *ScheduleRepository) Create(ctx context.Context, schedule *models.Schedule) error {
 	const op = "repository.postgres.ScheduleRepository.Create"
 
-	query := `INSERT INTO schedule (uuid, group_uuid, subject_uuid,
-                      				type_uuid, location_uuid, start_time,
-                      				end_time, start_date, end_date, weekday, link)
-			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
+	query := `INSERT INTO schedule (uuid, group_uuid, subject_uuid, type_uuid,
+                      				location_uuid, start_time, end_time, start_date,
+                      				end_date, weekday, link, is_session)
+			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
 	_, err := r.db.Exec(
 		ctx, query, schedule.UUID, schedule.GroupUUID, schedule.SubjectUUID,
 		schedule.TypeUUID, schedule.LocationUUID, schedule.StartTime, schedule.EndTime,
-		schedule.StartDate, schedule.EndDate, schedule.Weekday, schedule.Link,
+		schedule.StartDate, schedule.EndDate, schedule.Weekday, schedule.Link, schedule.IsSession,
 	)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
@@ -114,7 +114,7 @@ func (r *ScheduleRepository) GetForUpdate(ctx context.Context, uuid uuid.UUID) (
 	const op = "repository.postgres.ScheduleRepository.GetForUpdate"
 
 	query := `SELECT uuid, group_uuid, subject_uuid, type_uuid, location_uuid, start_time,
-					 end_time, start_date, end_date, weekday, link
+					 end_time, start_date, end_date, weekday, link, is_session
 			  FROM schedule
 			  WHERE uuid = $1`
 	row := r.db.QueryRow(ctx, query, uuid)
@@ -122,8 +122,8 @@ func (r *ScheduleRepository) GetForUpdate(ctx context.Context, uuid uuid.UUID) (
 	var schedule models.Schedule
 	err := row.Scan(
 		&schedule.UUID, &schedule.GroupUUID, &schedule.SubjectUUID, &schedule.TypeUUID,
-		&schedule.LocationUUID, &schedule.StartTime, &schedule.EndTime,
-		&schedule.StartDate, &schedule.EndDate, &schedule.Weekday, &schedule.Link,
+		&schedule.LocationUUID, &schedule.StartTime, &schedule.EndTime, &schedule.StartDate,
+		&schedule.EndDate, &schedule.Weekday, &schedule.Link, &schedule.IsSession,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -157,7 +157,7 @@ func (r *ScheduleRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*mo
 	return &schedule, nil
 }
 
-func (r *ScheduleRepository) GetByTeacher(ctx context.Context, firstName, secondName, middleName string) ([]*models.ScheduleData, error) {
+func (r *ScheduleRepository) GetByTeacher(ctx context.Context, firstName, secondName, middleName string, isSession bool) ([]*models.ScheduleData, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByTeacher"
 
 	query := `SELECT uuid
@@ -181,7 +181,7 @@ func (r *ScheduleRepository) GetByTeacher(ctx context.Context, firstName, second
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	schedule, err := r.GetByTeacherUUID(ctx, teacherUUID)
+	schedule, err := r.GetByTeacherUUID(ctx, teacherUUID, isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -189,7 +189,7 @@ func (r *ScheduleRepository) GetByTeacher(ctx context.Context, firstName, second
 	return schedule, nil
 }
 
-func (r *ScheduleRepository) GetByTeacherUUID(ctx context.Context, teacherUUID uuid.UUID) ([]*models.ScheduleData, error) {
+func (r *ScheduleRepository) GetByTeacherUUID(ctx context.Context, teacherUUID uuid.UUID, isSession bool) ([]*models.ScheduleData, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByTeacherUUID"
 
 	query := baseSelectStatement + `
@@ -197,8 +197,8 @@ func (r *ScheduleRepository) GetByTeacherUUID(ctx context.Context, teacherUUID u
 			SELECT schedule_uuid
 			FROM teachers_to_schedule
 			WHERE teacher_uuid = $1
-		) ` + baseGroupByStatement
-	rows, err := r.db.Query(ctx, query, teacherUUID)
+		) AND is_session = $2 ` + baseGroupByStatement
+	rows, err := r.db.Query(ctx, query, teacherUUID, isSession)
 	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -213,7 +213,7 @@ func (r *ScheduleRepository) GetByTeacherUUID(ctx context.Context, teacherUUID u
 	return schedules, nil
 }
 
-func (r *ScheduleRepository) GetByGroup(ctx context.Context, groupNumber string) ([]*models.ScheduleData, error) {
+func (r *ScheduleRepository) GetByGroup(ctx context.Context, groupNumber string, isSession bool) ([]*models.ScheduleData, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByGroup"
 
 	query := `SELECT uuid
@@ -231,7 +231,7 @@ func (r *ScheduleRepository) GetByGroup(ctx context.Context, groupNumber string)
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	schedule, err := r.GetByGroupUUID(ctx, groupUUID)
+	schedule, err := r.GetByGroupUUID(ctx, groupUUID, isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -239,11 +239,11 @@ func (r *ScheduleRepository) GetByGroup(ctx context.Context, groupNumber string)
 	return schedule, nil
 }
 
-func (r *ScheduleRepository) GetByGroupUUID(ctx context.Context, groupUUID uuid.UUID) ([]*models.ScheduleData, error) {
+func (r *ScheduleRepository) GetByGroupUUID(ctx context.Context, groupUUID uuid.UUID, isSession bool) ([]*models.ScheduleData, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByGroupUUID"
 
-	query := baseSelectStatement + ` WHERE groups.uuid = $1 ` + baseGroupByStatement
-	rows, err := r.db.Query(ctx, query, groupUUID)
+	query := baseSelectStatement + ` WHERE groups.uuid = $1 AND is_session = $2 ` + baseGroupByStatement
+	rows, err := r.db.Query(ctx, query, groupUUID, isSession)
 	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -257,7 +257,7 @@ func (r *ScheduleRepository) GetByGroupUUID(ctx context.Context, groupUUID uuid.
 	return schedules, nil
 }
 
-func (r *ScheduleRepository) GetByRoom(ctx context.Context, roomNumber string) ([]*models.ScheduleData, error) {
+func (r *ScheduleRepository) GetByRoom(ctx context.Context, roomNumber string, isSession bool) ([]*models.ScheduleData, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByRoom"
 
 	query := `SELECT uuid
@@ -275,7 +275,7 @@ func (r *ScheduleRepository) GetByRoom(ctx context.Context, roomNumber string) (
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	schedule, err := r.GetByRoomUUID(ctx, roomUUID)
+	schedule, err := r.GetByRoomUUID(ctx, roomUUID, isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -283,7 +283,7 @@ func (r *ScheduleRepository) GetByRoom(ctx context.Context, roomNumber string) (
 	return schedule, nil
 }
 
-func (r *ScheduleRepository) GetByRoomUUID(ctx context.Context, roomUUID uuid.UUID) ([]*models.ScheduleData, error) {
+func (r *ScheduleRepository) GetByRoomUUID(ctx context.Context, roomUUID uuid.UUID, isSession bool) ([]*models.ScheduleData, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByRoomUUID"
 
 	query := baseSelectStatement + `
@@ -291,8 +291,8 @@ func (r *ScheduleRepository) GetByRoomUUID(ctx context.Context, roomUUID uuid.UU
 			SELECT schedule_uuid
 			FROM rooms_to_schedule
 			WHERE room_uuid = $1
-		) ` + baseGroupByStatement
-	rows, err := r.db.Query(ctx, query, roomUUID)
+		) AND is_session = $2 ` + baseGroupByStatement
+	rows, err := r.db.Query(ctx, query, roomUUID, isSession)
 	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -306,7 +306,7 @@ func (r *ScheduleRepository) GetByRoomUUID(ctx context.Context, roomUUID uuid.UU
 	return schedules, nil
 }
 
-func (r *ScheduleRepository) GetBySubject(ctx context.Context, subjectName string) ([]*models.ScheduleData, error) {
+func (r *ScheduleRepository) GetBySubject(ctx context.Context, subjectName string, isSession bool) ([]*models.ScheduleData, error) {
 	const op = "repository.postgres.ScheduleRepository.GetBySubject"
 
 	query := `SELECT uuid
@@ -324,7 +324,7 @@ func (r *ScheduleRepository) GetBySubject(ctx context.Context, subjectName strin
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	schedule, err := r.GetBySubjectUUID(ctx, subjectUUID)
+	schedule, err := r.GetBySubjectUUID(ctx, subjectUUID, isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -332,11 +332,11 @@ func (r *ScheduleRepository) GetBySubject(ctx context.Context, subjectName strin
 	return schedule, nil
 }
 
-func (r *ScheduleRepository) GetBySubjectUUID(ctx context.Context, subjectUUID uuid.UUID) ([]*models.ScheduleData, error) {
+func (r *ScheduleRepository) GetBySubjectUUID(ctx context.Context, subjectUUID uuid.UUID, isSession bool) ([]*models.ScheduleData, error) {
 	const op = "repository.postgres.ScheduleRepository.GetBySubjectUUID"
 
-	query := baseSelectStatement + ` WHERE subjects.uuid = $1 ` + baseGroupByStatement
-	rows, err := r.db.Query(ctx, query, subjectUUID)
+	query := baseSelectStatement + ` WHERE subjects.uuid = $1 AND is_session = $2 ` + baseGroupByStatement
+	rows, err := r.db.Query(ctx, query, subjectUUID, isSession)
 	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -350,7 +350,7 @@ func (r *ScheduleRepository) GetBySubjectUUID(ctx context.Context, subjectUUID u
 	return schedules, nil
 }
 
-func (r *ScheduleRepository) GetByLocation(ctx context.Context, locationName string) ([]*models.ScheduleData, error) {
+func (r *ScheduleRepository) GetByLocation(ctx context.Context, locationName string, isSession bool) ([]*models.ScheduleData, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByLocation"
 
 	query := `SELECT uuid
@@ -368,7 +368,7 @@ func (r *ScheduleRepository) GetByLocation(ctx context.Context, locationName str
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	schedule, err := r.GetByLocationUUID(ctx, locationUUID)
+	schedule, err := r.GetByLocationUUID(ctx, locationUUID, isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -376,11 +376,11 @@ func (r *ScheduleRepository) GetByLocation(ctx context.Context, locationName str
 	return schedule, nil
 }
 
-func (r *ScheduleRepository) GetByLocationUUID(ctx context.Context, locationUUID uuid.UUID) ([]*models.ScheduleData, error) {
+func (r *ScheduleRepository) GetByLocationUUID(ctx context.Context, locationUUID uuid.UUID, isSession bool) ([]*models.ScheduleData, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByLocationUUID"
 
-	query := baseSelectStatement + ` WHERE locations.uuid = $1 ` + baseGroupByStatement
-	rows, err := r.db.Query(ctx, query, locationUUID)
+	query := baseSelectStatement + ` WHERE locations.uuid = $1 AND is_session = $2 ` + baseGroupByStatement
+	rows, err := r.db.Query(ctx, query, locationUUID, isSession)
 	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -436,12 +436,12 @@ func (r *ScheduleRepository) Delete(ctx context.Context, uuid uuid.UUID) error {
 	return nil
 }
 
-func (r *ScheduleRepository) DeletePairsByGroupWeekdayTime(ctx context.Context, groupUUID uuid.UUID, weekday int, t time.Time) error {
+func (r *ScheduleRepository) DeletePairsByGroupWeekdayTime(ctx context.Context, groupUUID uuid.UUID, weekday int, st, sd time.Time, isSession bool) error {
 	const op = "repository.postgres.ScheduleRepository.DeletePairsByGroupWeekdayTime"
 
 	query := `DELETE FROM schedule 
-       		  WHERE group_uuid = $1 AND weekday = $2 AND start_time = $3`
-	result, err := r.db.Exec(ctx, query, groupUUID, weekday, t)
+       		  WHERE group_uuid = $1 AND weekday = $2 AND start_time = $3 AND start_date = $4 AND is_session = $5`
+	result, err := r.db.Exec(ctx, query, groupUUID, weekday, st, sd, isSession)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
