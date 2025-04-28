@@ -109,23 +109,38 @@ func TestUserService_Validate(t *testing.T) {
 		want bool
 	}{
 		{
-			"valid user role admin",
-			&models.User{Role: "admin"},
+			"valid user AccessLevel admin",
+			&models.User{AccessLevel: 99},
 			true,
 		},
 		{
-			"valid user role moderator",
-			&models.User{Role: "moderator"},
+			"valid user AccessLevel moderator",
+			&models.User{AccessLevel: 50},
 			true,
 		},
 		{
-			"valid user role user",
-			&models.User{Role: "user"},
+			"valid user AccessLevel user",
+			&models.User{AccessLevel: 0},
 			true,
 		},
 		{
-			"invalid user role",
-			&models.User{Role: ""},
+			"invalid user AccessLevel < 0",
+			&models.User{AccessLevel: -1},
+			false,
+		},
+		{
+			"invalid user AccessLevel < 0",
+			&models.User{AccessLevel: -2},
+			false,
+		},
+		{
+			"invalid AccessLevel",
+			&models.User{AccessLevel: 100},
+			false,
+		},
+		{
+			"invalid AccessLevel",
+			&models.User{AccessLevel: 101},
 			false,
 		},
 	}

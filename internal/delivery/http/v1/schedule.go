@@ -149,6 +149,7 @@ func NewScheduleRouteGetByUUID(apiV1Group *gin.RouterGroup, uc *usecase.Schedule
 // @Accept */*
 // @Produce json
 // @Param fn path string true "Teacher fullname"
+// @Param session query int false "Is session"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
 // @Failure 401 {object} ResponseError
@@ -166,7 +167,13 @@ func NewScheduleRouteGetByTeacher(apiV1Group *gin.RouterGroup, uc *usecase.Sched
 
 	scheduleGroup.GET("/teacher/fn/:fn", func(c *gin.Context) {
 		reqfn := c.Param("fn")
-		resp, err := r.uc.GetByTeacher(c, reqfn)
+		isSessionQuery := c.Query("session")
+		var isSession bool
+		if isSessionQuery == "1" {
+			isSession = true
+		}
+
+		resp, err := r.uc.GetByTeacher(c, reqfn, isSession)
 		if err != nil {
 			makeErrResponse(c, &ErrResp{
 				err:      err,
@@ -190,6 +197,7 @@ func NewScheduleRouteGetByTeacher(apiV1Group *gin.RouterGroup, uc *usecase.Sched
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Teacher uuid"
+// @Param session query int false "Is session"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
 // @Failure 401 {object} ResponseError
@@ -207,7 +215,13 @@ func NewScheduleRouteGetByTeacherUUID(apiV1Group *gin.RouterGroup, uc *usecase.S
 
 	scheduleGroup.GET("/teacher/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		resp, err := r.uc.GetByTeacherUUID(c, reqUUID)
+		isSessionQuery := c.Query("session")
+		var isSession bool
+		if isSessionQuery == "1" {
+			isSession = true
+		}
+
+		resp, err := r.uc.GetByTeacherUUID(c, reqUUID, isSession)
 		if err != nil {
 			makeErrResponse(c, &ErrResp{
 				err:      err,
@@ -230,6 +244,7 @@ func NewScheduleRouteGetByTeacherUUID(apiV1Group *gin.RouterGroup, uc *usecase.S
 // @Accept */*
 // @Produce json
 // @Param number path string true "Group number"
+// @Param session query int false "Is session"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
 // @Failure 401 {object} ResponseError
@@ -246,7 +261,13 @@ func NewScheduleRouteGetByGroup(apiV1Group *gin.RouterGroup, uc *usecase.Schedul
 
 	scheduleGroup.GET("/group/number/:number", func(c *gin.Context) {
 		reqNumber := c.Param("number")
-		resp, err := r.uc.GetByGroup(c, reqNumber)
+		isSessionQuery := c.Query("session")
+		var isSession bool
+		if isSessionQuery == "1" {
+			isSession = true
+		}
+
+		resp, err := r.uc.GetByGroup(c, reqNumber, isSession)
 		if err != nil {
 			makeErrResponse(c, &ErrResp{
 				err:      err,
@@ -270,6 +291,7 @@ func NewScheduleRouteGetByGroup(apiV1Group *gin.RouterGroup, uc *usecase.Schedul
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Group uuid"
+// @Param session query int false "Is session"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
 // @Failure 401 {object} ResponseError
@@ -287,7 +309,13 @@ func NewScheduleRouteGetByGroupUUID(apiV1Group *gin.RouterGroup, uc *usecase.Sch
 
 	scheduleGroup.GET("/group/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		resp, err := r.uc.GetByGroupUUID(c, reqUUID)
+		isSessionQuery := c.Query("session")
+		var isSession bool
+		if isSessionQuery == "1" {
+			isSession = true
+		}
+
+		resp, err := r.uc.GetByGroupUUID(c, reqUUID, isSession)
 		if err != nil {
 			makeErrResponse(c, &ErrResp{
 				err:      err,
@@ -311,6 +339,7 @@ func NewScheduleRouteGetByGroupUUID(apiV1Group *gin.RouterGroup, uc *usecase.Sch
 // @Accept */*
 // @Produce json
 // @Param number path string true "Room number"
+// @Param session query int false "Is session"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
 // @Failure 401 {object} ResponseError
@@ -328,7 +357,13 @@ func NewScheduleRouteGetByRoom(apiV1Group *gin.RouterGroup, uc *usecase.Schedule
 
 	scheduleRoom.GET("/room/number/:number", func(c *gin.Context) {
 		reqNumber := c.Param("number")
-		resp, err := r.uc.GetByRoom(c, reqNumber)
+		isSessionQuery := c.Query("session")
+		var isSession bool
+		if isSessionQuery == "1" {
+			isSession = true
+		}
+
+		resp, err := r.uc.GetByRoom(c, reqNumber, isSession)
 		if err != nil {
 			makeErrResponse(c, &ErrResp{
 				err:      err,
@@ -352,6 +387,7 @@ func NewScheduleRouteGetByRoom(apiV1Group *gin.RouterGroup, uc *usecase.Schedule
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Room uuid"
+// @Param session query int false "Is session"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
 // @Failure 401 {object} ResponseError
@@ -369,7 +405,13 @@ func NewScheduleRouteGetByRoomUUID(apiV1Group *gin.RouterGroup, uc *usecase.Sche
 
 	scheduleRoom.GET("/room/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		resp, err := r.uc.GetByRoomUUID(c, reqUUID)
+		isSessionQuery := c.Query("session")
+		var isSession bool
+		if isSessionQuery == "1" {
+			isSession = true
+		}
+
+		resp, err := r.uc.GetByRoomUUID(c, reqUUID, isSession)
 		if err != nil {
 			makeErrResponse(c, &ErrResp{
 				err:      err,
@@ -393,6 +435,7 @@ func NewScheduleRouteGetByRoomUUID(apiV1Group *gin.RouterGroup, uc *usecase.Sche
 // @Accept */*
 // @Produce json
 // @Param name path string true "Subject name"
+// @Param session query int false "Is session"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
 // @Failure 401 {object} ResponseError
@@ -410,7 +453,13 @@ func NewScheduleRouteGetBySubject(apiV1Group *gin.RouterGroup, uc *usecase.Sched
 
 	scheduleSubject.GET("/subject/name/:name", func(c *gin.Context) {
 		reqName := c.Param("name")
-		resp, err := r.uc.GetBySubject(c, reqName)
+		isSessionQuery := c.Query("session")
+		var isSession bool
+		if isSessionQuery == "1" {
+			isSession = true
+		}
+
+		resp, err := r.uc.GetBySubject(c, reqName, isSession)
 		if err != nil {
 			makeErrResponse(c, &ErrResp{
 				err:      err,
@@ -434,6 +483,7 @@ func NewScheduleRouteGetBySubject(apiV1Group *gin.RouterGroup, uc *usecase.Sched
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Subject uuid"
+// @Param session query int false "Is session"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
 // @Failure 401 {object} ResponseError
@@ -451,7 +501,13 @@ func NewScheduleRouteGetBySubjectUUID(apiV1Group *gin.RouterGroup, uc *usecase.S
 
 	scheduleSubject.GET("/subject/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		resp, err := r.uc.GetBySubjectUUID(c, reqUUID)
+		isSessionQuery := c.Query("session")
+		var isSession bool
+		if isSessionQuery == "1" {
+			isSession = true
+		}
+
+		resp, err := r.uc.GetBySubjectUUID(c, reqUUID, isSession)
 		if err != nil {
 			makeErrResponse(c, &ErrResp{
 				err:      err,
@@ -475,6 +531,7 @@ func NewScheduleRouteGetBySubjectUUID(apiV1Group *gin.RouterGroup, uc *usecase.S
 // @Accept */*
 // @Produce json
 // @Param name path string true "Location name"
+// @Param session query int false "Is session"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
 // @Failure 401 {object} ResponseError
@@ -492,7 +549,13 @@ func NewScheduleRouteGetByLocation(apiV1Group *gin.RouterGroup, uc *usecase.Sche
 
 	scheduleLocation.GET("/location/name/:name", func(c *gin.Context) {
 		reqName := c.Param("name")
-		resp, err := r.uc.GetByLocation(c, reqName)
+		isSessionQuery := c.Query("session")
+		var isSession bool
+		if isSessionQuery == "1" {
+			isSession = true
+		}
+
+		resp, err := r.uc.GetByLocation(c, reqName, isSession)
 		if err != nil {
 			makeErrResponse(c, &ErrResp{
 				err:      err,
@@ -516,6 +579,7 @@ func NewScheduleRouteGetByLocation(apiV1Group *gin.RouterGroup, uc *usecase.Sche
 // @Accept */*
 // @Produce json
 // @Param uuid path string true "Location uuid"
+// @Param session query int false "Is session"
 // @Success 200 {object} ResponseOK{response=dto.Week}
 // @Failure 400 {object} ResponseError
 // @Failure 401 {object} ResponseError
@@ -533,7 +597,13 @@ func NewScheduleRouteGetByLocationUUID(apiV1Group *gin.RouterGroup, uc *usecase.
 
 	scheduleLocation.GET("/location/uuid/:uuid", func(c *gin.Context) {
 		reqUUID := c.Param("uuid")
-		resp, err := r.uc.GetByLocationUUID(c, reqUUID)
+		isSessionQuery := c.Query("session")
+		var isSession bool
+		if isSessionQuery == "1" {
+			isSession = true
+		}
+
+		resp, err := r.uc.GetByLocationUUID(c, reqUUID, isSession)
 		if err != nil {
 			makeErrResponse(c, &ErrResp{
 				err:      err,

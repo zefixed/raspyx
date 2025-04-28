@@ -59,13 +59,13 @@ func mapError(err error) string {
 		repo    string
 		message string
 	}{
+		{"Schedule", "Schedule"},
 		{"Group", "Group"},
 		{"Location", "Location"},
 		{"Room", "Room"},
 		{"Subject", "Subject"},
 		{"SubjectType", "Subject type"},
 		{"Teacher", "Teacher"},
-		{"Schedule", "Schedule"},
 		{"UserRepository", "User"},
 	}
 

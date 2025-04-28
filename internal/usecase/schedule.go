@@ -131,15 +131,21 @@ func (uc *ScheduleUseCase) scheduleDTOToScheduleModel(ctx context.Context, sched
 	// Adding link to model
 	schedule.Link = scheduleDTO.Link
 
+	// Adding flag IsSession to model
+	schedule.IsSession = scheduleDTO.IsSession
+
 	return schedule, nil
 }
 
 func makeWeek(schedules []*models.ScheduleData) *dto.Week {
 	week := &dto.Week{}
-	days := map[int]*dto.Day{
-		1: &week.Monday, 2: &week.Tuesday, 3: &week.Wednesday,
-		4: &week.Thursday, 5: &week.Friday, 6: &week.Saturday,
-	}
+
+	(*week)["monday"] = &dto.Day{}
+	(*week)["tuesday"] = &dto.Day{}
+	(*week)["wednesday"] = &dto.Day{}
+	(*week)["thursday"] = &dto.Day{}
+	(*week)["friday"] = &dto.Day{}
+	(*week)["saturday"] = &dto.Day{}
 
 	for _, schedule := range schedules {
 		pair := dto.Pair{
@@ -153,29 +159,83 @@ func makeWeek(schedules []*models.ScheduleData) *dto.Week {
 			Link:      schedule.Link,
 		}
 
-		if days[schedule.Weekday] == nil {
-			days[schedule.Weekday] = &dto.Day{}
+		wd := numToDay(schedule.Weekday)
+
+		if (*week)[wd] == nil {
+			(*week)[wd] = &dto.Day{}
 		}
 
 		switch schedule.StartTime.Format("15:04") {
 		case "09:00":
-			days[schedule.Weekday].First = append(days[schedule.Weekday].First, pair)
+			(*week)[wd].First = append((*week)[wd].First, pair)
 		case "10:40":
-			days[schedule.Weekday].Second = append(days[schedule.Weekday].Second, pair)
+			(*week)[wd].Second = append((*week)[wd].Second, pair)
 		case "12:20":
-			days[schedule.Weekday].Third = append(days[schedule.Weekday].Third, pair)
+			(*week)[wd].Third = append((*week)[wd].Third, pair)
 		case "14:30":
-			days[schedule.Weekday].Fourth = append(days[schedule.Weekday].Fourth, pair)
+			(*week)[wd].Fourth = append((*week)[wd].Fourth, pair)
 		case "16:10":
-			days[schedule.Weekday].Fifth = append(days[schedule.Weekday].Fifth, pair)
+			(*week)[wd].Fifth = append((*week)[wd].Fifth, pair)
 		case "17:50":
-			days[schedule.Weekday].Sixth = append(days[schedule.Weekday].Sixth, pair)
+			(*week)[wd].Sixth = append((*week)[wd].Sixth, pair)
 		case "19:30":
-			days[schedule.Weekday].Seventh = append(days[schedule.Weekday].Seventh, pair)
+			(*week)[wd].Seventh = append((*week)[wd].Seventh, pair)
 		}
 	}
 
 	return week
+}
+
+func makeSessionWeek(schedules []*models.ScheduleData) *dto.Week {
+	week := &dto.Week{}
+
+	for _, schedule := range schedules {
+		pair := dto.Pair{
+			Subject:   schedule.Subject,
+			Teachers:  schedule.Teachers,
+			StartDate: schedule.StartDate.Format(time.DateOnly),
+			EndDate:   schedule.EndDate.Format(time.DateOnly),
+			Rooms:     schedule.Rooms,
+			Location:  schedule.Location,
+			Type:      schedule.Type,
+			Link:      schedule.Link,
+		}
+
+		sd := schedule.StartDate.Format(time.DateOnly)
+		if (*week)[sd] == nil {
+			(*week)[sd] = &dto.Day{}
+		}
+
+		switch schedule.StartTime.Format("15:04") {
+		case "09:00":
+			(*week)[sd].First = append((*week)[sd].First, pair)
+		case "10:40":
+			(*week)[sd].Second = append((*week)[sd].Second, pair)
+		case "12:20":
+			(*week)[sd].Third = append((*week)[sd].Third, pair)
+		case "14:30":
+			(*week)[sd].Fourth = append((*week)[sd].Fourth, pair)
+		case "16:10":
+			(*week)[sd].Fifth = append((*week)[sd].Fifth, pair)
+		case "17:50":
+			(*week)[sd].Sixth = append((*week)[sd].Sixth, pair)
+		case "19:30":
+			(*week)[sd].Seventh = append((*week)[sd].Seventh, pair)
+		}
+	}
+
+	return week
+}
+
+func numToDay(num int) string {
+	return map[int]string{
+		1: "monday",
+		2: "tuesday",
+		3: "wednesday",
+		4: "thursday",
+		5: "friday",
+		6: "saturday",
+	}[num]
 }
 
 func (uc *ScheduleUseCase) Create(ctx context.Context, scheduleDTO *dto.ScheduleRequest) (*dto.CreateScheduleResponse, error) {
@@ -273,7 +333,7 @@ func (uc *ScheduleUseCase) GetByUUID(ctx context.Context, UUID string) (*dto.Wee
 	return makeWeek([]*models.ScheduleData{schedules}), nil
 }
 
-func (uc *ScheduleUseCase) GetByTeacher(ctx context.Context, fn string) (*dto.Week, error) {
+func (uc *ScheduleUseCase) GetByTeacher(ctx context.Context, fn string, isSession bool) (*dto.Week, error) {
 	const op = "usecase.schedule.GetByTeacher"
 
 	fnArr := strings.Split(strings.TrimSpace(fn), " ")
@@ -289,7 +349,7 @@ func (uc *ScheduleUseCase) GetByTeacher(ctx context.Context, fn string) (*dto.We
 
 	// Getting schedule from db with given teacher fullname
 	fnArr = append(fnArr, "")
-	schedules, err := uc.repo.GetByTeacher(ctx, fnArr[1], fnArr[0], fnArr[2])
+	schedules, err := uc.repo.GetByTeacher(ctx, fnArr[1], fnArr[0], fnArr[2], isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -297,7 +357,7 @@ func (uc *ScheduleUseCase) GetByTeacher(ctx context.Context, fn string) (*dto.We
 	return makeWeek(schedules), nil
 }
 
-func (uc *ScheduleUseCase) GetByTeacherUUID(ctx context.Context, UUID string) (*dto.Week, error) {
+func (uc *ScheduleUseCase) GetByTeacherUUID(ctx context.Context, UUID string, isSession bool) (*dto.Week, error) {
 	const op = "usecase.schedule.GetByTeacherUUID"
 
 	// Parsing teacher uuid
@@ -307,7 +367,7 @@ func (uc *ScheduleUseCase) GetByTeacherUUID(ctx context.Context, UUID string) (*
 	}
 
 	// Getting schedule from db with given teacher uuid
-	schedules, err := uc.repo.GetByTeacherUUID(ctx, teacherUUID)
+	schedules, err := uc.repo.GetByTeacherUUID(ctx, teacherUUID, isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -315,9 +375,14 @@ func (uc *ScheduleUseCase) GetByTeacherUUID(ctx context.Context, UUID string) (*
 	return makeWeek(schedules), nil
 }
 
-func (uc *ScheduleUseCase) GetByGroup(ctx context.Context, groupNumber string) (*dto.Week, error) {
+func (uc *ScheduleUseCase) GetByGroup(ctx context.Context, groupNumber string, isSession bool) (*dto.Week, error) {
 	const op = "usecase.schedule.GetByGroup"
 	cacheKey := "schedule:" + groupNumber
+	if isSession {
+		cacheKey += ":1"
+	} else {
+		cacheKey += ":0"
+	}
 
 	groupNumber = strings.TrimSpace(groupNumber)
 
@@ -328,19 +393,25 @@ func (uc *ScheduleUseCase) GetByGroup(ctx context.Context, groupNumber string) (
 	}
 
 	// Getting schedule from db with given group number
-	schedules, err := uc.repo.GetByGroup(ctx, groupNumber)
+	schedules, err := uc.repo.GetByGroup(ctx, groupNumber, isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	week := makeWeek(schedules)
+	var week *dto.Week
+	if !isSession {
+		week = makeWeek(schedules)
+	} else {
+		week = makeSessionWeek(schedules)
+	}
+
 	data, _ := json.Marshal(week)
-	_ = uc.cache.Set(ctx, cacheKey, string(data), 10*time.Minute)
+	_ = uc.cache.Set(ctx, cacheKey, string(data), 10*time.Second)
 
 	return week, nil
 }
 
-func (uc *ScheduleUseCase) GetByGroupUUID(ctx context.Context, UUID string) (*dto.Week, error) {
+func (uc *ScheduleUseCase) GetByGroupUUID(ctx context.Context, UUID string, isSession bool) (*dto.Week, error) {
 	const op = "usecase.schedule.GetByGroupUUID"
 
 	// Parsing group uuid
@@ -350,7 +421,7 @@ func (uc *ScheduleUseCase) GetByGroupUUID(ctx context.Context, UUID string) (*dt
 	}
 
 	// Getting schedule from db with given group uuid
-	schedules, err := uc.repo.GetByGroupUUID(ctx, groupUUID)
+	schedules, err := uc.repo.GetByGroupUUID(ctx, groupUUID, isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -358,13 +429,13 @@ func (uc *ScheduleUseCase) GetByGroupUUID(ctx context.Context, UUID string) (*dt
 	return makeWeek(schedules), nil
 }
 
-func (uc *ScheduleUseCase) GetByRoom(ctx context.Context, roomNumber string) (*dto.Week, error) {
+func (uc *ScheduleUseCase) GetByRoom(ctx context.Context, roomNumber string, isSession bool) (*dto.Week, error) {
 	const op = "usecase.schedule.GetByRoom"
 
 	roomNumber = strings.TrimSpace(roomNumber)
 
 	// Getting schedule from db with given room number
-	schedules, err := uc.repo.GetByRoom(ctx, roomNumber)
+	schedules, err := uc.repo.GetByRoom(ctx, roomNumber, isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -372,7 +443,7 @@ func (uc *ScheduleUseCase) GetByRoom(ctx context.Context, roomNumber string) (*d
 	return makeWeek(schedules), nil
 }
 
-func (uc *ScheduleUseCase) GetByRoomUUID(ctx context.Context, UUID string) (*dto.Week, error) {
+func (uc *ScheduleUseCase) GetByRoomUUID(ctx context.Context, UUID string, isSession bool) (*dto.Week, error) {
 	const op = "usecase.schedule.GetByRoomUUID"
 
 	// Parsing room uuid
@@ -382,7 +453,7 @@ func (uc *ScheduleUseCase) GetByRoomUUID(ctx context.Context, UUID string) (*dto
 	}
 
 	// Getting schedule from db with given room uuid
-	schedules, err := uc.repo.GetByRoomUUID(ctx, roomUUID)
+	schedules, err := uc.repo.GetByRoomUUID(ctx, roomUUID, isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -390,13 +461,13 @@ func (uc *ScheduleUseCase) GetByRoomUUID(ctx context.Context, UUID string) (*dto
 	return makeWeek(schedules), nil
 }
 
-func (uc *ScheduleUseCase) GetBySubject(ctx context.Context, subjectName string) (*dto.Week, error) {
+func (uc *ScheduleUseCase) GetBySubject(ctx context.Context, subjectName string, isSession bool) (*dto.Week, error) {
 	const op = "usecase.schedule.GetBySubject"
 
 	subjectName = strings.TrimSpace(subjectName)
 
 	// Getting schedule from db with given subject name
-	schedules, err := uc.repo.GetBySubject(ctx, subjectName)
+	schedules, err := uc.repo.GetBySubject(ctx, subjectName, isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -404,7 +475,7 @@ func (uc *ScheduleUseCase) GetBySubject(ctx context.Context, subjectName string)
 	return makeWeek(schedules), nil
 }
 
-func (uc *ScheduleUseCase) GetBySubjectUUID(ctx context.Context, UUID string) (*dto.Week, error) {
+func (uc *ScheduleUseCase) GetBySubjectUUID(ctx context.Context, UUID string, isSession bool) (*dto.Week, error) {
 	const op = "usecase.schedule.GetBySubjectUUID"
 
 	// Parsing subject uuid
@@ -414,7 +485,7 @@ func (uc *ScheduleUseCase) GetBySubjectUUID(ctx context.Context, UUID string) (*
 	}
 
 	// Getting schedule from db with given subject uuid
-	schedules, err := uc.repo.GetBySubjectUUID(ctx, subjectUUID)
+	schedules, err := uc.repo.GetBySubjectUUID(ctx, subjectUUID, isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -422,13 +493,13 @@ func (uc *ScheduleUseCase) GetBySubjectUUID(ctx context.Context, UUID string) (*
 	return makeWeek(schedules), nil
 }
 
-func (uc *ScheduleUseCase) GetByLocation(ctx context.Context, locationName string) (*dto.Week, error) {
+func (uc *ScheduleUseCase) GetByLocation(ctx context.Context, locationName string, isSession bool) (*dto.Week, error) {
 	const op = "usecase.schedule.GetByLocation"
 
 	locationName = strings.TrimSpace(locationName)
 
 	// Getting schedule from db with given location name
-	schedules, err := uc.repo.GetByLocation(ctx, locationName)
+	schedules, err := uc.repo.GetByLocation(ctx, locationName, isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -436,7 +507,7 @@ func (uc *ScheduleUseCase) GetByLocation(ctx context.Context, locationName strin
 	return makeWeek(schedules), nil
 }
 
-func (uc *ScheduleUseCase) GetByLocationUUID(ctx context.Context, UUID string) (*dto.Week, error) {
+func (uc *ScheduleUseCase) GetByLocationUUID(ctx context.Context, UUID string, isSession bool) (*dto.Week, error) {
 	const op = "usecase.schedule.GetByLocationUUID"
 
 	// Parsing location uuid
@@ -446,7 +517,7 @@ func (uc *ScheduleUseCase) GetByLocationUUID(ctx context.Context, UUID string) (
 	}
 
 	// Getting schedule from db with given location uuid
-	schedules, err := uc.repo.GetByLocationUUID(ctx, locationUUID)
+	schedules, err := uc.repo.GetByLocationUUID(ctx, locationUUID, isSession)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -614,7 +685,7 @@ func (uc *ScheduleUseCase) Delete(ctx context.Context, UUID string) error {
 	return nil
 }
 
-func (uc *ScheduleUseCase) DeletePairsByGroupWeekdayTime(ctx context.Context, data *dto.DeletePBGWTRequest) error {
+func (uc *ScheduleUseCase) DeletePairsByGroupWeekdayTime(ctx context.Context, data *dto.DeletePBGWTRequest, isSession bool) error {
 	const op = "usecase.schedule.DeletePairsByGroupWeekdayTime"
 
 	// Getting group from db by given group number
@@ -653,7 +724,7 @@ func (uc *ScheduleUseCase) DeletePairsByGroupWeekdayTime(ctx context.Context, da
 	}
 
 	// Deleting schedule from db with given data
-	err = uc.repo.DeletePairsByGroupWeekdayTime(ctx, group.UUID, data.Weekday, startTime)
+	err = uc.repo.DeletePairsByGroupWeekdayTime(ctx, group.UUID, data.Weekday, startTime, data.StartDate, isSession)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
