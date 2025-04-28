@@ -17,6 +17,7 @@ type Schedule struct {
 	EndDate      time.Time `json:"end_date" example:"2025-06-10"`
 	Weekday      int       `json:"weekday" example:"1"`
 	Link         string    `json:"link" example:"https://rasp.dmami.ru"`
+	IsSession    bool      `json:"isSession" example:"false"`
 }
 
 type ScheduleData struct {

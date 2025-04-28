@@ -37,7 +37,7 @@ func (s *UserService) CheckPassword(password, hash string) bool {
 }
 
 func (s *UserService) Validate(user *models.User) bool {
-	return user.AccessLevel < 100
+	return user.AccessLevel >= 0 && user.AccessLevel < 100
 }
 
 func (s *UserService) CreateJWT(username string, accessLevel int, JWT config.JWT) (string, error) {

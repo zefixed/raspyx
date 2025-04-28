@@ -2,6 +2,7 @@ package dto
 
 import (
 	"github.com/google/uuid"
+	"time"
 )
 
 type ScheduleRequest struct {
@@ -17,26 +18,31 @@ type ScheduleRequest struct {
 	EndDate      string   `json:"end_date" example:"2025-06-01"`
 	Weekday      int      `json:"weekday" example:"1"`
 	Link         string   `json:"link" example:"https://rasp.dmami.ru"`
+	IsSession    bool     `json:"isSession" example:"false"`
 }
 
 type CreateScheduleResponse struct {
 	UUID uuid.UUID `json:"uuid" example:"c555b9e8-0d7a-11f0-adcd-20114d2008d9"`
 }
 
+// DeletePairsByGroupWeekdayTimeRequest
 type DeletePBGWTRequest struct {
-	Group   string `json:"group" example:"221-352"`
-	Weekday int    `json:"weekday" example:"1"`
-	PairNum int    `json:"pair_num" example:"1"`
+	Group     string    `json:"group" example:"221-352"`
+	Weekday   int       `json:"weekday" example:"1"`
+	PairNum   int       `json:"pair_num" example:"1"`
+	StartDate time.Time `json:"start_date" example:"2025-02-01"`
 }
 
-type Week struct {
-	Monday    Day `json:"monday"`
-	Tuesday   Day `json:"tuesday"`
-	Wednesday Day `json:"wednesday"`
-	Thursday  Day `json:"thursday"`
-	Friday    Day `json:"friday"`
-	Saturday  Day `json:"saturday"`
-}
+type Week map[string]*Day
+
+//type Week struct {
+//	Monday    Day `json:"monday"`
+//	Tuesday   Day `json:"tuesday"`
+//	Wednesday Day `json:"wednesday"`
+//	Thursday  Day `json:"thursday"`
+//	Friday    Day `json:"friday"`
+//	Saturday  Day `json:"saturday"`
+//}
 
 type Day struct {
 	First   []Pair `json:"1"`

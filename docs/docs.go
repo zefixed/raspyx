@@ -1465,6 +1465,12 @@ const docTemplate = `{
                         "name": "number",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1538,6 +1544,12 @@ const docTemplate = `{
                         "name": "uuid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1617,6 +1629,12 @@ const docTemplate = `{
                         "name": "name",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1696,6 +1714,12 @@ const docTemplate = `{
                         "name": "uuid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1775,6 +1799,12 @@ const docTemplate = `{
                         "name": "number",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1854,6 +1884,12 @@ const docTemplate = `{
                         "name": "uuid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1933,6 +1969,12 @@ const docTemplate = `{
                         "name": "name",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2012,6 +2054,12 @@ const docTemplate = `{
                         "name": "uuid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2091,6 +2139,12 @@ const docTemplate = `{
                         "name": "fn",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2170,6 +2224,12 @@ const docTemplate = `{
                         "name": "uuid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -4618,6 +4678,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "221-352"
                 },
+                "isSession": {
+                    "type": "boolean",
+                    "example": false
+                },
                 "link": {
                     "type": "string",
                     "example": "https://rasp.dmami.ru"
@@ -4775,25 +4839,8 @@ const docTemplate = `{
         },
         "dto.Week": {
             "type": "object",
-            "properties": {
-                "friday": {
-                    "$ref": "#/definitions/dto.Day"
-                },
-                "monday": {
-                    "$ref": "#/definitions/dto.Day"
-                },
-                "saturday": {
-                    "$ref": "#/definitions/dto.Day"
-                },
-                "thursday": {
-                    "$ref": "#/definitions/dto.Day"
-                },
-                "tuesday": {
-                    "$ref": "#/definitions/dto.Day"
-                },
-                "wednesday": {
-                    "$ref": "#/definitions/dto.Day"
-                }
+            "additionalProperties": {
+                "$ref": "#/definitions/dto.Day"
             }
         },
         "models.Group": {
@@ -4934,7 +4981,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.1.0",
+	Version:          "1.2.0",
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},

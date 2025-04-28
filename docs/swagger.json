@@ -4,7 +4,7 @@
         "description": "API for schedules",
         "title": "Raspyx",
         "contact": {},
-        "version": "1.1.0"
+        "version": "1.2.0"
     },
     "host": "localhost:8080",
     "basePath": "/",
@@ -1459,6 +1459,12 @@
                         "name": "number",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1532,6 +1538,12 @@
                         "name": "uuid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1611,6 +1623,12 @@
                         "name": "name",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1690,6 +1708,12 @@
                         "name": "uuid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1769,6 +1793,12 @@
                         "name": "number",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1848,6 +1878,12 @@
                         "name": "uuid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1927,6 +1963,12 @@
                         "name": "name",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2006,6 +2048,12 @@
                         "name": "uuid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2085,6 +2133,12 @@
                         "name": "fn",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2164,6 +2218,12 @@
                         "name": "uuid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Is session",
+                        "name": "session",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -4612,6 +4672,10 @@
                     "type": "string",
                     "example": "221-352"
                 },
+                "isSession": {
+                    "type": "boolean",
+                    "example": false
+                },
                 "link": {
                     "type": "string",
                     "example": "https://rasp.dmami.ru"
@@ -4769,25 +4833,8 @@
         },
         "dto.Week": {
             "type": "object",
-            "properties": {
-                "friday": {
-                    "$ref": "#/definitions/dto.Day"
-                },
-                "monday": {
-                    "$ref": "#/definitions/dto.Day"
-                },
-                "saturday": {
-                    "$ref": "#/definitions/dto.Day"
-                },
-                "thursday": {
-                    "$ref": "#/definitions/dto.Day"
-                },
-                "tuesday": {
-                    "$ref": "#/definitions/dto.Day"
-                },
-                "wednesday": {
-                    "$ref": "#/definitions/dto.Day"
-                }
+            "additionalProperties": {
+                "$ref": "#/definitions/dto.Day"
             }
         },
         "models.Group": {
