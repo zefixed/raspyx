@@ -64,14 +64,14 @@ func Run(cfg *config.Config) {
 	v1.NewRouter(r, log, conn, redisClient, cfg)
 
 	// Pinger
-	r.GET("/ping", func(c *gin.Context) {
+	r.GET("/raspyx/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
 
 	// Swagger documentation
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.GET("/raspyx/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%v", cfg.HTTP.Port),

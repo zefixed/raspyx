@@ -74,7 +74,7 @@ func NewScheduleRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUse
 // @Failure 403 {object} ResponseError
 // @Failure 404 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/schedules [get]
+// @Router /api/v1/schedules/ [get]
 func NewScheduleRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.ScheduleUseCase, log *slog.Logger) {
 	const op = "delivery.http.v1.NewScheduleRouteGet"
 	log = log.With(slog.String("op", op))

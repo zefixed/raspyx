@@ -114,7 +114,7 @@ func NewUserRouteLogin(apiV1Group *gin.RouterGroup, uc *usecase.UserUseCase, log
 // @Failure 401 {object} ResponseError
 // @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/users [get]
+// @Router /api/v1/users/ [get]
 func NewUserRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.UserUseCase, log *slog.Logger) {
 	const op = "delivery.http.v1.NewUserRouteGet"
 	log = log.With(slog.String("op", op))

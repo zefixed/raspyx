@@ -12,7 +12,7 @@ import (
 // @description     API for schedules
 
 // @host      localhost:8080
-// @BasePath  /
+// @BasePath  /raspyx
 
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header

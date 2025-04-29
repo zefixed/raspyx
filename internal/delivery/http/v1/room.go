@@ -71,7 +71,7 @@ func NewRoomRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, lo
 // @Failure 401 {object} ResponseError
 // @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/rooms [get]
+// @Router /api/v1/rooms/ [get]
 func NewRoomRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.RoomUseCase, log *slog.Logger) {
 	const op = "delivery.http.v1.NewRoomRouteGet"
 	log = log.With(slog.String("op", op))
