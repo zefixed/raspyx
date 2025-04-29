@@ -15,10 +15,10 @@ import (
 )
 
 func NewRouter(r *gin.Engine, log *slog.Logger, conn *pgxpool.Pool, redisClient *redis.Client, cfg *config.Config) {
-	apiV1GroupUser := r.Group("/api/v1")
-	apiV1GroupModerator := r.Group("/api/v1")
+	apiV1GroupUser := r.Group("/raspyx/api/v1")
+	apiV1GroupModerator := r.Group("/raspyx/api/v1")
 	apiV1GroupModerator.Use(mw.AuthMiddleware(cfg.JWT), mw.AccessLevelMiddleware(50))
-	apiV1GroupAdmin := r.Group("/api/v1")
+	apiV1GroupAdmin := r.Group("/raspyx/api/v1")
 	apiV1GroupAdmin.Use(mw.AuthMiddleware(cfg.JWT), mw.AccessLevelMiddleware(99))
 
 	groupUseCase := usecase.NewGroupUseCase(

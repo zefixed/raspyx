@@ -1,4 +1,4 @@
-basePath: /
+basePath: /raspyx
 definitions:
   dto.CreateGroupRequest:
     properties:
@@ -441,40 +441,6 @@ info:
   version: 1.2.0
 paths:
   /api/v1/groups:
-    get:
-      consumes:
-      - '*/*'
-      description: Get all groups from database
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/v1.ResponseOK'
-            - properties:
-                response:
-                  $ref: '#/definitions/dto.GetGroupsResponse'
-              type: object
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-      security:
-      - ApiKeyAuth: []
-      - ApiKeyAuth: []
-      summary: Getting groups
-      tags:
-      - group
     post:
       consumes:
       - application/json
@@ -517,6 +483,41 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Creating a new group
+      tags:
+      - group
+  /api/v1/groups/:
+    get:
+      consumes:
+      - '*/*'
+      description: Get all groups from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.GetGroupsResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      - ApiKeyAuth: []
+      summary: Getting groups
       tags:
       - group
   /api/v1/groups/{uuid}:
@@ -707,39 +708,6 @@ paths:
       tags:
       - group
   /api/v1/locations:
-    get:
-      consumes:
-      - '*/*'
-      description: Get all locations from database
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/v1.ResponseOK'
-            - properties:
-                response:
-                  $ref: '#/definitions/dto.GetLocationsResponse'
-              type: object
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-      security:
-      - ApiKeyAuth: []
-      summary: Getting locations
-      tags:
-      - location
     post:
       consumes:
       - application/json
@@ -782,6 +750,40 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Creating a new location
+      tags:
+      - location
+  /api/v1/locations/:
+    get:
+      consumes:
+      - '*/*'
+      description: Get all locations from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.GetLocationsResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Getting locations
       tags:
       - location
   /api/v1/locations/{uuid}:
@@ -968,39 +970,6 @@ paths:
       tags:
       - location
   /api/v1/rooms:
-    get:
-      consumes:
-      - '*/*'
-      description: Get all rooms from database
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/v1.ResponseOK'
-            - properties:
-                response:
-                  $ref: '#/definitions/dto.GetRoomsResponse'
-              type: object
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-      security:
-      - ApiKeyAuth: []
-      summary: Getting rooms
-      tags:
-      - room
     post:
       consumes:
       - application/json
@@ -1043,6 +1012,40 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Creating a new room
+      tags:
+      - room
+  /api/v1/rooms/:
+    get:
+      consumes:
+      - '*/*'
+      description: Get all rooms from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.GetRoomsResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Getting rooms
       tags:
       - room
   /api/v1/rooms/{uuid}:
@@ -1229,47 +1232,6 @@ paths:
       tags:
       - room
   /api/v1/schedules:
-    get:
-      consumes:
-      - '*/*'
-      description: Get all schedules from database
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/v1.ResponseOK'
-            - properties:
-                response:
-                  $ref: '#/definitions/dto.Week'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-      security:
-      - ApiKeyAuth: []
-      summary: Getting schedules
-      tags:
-      - schedule
     post:
       consumes:
       - application/json
@@ -1316,6 +1278,48 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Creating a new schedule
+      tags:
+      - schedule
+  /api/v1/schedules/:
+    get:
+      consumes:
+      - '*/*'
+      description: Get all schedules from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.Week'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Getting schedules
       tags:
       - schedule
   /api/v1/schedules/{uuid}:
@@ -1972,39 +1976,6 @@ paths:
       tags:
       - schedule
   /api/v1/subjects:
-    get:
-      consumes:
-      - '*/*'
-      description: Get all subjects from database
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/v1.ResponseOK'
-            - properties:
-                response:
-                  $ref: '#/definitions/dto.GetSubjectsResponse'
-              type: object
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-      security:
-      - ApiKeyAuth: []
-      summary: Getting subjects
-      tags:
-      - subject
     post:
       consumes:
       - application/json
@@ -2047,6 +2018,40 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Creating a new subject
+      tags:
+      - subject
+  /api/v1/subjects/:
+    get:
+      consumes:
+      - '*/*'
+      description: Get all subjects from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.GetSubjectsResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Getting subjects
       tags:
       - subject
   /api/v1/subjects/{uuid}:
@@ -2235,39 +2240,6 @@ paths:
       tags:
       - subject
   /api/v1/subjecttypes:
-    get:
-      consumes:
-      - '*/*'
-      description: Get all subjectTypes from database
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/v1.ResponseOK'
-            - properties:
-                response:
-                  $ref: '#/definitions/dto.GetSubjectTypesResponse'
-              type: object
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-      security:
-      - ApiKeyAuth: []
-      summary: Getting subjectTypes
-      tags:
-      - subjectType
     post:
       consumes:
       - application/json
@@ -2310,6 +2282,40 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Creating a new subjectType
+      tags:
+      - subjectType
+  /api/v1/subjecttypes/:
+    get:
+      consumes:
+      - '*/*'
+      description: Get all subjectTypes from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.GetSubjectTypesResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Getting subjectTypes
       tags:
       - subjectType
   /api/v1/subjecttypes/{uuid}:
@@ -2496,39 +2502,6 @@ paths:
       tags:
       - subjectType
   /api/v1/teachers:
-    get:
-      consumes:
-      - '*/*'
-      description: Get all teachers from database
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/v1.ResponseOK'
-            - properties:
-                response:
-                  $ref: '#/definitions/dto.GetTeachersResponse'
-              type: object
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.ResponseError'
-      security:
-      - ApiKeyAuth: []
-      summary: Getting teachers
-      tags:
-      - teacher
     post:
       consumes:
       - application/json
@@ -2571,6 +2544,40 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Creating a new teacher
+      tags:
+      - teacher
+  /api/v1/teachers/:
+    get:
+      consumes:
+      - '*/*'
+      description: Get all teachers from database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseOK'
+            - properties:
+                response:
+                  $ref: '#/definitions/dto.GetTeachersResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Getting teachers
       tags:
       - teacher
   /api/v1/teachers/{uuid}:
@@ -2756,7 +2763,7 @@ paths:
       summary: Getting teacher by uuid
       tags:
       - teacher
-  /api/v1/users:
+  /api/v1/users/:
     get:
       consumes:
       - '*/*'

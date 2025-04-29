@@ -71,7 +71,7 @@ func NewSubjectRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCa
 // @Failure 401 {object} ResponseError
 // @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/subjects [get]
+// @Router /api/v1/subjects/ [get]
 func NewSubjectRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.SubjectUseCase, log *slog.Logger) {
 	const op = "delivery.http.v1.NewSubjectRouteGet"
 	log = log.With(slog.String("op", op))

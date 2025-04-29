@@ -72,7 +72,7 @@ func NewTeacherRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCa
 // @Failure 401 {object} ResponseError
 // @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/teachers [get]
+// @Router /api/v1/teachers/ [get]
 func NewTeacherRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.TeacherUseCase, log *slog.Logger) {
 	const op = "delivery.http.v1.NewTeacherRouteGet"
 	log = log.With(slog.String("op", op))

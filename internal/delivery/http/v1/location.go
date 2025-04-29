@@ -67,7 +67,7 @@ func NewLocationRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.LocationUse
 // @Failure 401 {object} ResponseError
 // @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/locations [get]
+// @Router /api/v1/locations/ [get]
 func NewLocationRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.LocationUseCase, log *slog.Logger) {
 	r := &locationRoutes{uc, log}
 

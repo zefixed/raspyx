@@ -69,7 +69,7 @@ func NewGroupRouteCreate(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, 
 // @Failure 401 {object} ResponseError
 // @Failure 403 {object} ResponseError
 // @Failure 500 {object} ResponseError
-// @Router /api/v1/groups [get]
+// @Router /api/v1/groups/ [get]
 func NewGroupRouteGet(apiV1Group *gin.RouterGroup, uc *usecase.GroupUseCase, log *slog.Logger) {
 	r := &groupRoutes{uc, log}
 
