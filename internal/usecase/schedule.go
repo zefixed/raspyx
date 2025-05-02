@@ -11,6 +11,7 @@ import (
 	"raspyx/internal/domain/services"
 	"raspyx/internal/dto"
 	"raspyx/internal/repository"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -725,6 +726,68 @@ func (uc *ScheduleUseCase) DeletePairsByGroupWeekdayTime(ctx context.Context, da
 
 	// Deleting schedule from db with given data
 	err = uc.repo.DeletePairsByGroupWeekdayTime(ctx, group.UUID, data.Weekday, startTime, data.StartDate, isSession)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (uc *ScheduleUseCase) DeleteByParams(ctx context.Context, params *dto.DeleteParams) error {
+	const op = "usecase.schedule.DeleteByParams"
+
+	// Converting pair num to time
+	st, err := time.Parse(time.TimeOnly, params.StartTime)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	et, err := time.Parse(time.TimeOnly, params.EndTime)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	// Parsing start date
+	sd, err := time.Parse(time.DateOnly, params.StartDate)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	// Parsing end date
+	var ed time.Time
+	if params.EndDate != "" {
+		ed, err = time.Parse(time.DateOnly, params.EndDate)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	// Day (or date) to weekday
+	wd := 0
+	if !params.IsSession {
+		wd, err = strconv.Atoi(params.Day)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+	} else {
+		t, err := time.Parse(time.DateOnly, params.Day)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+		wd = int(t.Weekday())
+	}
+
+	err = uc.repo.DeleteByParams(ctx, &models.ScheduleData{
+		Group:     params.Group,
+		Subject:   params.Subject,
+		Type:      params.Type,
+		Location:  params.Location,
+		StartTime: st,
+		EndTime:   et,
+		StartDate: sd,
+		EndDate:   ed,
+		Weekday:   wd,
+		IsSession: params.IsSession,
+	})
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

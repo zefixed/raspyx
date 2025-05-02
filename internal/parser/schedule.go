@@ -583,12 +583,22 @@ func (p *ScheduleParser) parseSchedules(ctx context.Context, group string, r *re
 			if len(parsedPairs) == 0 && len(dbPairs) == 0 {
 				continue
 			} else if len(parsedPairs) == 0 && len(dbPairs) > 0 {
-				err = p.deletePBGWT(ctx, scheduleUC, group, dayNum, pairNum, dbPairs[0].StartDate, r.IsSession)
-				if err != nil && !strings.Contains(err.Error(), repository.ErrNotFound.Error()) {
-					p.log.Error(fmt.Sprintf(
-						"error deleting schedule for the group %v on %v at %v: %v",
-						group, numToDay(dayNum), pairNum, err,
-					))
+				for _, dbPair := range dbPairs {
+					st, et := pairNumToSTET(pairNum)
+					err = scheduleUC.DeleteByParams(ctx, &dto.DeleteParams{
+						Group:     group,
+						StartTime: st,
+						EndTime:   et,
+						StartDate: dbPair.StartDate,
+						Day:       dayNum,
+						IsSession: r.IsSession,
+					})
+					if err != nil && !strings.Contains(err.Error(), repository.ErrNotFound.Error()) {
+						p.log.Error(fmt.Sprintf(
+							"error deleting schedule for the group %v on %v at %v: %v",
+							group, numToDay(dayNum), pairNum, err,
+						))
+					}
 				}
 			} else {
 				// Converting parsed pairs to DTO
@@ -607,12 +617,23 @@ func (p *ScheduleParser) parseSchedules(ctx context.Context, group string, r *re
 
 				if !cmp.Equal(parsedPairsDTO, dbPairs) {
 					// Deleting pair from db
-					err = p.deletePBGWT(ctx, scheduleUC, group, dayNum, pairNum, parsedPairsDTO[0].StartDate, r.IsSession)
-					if err != nil && !strings.Contains(err.Error(), repository.ErrNotFound.Error()) {
-						p.log.Error(fmt.Sprintf(
-							"error deleting schedule for the group %v on %v at %v: %v",
-							group, numToDay(dayNum), pairNum, err,
-						))
+					for _, parsedPairDTO := range parsedPairsDTO {
+						st, et := pairNumToSTET(pairNum)
+						err = scheduleUC.DeleteByParams(ctx, &dto.DeleteParams{
+							Group:     group,
+							StartTime: st,
+							EndTime:   et,
+							StartDate: parsedPairDTO.StartDate,
+							Day:       dayNum,
+							IsSession: r.IsSession,
+						})
+
+						if err != nil && !strings.Contains(err.Error(), repository.ErrNotFound.Error()) {
+							p.log.Error(fmt.Sprintf(
+								"error deleting schedule for the group %v on %v at %v: %v",
+								group, numToDay(dayNum), pairNum, err,
+							))
+						}
 					}
 
 					// Adding new pair to db

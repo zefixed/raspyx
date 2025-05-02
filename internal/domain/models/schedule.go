@@ -34,4 +34,5 @@ type ScheduleData struct {
 	EndDate   time.Time `json:"end_date" example:"2025-06-01"`
 	Weekday   int       `json:"weekday" example:"1"`
 	Link      string    `json:"link" example:"https://rasp.dmami.ru"`
+	IsSession bool      `json:"isSession,omitempty" example:"false"`
 }
