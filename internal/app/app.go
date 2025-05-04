@@ -14,8 +14,9 @@ import (
 	"os/signal"
 	"raspyx/config"
 	_ "raspyx/docs"
-	v1 "raspyx/internal/delivery/http"
+	httpv1 "raspyx/internal/delivery/http"
 	mw "raspyx/internal/delivery/http/middleware"
+	v1 "raspyx/internal/delivery/http/v1"
 	"raspyx/internal/parser"
 	"strings"
 	"syscall"
@@ -61,13 +62,11 @@ func Run(cfg *config.Config) {
 	r.Use(mw.RequestIDMiddleware())
 
 	// All routes
-	v1.NewRouter(r, log, conn, redisClient, cfg)
+	httpv1.NewRouter(r, log, conn, redisClient, cfg)
 
 	// Pinger
 	r.GET("/raspyx/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
+		c.JSON(http.StatusOK, v1.RespOK(map[string]string{"message": "pong"}))
 	})
 
 	// Swagger documentation
