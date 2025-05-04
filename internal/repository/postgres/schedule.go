@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"raspyx/internal/domain/models"
 	"raspyx/internal/repository"
+	"strings"
 	"time"
 )
 
@@ -451,5 +452,74 @@ func (r *ScheduleRepository) DeletePairsByGroupWeekdayTime(ctx context.Context, 
 		return fmt.Errorf("%s: %w", op, repository.ErrNotFound)
 	}
 
+	return nil
+}
+
+func (r *ScheduleRepository) DeleteByParams(ctx context.Context, params *models.ScheduleData) error {
+	const op = "repository.postgres.ScheduleRepository.DeleteByParams"
+
+	base := `DELETE FROM schedule
+			 USING groups g, subjects s, subj_types t, locations l
+			 WHERE schedule.group_uuid   = g.uuid
+				AND schedule.subject_uuid = s.uuid
+				AND schedule.type_uuid    = t.uuid
+				AND schedule.location_uuid= l.uuid`
+
+	var (
+		conds []string
+		args  []interface{}
+		idx   = 1
+	)
+
+	add := func(expr string, val interface{}) {
+		conds = append(conds, fmt.Sprintf(expr, idx))
+		args = append(args, val)
+		idx++
+	}
+
+	if params.Group != "" {
+		add("g.number = $%d", params.Group)
+	}
+	if params.Subject != "" {
+		add("s.name = $%d", params.Subject)
+	}
+	if params.Type != "" {
+		add("t.type = $%d", params.Type)
+	}
+	if params.Location != "" {
+		add("l.name = $%d", params.Location)
+	}
+	if !params.StartTime.IsZero() {
+		add("schedule.start_time = $%d", params.StartTime)
+	}
+	if !params.EndTime.IsZero() {
+		add("schedule.end_time = $%d", params.EndTime)
+	}
+	if !params.StartDate.IsZero() {
+		add("schedule.start_date = $%d", params.StartDate)
+	}
+	if !params.EndDate.IsZero() {
+		add("schedule.end_date = $%d", params.EndDate)
+	}
+	if params.Weekday != 0 {
+		add("schedule.weekday = $%d", params.Weekday)
+	}
+	add("schedule.is_session = $%d", params.IsSession)
+
+	if len(conds) == 0 {
+		return fmt.Errorf("%s: no parameters provided for deletion", op)
+	}
+
+	query := base + " AND " + strings.Join(conds, " AND ")
+
+	result, err := r.db.Exec(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	rowsAffected := result.RowsAffected()
+	if rowsAffected == 0 {
+		return fmt.Errorf("%s: %w", op, repository.ErrNotFound)
+	}
 	return nil
 }
