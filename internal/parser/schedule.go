@@ -180,9 +180,10 @@ func (p *ScheduleParser) parse(ctx context.Context) error {
 		}
 	}
 
-	//group := "243-361"
+	//group := "241-362"
 	//group := "221-352"
-	//err = p.parseGroupSchedule(ctx, group)
+	//group := "221-741"
+	//err = p.parseGroupSchedule(ctx, group, 0)
 	//if err != nil {
 	//	p.log.Error(fmt.Sprintf("error parsing schedule for %v: %v", group, err))
 	//}
@@ -615,15 +616,15 @@ func (p *ScheduleParser) parseSchedules(ctx context.Context, group string, r *re
 					sort.Slice(pairData.Rooms, func(i, j int) bool { return strings.ToLower(pairData.Rooms[i]) < strings.ToLower(pairData.Rooms[j]) })
 				}
 
-				if !cmp.Equal(parsedPairsDTO, dbPairs) {
+				if !cmp.Equal(dbPairs, parsedPairsDTO) {
 					// Deleting pair from db
-					for _, parsedPairDTO := range parsedPairsDTO {
+					for _, dbPair := range dbPairs {
 						st, et := pairNumToSTET(pairNum)
 						err = scheduleUC.DeleteByParams(ctx, &dto.DeleteParams{
 							Group:     group,
 							StartTime: st,
 							EndTime:   et,
-							StartDate: parsedPairDTO.StartDate,
+							StartDate: dbPair.StartDate,
 							Day:       dayNum,
 							IsSession: r.IsSession,
 						})
