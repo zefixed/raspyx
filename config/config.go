@@ -30,7 +30,9 @@ type (
 	}
 
 	PG struct {
-		PGURL string `env:"PG_URL,required"`
+		PGURL    string `env:"PG_URL,required"`
+		Timeout  string `env:"PG_TIMEOUT,required"`
+		Attempts int    `env:"PG_ATTEMPTS,required"`
 	}
 
 	JWT struct {
