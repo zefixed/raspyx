@@ -8,8 +8,8 @@ This is a REST API built using the Go programming language, leveraging the [Gin]
 - [Features](#features)
 - [Technologies](#technologies)
 - [Installation and Setup](#installation-and-setup)
-    - [Local Setup](#local-setup)
-    - [Docker Setup](#docker-setup)
+  - [Local Setup](#local-setup)
+  - [Docker Setup](#docker-setup)
 - [Testing](#testing)
 - [License](#license)
 
@@ -29,8 +29,8 @@ This API provides functionality to work with schedule. It includes features for 
 ## Technologies
 
 - Go (1.24)
-- Gin Framework
-- Database PostgreSQL
+- Gin
+- PostgreSQL
 - Redis
 - Docker
 
@@ -43,36 +43,48 @@ git clone https://github.com/zefixed/raspyx.git
 cd raspyx
 ```
 
-> ❗ **Important**: Before using rename `.env.example` to `.env` and set up your parameters
-
-> ❗ **Important**: The database initially has the user admin:admin with maximum permissions it is strongly recommended to create another user with such permissions and delete the existing admin user.
+> ❗ Before using rename `.env.example` to `.env` and set up your parameters
 
 ### Local Setup
 
 To run the application locally, follow these steps:
 
-1. Run precompiled version
-    ```bash
-    make run
-    ```
-
-Or
-
 1. Install go
-    
-    Arch
-    ```bash
-    yay -S go
-    ```
-    
-    Ubuntu/Debian
-    ```bash
-    sudo apt install golang
-    ```
-2. Run app
-    ```bash
-    make all
-    ```
+
+   Arch
+
+   ```bash
+   yay -Sy go
+   ```
+
+   Ubuntu/Debian
+
+   ```bash
+   sudo apt install golang
+   ```
+
+2. _(Optional)_ Installing swag for docs generating
+
+   > 💡 _This step is only needed if you want to regenerate documentation_
+
+   ```bash
+   go install github.com/swaggo/swag/cmd/swag@latest
+   ```
+
+   ```bash
+   make swag
+   ```
+
+3. Run app
+
+   ```bash
+   make all
+   ```
+
+   > 💡 `make db-admin` _creates admin:admin user_
+
+   > ❗ _admin:admin user should only be used to create another user with admin rights and should be deleted after its creation_
+
 The API will be available at `http://localhost:8080`.
 
 ### Docker Setup
@@ -81,9 +93,9 @@ To run the application with Docker, follow these steps:
 
 1. Run the docker-compose:
 
-    ```bash
-    docker compose up --build -d
-    ```
+   ```bash
+   docker compose up --build -d
+   ```
 
 The API will be available at `http://localhost:8080`.
 
