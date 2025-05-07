@@ -19,9 +19,7 @@ pipeline {
                     }
 
                     withCredentials([file(credentialsId: "${params.ENV_FILE_ID}", variable: 'ENV_FILE')]) {
-                        sh """
-                        cp ${ENV_FILE} ${WORKSPACE}/.env
-                        """
+                        sh('cp $ENV_FILE $WORKSPACE/.env')
                     }
                 }
             }
