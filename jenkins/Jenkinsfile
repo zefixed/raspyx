@@ -46,8 +46,8 @@ pipeline {
                         echo 'Go is not installed. Installing Go...'
 
                         sh '''
-                        curl -sf -o /tmp/downloads/go1.24.1.linux-amd64.tar.gz -L https://dl.google.com/go/go1.24.1.linux-amd64.tar.gz
-                        mkdir -p /opt && cd /opt && tar xfz /tmp/downloads/go1.24.1.linux-amd64.tar.gz
+                        curl -sf -o /tmp/go1.24.1.linux-amd64.tar.gz -L https://dl.google.com/go/go1.24.1.linux-amd64.tar.gz
+                        mkdir -p /opt && cd /opt && tar xfz /tmp/go1.24.1.linux-amd64.tar.gz
                         '''
 
                         sh 'go version'
