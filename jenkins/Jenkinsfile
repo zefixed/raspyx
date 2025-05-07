@@ -48,9 +48,10 @@ pipeline {
                         echo 'Go is not installed. Installing Go...'
 
                         sh '''
+                        mkdir -p /home/jenkins
                         curl -L https://golang.org/dl/go1.24.1.linux-amd64.tar.gz -o /tmp/go1.24.1.linux-amd64.tar.gz
-                        tar -C /usr/local -xvzf /tmp/go1.24.1.linux-amd64.tar.gz
-                        export PATH=$PATH:/usr/local/go/bin
+                        tar -C /home/jenkins -xvzf /tmp/go1.24.1.linux-amd64.tar.gz
+                        export PATH=$PATH:/home/jenkins/go/bin
                         '''
 
                         sh 'go version'
