@@ -9,7 +9,9 @@ pipeline {
     environment {
         HOST = "${params.API_HOST}"
     }
-    
+
+    tools { go '1.24.1' }
+
     stages {
         stage('Prepare') {
             steps {
@@ -35,29 +37,6 @@ pipeline {
                         ${WORKSPACE}/cmd/app \
                         ${HOST}
                     """
-                }
-            }
-        }
-
-        stage('Install Go') {
-            steps {
-                script {
-                    def goVersion = sh(script: 'go version', returnStatus: true)
-
-                    if (goVersion != 0) {
-                        echo 'Go is not installed. Installing Go...'
-
-                        sh '''
-                        mkdir -p /home/jenkins
-                        curl -L https://golang.org/dl/go1.24.1.linux-amd64.tar.gz -o /tmp/go1.24.1.linux-amd64.tar.gz
-                        tar -C /home/jenkins -xvzf /tmp/go1.24.1.linux-amd64.tar.gz
-                        export PATH=$PATH:/home/jenkins/go/bin
-                        '''
-
-                        sh 'go version'
-                    } else {
-                        echo 'Go is already installed.'
-                    }
                 }
             }
         }
