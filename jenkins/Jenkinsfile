@@ -43,8 +43,8 @@ pipeline {
                     sh '''
                     export GOPATH=/var/jenkins_home/go
                     export PATH=$PATH:/opt/go/bin:$GOPATH/bin
-                    mkdir -p $GOPATH
-                    go install github.com/swaggo/swag/cmd/swag@latest
+                    mkdir -p "$GOPATH"
+                    /opt/go/bin/go install github.com/swaggo/swag/cmd/swag@latest
                     make swag
                     '''
                 }
