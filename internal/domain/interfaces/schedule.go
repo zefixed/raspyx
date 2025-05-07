@@ -25,4 +25,5 @@ type ScheduleRepository interface {
 	Update(ctx context.Context, schedule *models.Schedule) error
 	Delete(ctx context.Context, uuid uuid.UUID) error
 	DeletePairsByGroupWeekdayTime(ctx context.Context, group uuid.UUID, weekday int, st, sd time.Time, isSession bool) error
+	DeleteByParams(ctx context.Context, params *models.ScheduleData) error
 }

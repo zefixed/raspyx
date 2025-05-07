@@ -1,0 +1,90 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'API_HOST', defaultValue: 'localhost:8080', description: 'API host URL')
+    }
+
+    environment {
+        HOST = "${params.API_HOST}"
+    }
+    
+    stages {
+        stage('Prepare') {
+            steps {
+                withCredentials([file(credentialsId: 'INSERT_ENV_ID_HERE', variable: 'ENV_FILE')]) {
+                    sh 'cp "$ENV_FILE" "$WORKSPACE/.env"'
+                }
+            }
+        }
+
+        
+        stage('Configure Environment') {
+            steps {
+                script {
+                    sh """
+                    ${WORKSPACE}/jenkins/scripts/replace-docs.sh \
+                        ${WORKSPACE}/cmd/app \
+                        ${HOST}
+                    """
+                }
+            }
+        }
+
+        stage('Generate Docs') {
+            steps {
+                script {
+                    sh '''
+                    GOPATH=$(go env GOPATH)
+                    export PATH=$PATH:$GOPATH/bin
+                    go install github.com/swaggo/swag/cmd/swag@latest
+                    make swag
+                    '''
+                }
+            }
+        }
+        
+        stage('Build with Docker') {
+            steps {
+                script {
+                    dir(WORKSPACE) {
+                        sh """
+                        docker compose build --no-cache
+                        """
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                script {
+                    dir(WORKSPACE) {
+                        sh """
+                        docker compose down || true
+                        docker compose up -d
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Clean') {
+            steps {
+                script {
+                    dir(WORKSPACE) {
+                         sh """
+                        docker system prune -a -f
+                        """
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}

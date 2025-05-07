@@ -64,3 +64,16 @@ type Pair struct {
 	Type      string   `json:"type" example:"Практика"`
 	Link      string   `json:"link,omitempty" example:"https://online.mospolytech.ru/"`
 }
+
+type DeleteParams struct {
+	Group     string
+	Subject   string
+	Type      string
+	Location  string
+	StartTime string
+	EndTime   string
+	StartDate string
+	EndDate   string
+	Day       string
+	IsSession bool
+}

@@ -14,9 +14,11 @@ import (
 	"os/signal"
 	"raspyx/config"
 	_ "raspyx/docs"
-	v1 "raspyx/internal/delivery/http"
+	httpv1 "raspyx/internal/delivery/http"
 	mw "raspyx/internal/delivery/http/middleware"
+	v1 "raspyx/internal/delivery/http/v1"
 	"raspyx/internal/parser"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -39,7 +41,7 @@ func Run(cfg *config.Config) {
 	log.Debug("debug messages are enabled")
 
 	// db connection
-	conn, err := InitDBPool(ctx, cfg)
+	conn, err := InitDBPool(ctx, cfg, log)
 	if err != nil {
 		log.Error(fmt.Sprintf("error db connection: %v", err))
 		return
@@ -61,13 +63,11 @@ func Run(cfg *config.Config) {
 	r.Use(mw.RequestIDMiddleware())
 
 	// All routes
-	v1.NewRouter(r, log, conn, redisClient, cfg)
+	httpv1.NewRouter(r, log, conn, redisClient, cfg)
 
 	// Pinger
 	r.GET("/raspyx/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
+		c.JSON(http.StatusOK, v1.RespOK(map[string]string{"message": "pong"}))
 	})
 
 	// Swagger documentation
@@ -105,7 +105,7 @@ func Run(cfg *config.Config) {
 	log.Info("server stopped")
 }
 
-func InitDBPool(ctx context.Context, cfg *config.Config) (*pgxpool.Pool, error) {
+func InitDBPool(ctx context.Context, cfg *config.Config, log *slog.Logger) (*pgxpool.Pool, error) {
 	// Parsing config
 	poolConfig, err := pgxpool.ParseConfig(cfg.PG.PGURL)
 	if err != nil {
@@ -113,17 +113,32 @@ func InitDBPool(ctx context.Context, cfg *config.Config) (*pgxpool.Pool, error) 
 	}
 
 	// Creating pool
-	pool, err := pgxpool.NewWithConfig(ctx, poolConfig)
+
+	// Parsing timeout from config
+	timeout, err := strconv.Atoi(cfg.PG.Timeout)
 	if err != nil {
 		return nil, err
 	}
 
 	// Ping connection
-	if err := pool.Ping(ctx); err != nil {
-		return nil, err
+	var pool *pgxpool.Pool
+	for attempt := 1; attempt <= cfg.PG.Attempts; attempt++ {
+		pool, err = pgxpool.NewWithConfig(ctx, poolConfig)
+		if err == nil {
+			err = pool.Ping(ctx)
+			if err == nil {
+				return pool, nil
+			}
+			pool.Close()
+		}
+
+		log.Info(fmt.Sprintf("failed connect to db, attempt %v", attempt))
+		if attempt < cfg.PG.Attempts {
+			time.Sleep(time.Duration(timeout) * time.Second)
+		}
 	}
 
-	return pool, nil
+	return nil, fmt.Errorf("failed to connect after %d attempts: %v", cfg.PG.Attempts, err)
 }
 
 func cacheClient(ctx context.Context, cfg *config.Config) (*redis.Client, error) {
