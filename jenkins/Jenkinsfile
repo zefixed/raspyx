@@ -10,7 +10,7 @@ pipeline {
         HOST = "${params.API_HOST}"
     }
 
-    tools { go '1.24.1' }
+    tools { go '1.24' }
 
     stages {
         stage('Prepare') {
