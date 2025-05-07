@@ -37,31 +37,6 @@ pipeline {
             }
         }
 
-        stage('Install Go') {
-            steps {
-                script {
-                    def goVersion = sh(script: 'go version', returnStatus: true)
-
-                    if (goVersion != 0) {
-                        echo 'Go is not installed. Installing Go...'
-
-                        sh '''
-                        curl -sf -o /tmp/go1.24.1.linux-amd64.tar.gz -L https://dl.google.com/go/go1.24.1.linux-amd64.tar.gz
-                        sudo mkdir -p /opt && cd /opt && sudo tar xfz /tmp/go1.24.1.linux-amd64.tar.gz
-                        echo "export PATH=\$PATH:/opt/go/bin" >> ~/.bashrc
-                        '''
-
-                        sh '''
-                        export PATH=\$PATH:/opt/go/bin
-                        go version
-                        '''
-                    } else {
-                        echo 'Go is already installed.'
-                    }
-                }
-            }
-        }
-
         stage('Generate Docs') {
             steps {
                 script {
