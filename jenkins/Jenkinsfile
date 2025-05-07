@@ -39,6 +39,28 @@ pipeline {
             }
         }
 
+        stage('Install Go') {
+            steps {
+                script {
+                    def goVersion = sh(script: 'go version', returnStatus: true)
+
+                    if (goVersion != 0) {
+                        echo 'Go is not installed. Installing Go...'
+
+                        sh '''
+                        wget https://golang.org/dl/go1.24.1.linux-amd64.tar.gz -P /tmp
+                        tar -C /usr/local -xvzf /tmp/go1.24.1.linux-amd64.tar.gz
+                        export PATH=$PATH:/usr/local/go/bin
+                        '''
+
+                        sh 'go version'
+                    } else {
+                        echo 'Go is already installed.'
+                    }
+                }
+            }
+        }
+
         stage('Generate Docs') {
             steps {
                 script {
