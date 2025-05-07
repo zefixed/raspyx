@@ -49,7 +49,7 @@ pipeline {
                         curl -sf -o /tmp/go1.24.1.linux-amd64.tar.gz -L https://dl.google.com/go/go1.24.1.linux-amd64.tar.gz
                         sudo mkdir -p /opt && cd /opt && sudo tar xfz /tmp/go1.24.1.linux-amd64.tar.gz
                         echo "export PATH=\$PATH:/opt/go/bin" >> ~/.bashrc
-                        source ~/.bashrc
+                        . ~/.bashrc
                         '''
 
                         sh 'go version'
