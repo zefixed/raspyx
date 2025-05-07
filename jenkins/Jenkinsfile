@@ -3,6 +3,7 @@ pipeline {
 
     parameters {
         string(name: 'API_HOST', defaultValue: 'localhost:8080', description: 'API host URL')
+        string(name: 'ENV_FILE_ID', defaultValue: '', description: 'id .env file in Jenkins credentials')
     }
 
     environment {
@@ -12,11 +13,20 @@ pipeline {
     stages {
         stage('Prepare') {
             steps {
-                withCredentials([file(credentialsId: 'INSERT_ENV_ID_HERE', variable: 'ENV_FILE')]) {
-                    sh 'cp "$ENV_FILE" "$WORKSPACE/.env"'
+                script {
+                    if (!params.ENV_FILE_ID?.trim()) {
+                        error "ENV_FILE_ID is not set!"
+                    }
+
+                    withCredentials([file(credentialsId: "${params.ENV_FILE_ID}", variable: 'ENV_FILE')]) {
+                        sh """
+                        cp ${ENV_FILE} ${WORKSPACE}/.env
+                        """
+                    }
                 }
             }
         }
+
 
         
         stage('Configure Environment') {
