@@ -41,8 +41,9 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    GOPATH=$(go env GOPATH)
-                    export PATH=$PATH:$GOPATH/bin
+                    export PATH=$PATH:/opt/go/bin
+                    export GOPATH=/var/jenkins_home/go
+                    mkdir -p $GOPATH
                     go install github.com/swaggo/swag/cmd/swag@latest
                     make swag
                     '''
