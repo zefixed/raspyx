@@ -29,3 +29,6 @@ go_build*
 
 # .idea files
 .idea
+
+# unnecessary Jenkinsfile
+jenkins/LocalJenkinsfile

@@ -16,6 +16,7 @@ require (
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.4
 	golang.org/x/crypto v0.36.0
+	golang.org/x/time v0.11.0
 )
 
 require (

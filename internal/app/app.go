@@ -58,9 +58,13 @@ func Run(cfg *config.Config) {
 
 	// Router
 	r := gin.New()
+
+	// Middlewares
 	r.Use(mw.Logger(log))
-	r.Use(gin.Recovery())
 	r.Use(mw.RequestIDMiddleware())
+	RLStorage := mw.NewRateLimiterStorage()
+	r.Use(mw.RateLimiter(ctx, cfg.RL, RLStorage))
+	r.Use(gin.Recovery())
 
 	// All routes
 	httpv1.NewRouter(r, log, conn, redisClient, cfg)
