@@ -15,6 +15,7 @@ type (
 		JWT    JWT
 		Redis  Redis
 		Parser Parser
+		RL     RateLimiter
 	}
 	App struct {
 		Name    string `env:"APP_NAME,required"`
@@ -45,6 +46,11 @@ type (
 
 	Parser struct {
 		Timeout int `env:"PARSER_TIMEOUT,required"`
+	}
+
+	RateLimiter struct {
+		Limit float64 `env:"RL_LIMIT,required"`
+		Burst int     `env:"RL_BURST,required"`
 	}
 )
 
