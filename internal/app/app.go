@@ -123,18 +123,23 @@ func InitDBPool(ctx context.Context, cfg *config.Config, log *slog.Logger) (*pgx
 	// Ping connection
 	var pool *pgxpool.Pool
 	for attempt := 1; attempt <= cfg.PG.Attempts; attempt++ {
-		pool, err = pgxpool.NewWithConfig(ctx, poolConfig)
-		if err == nil {
-			err = pool.Ping(ctx)
+		select {
+		case <-ctx.Done():
+			return nil, fmt.Errorf("context canceled while connecting to DB: %v", ctx.Err())
+		default:
+			pool, err = pgxpool.NewWithConfig(ctx, poolConfig)
 			if err == nil {
-				return pool, nil
+				err = pool.Ping(ctx)
+				if err == nil {
+					return pool, nil
+				}
+				pool.Close()
 			}
-			pool.Close()
-		}
 
-		log.Info(fmt.Sprintf("failed connect to db, attempt %v", attempt))
-		if attempt < cfg.PG.Attempts {
-			time.Sleep(time.Duration(timeout) * time.Second)
+			log.Info(fmt.Sprintf("failed connect to db, attempt %v", attempt))
+			if attempt < cfg.PG.Attempts {
+				time.Sleep(time.Duration(timeout) * time.Second)
+			}
 		}
 	}
 
