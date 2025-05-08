@@ -8,13 +8,13 @@ import (
 )
 
 // @title           Raspyx
-// @version         1.2.0
+// @version         1.3.0
 // @description     API for schedules
 
 // @host      localhost:8080
 // @BasePath  /raspyx
 
-// @securityDefinitions.apikey ApiKeyAuth
+// @security Definitions.apikey ApiKeyAuth
 // @in header
 // @name Authorization
 func main() {
