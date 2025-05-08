@@ -8,6 +8,8 @@ pipeline {
 
     environment {
         HOST = "${params.API_HOST}"
+        GOPATH = "/var/jenkins_home/go"
+        PATH = "${PATH}:/opt/go/bin:${GOPATH}/bin"
     }
 
     stages {
@@ -19,7 +21,7 @@ pipeline {
                     }
 
                     withCredentials([file(credentialsId: "${params.ENV_FILE_ID}", variable: 'ENV_FILE')]) {
-                        sh('cp $ENV_FILE $WORKSPACE/.env')
+                        sh('cp ${ENV_FILE} ${WORKSPACE}/.env')
                     }
                 }
             }
@@ -40,29 +42,35 @@ pipeline {
         stage('Generate Docs') {
             steps {
                 script {
-                    sh '''
-                    export GOPATH=/var/jenkins_home/go
-                    export PATH=$PATH:/opt/go/bin:$GOPATH/bin
-                    mkdir -p "$GOPATH"
+                    sh """
+                    mkdir -p ${GOPATH}
                     go install github.com/swaggo/swag/cmd/swag@latest
                     make swag
-                    '''
+                    """
                 }
             }
         }
-        
-        stage('Build with Docker') {
+
+        stage('Testing') {
             steps {
                 script {
                     dir(WORKSPACE) {
-                        sh """
-                        docker-compose build --no-cache
-                        """
+                        sh('go test -v ./...')
                     }
                 }
             }
         }
-        
+
+        stage('Build with Docker') {
+            steps {
+                script {
+                    dir(WORKSPACE) {
+                        sh('docker-compose build --no-cache')
+                    }
+                }
+            }
+        }
+
         stage('Deploy') {
             steps {
                 script {
@@ -80,15 +88,13 @@ pipeline {
             steps {
                 script {
                     dir(WORKSPACE) {
-                         sh """
-                        docker system prune -a -f
-                        """
+                        sh('docker system prune -a -f')
                     }
                 }
             }
         }
     }
-    
+
     post {
         always {
             cleanWs()
