@@ -23,6 +23,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -171,10 +172,24 @@ func (p *ScheduleParser) parse(ctx context.Context) error {
 
 	// Parsing schedule
 	// Not working with goroutines, rasp.dmami.ru not handling 500rps
-	// Parsing schedule time ~3m, first(init) ~9m
+	// Parsing schedule time ~2m
+	var wg sync.WaitGroup
+	curr, groupsLen := 1, len(groups)
 	for _, group := range groups {
-		err = p.parseGroupSchedule(ctx, group, 0)
-		err = p.parseGroupSchedule(ctx, group, 1)
+		err = p.parseGroupSchedule(ctx, &wg, group, 0)
+		p.log.Debug(fmt.Sprintf("start parsing schedule for %v, isSession=%v: %v/%v", group, 0, curr, groupsLen))
+		curr++
+		if err != nil {
+			p.log.Error(fmt.Sprintf("error parsing schedule for %v: %v", group, err))
+		}
+	}
+
+	wg.Wait()
+	curr = 1
+	for _, group := range groups {
+		err = p.parseGroupSchedule(ctx, &wg, group, 1)
+		p.log.Debug(fmt.Sprintf("start parsing schedule for %v, isSession=%v: %v/%v", group, 1, curr, groupsLen))
+		curr++
 		if err != nil {
 			p.log.Error(fmt.Sprintf("error parsing schedule for %v: %v", group, err))
 		}
@@ -182,12 +197,14 @@ func (p *ScheduleParser) parse(ctx context.Context) error {
 
 	//group := "241-362"
 	//group := "221-352"
-	//group := "221-741"
-	//err = p.parseGroupSchedule(ctx, group, 0)
+	//group := "243-331"
+	//err = p.parseGroupSchedule(ctx, &wg, group, 0)
+	//err = p.parseGroupSchedule(ctx, &wg, group, 1)
 	//if err != nil {
 	//	p.log.Error(fmt.Sprintf("error parsing schedule for %v: %v", group, err))
 	//}
 
+	wg.Wait()
 	p.log.Info(
 		"schedule parsed",
 		slog.String("time_taken", time.Since(t).String()),
@@ -266,7 +283,7 @@ func (p *ScheduleParser) addGroupsToDB(ctx context.Context, groups []string) {
 	}
 }
 
-func (p *ScheduleParser) parseGroupSchedule(ctx context.Context, group string, isSession int) error {
+func (p *ScheduleParser) parseGroupSchedule(ctx context.Context, wg *sync.WaitGroup, group string, isSession int) error {
 
 	// New request to rasp.dmami.ru
 	req, err := http.NewRequestWithContext(
@@ -308,23 +325,28 @@ func (p *ScheduleParser) parseGroupSchedule(ctx context.Context, group string, i
 		return fmt.Errorf("unknown response error: %v", r.Message)
 	}
 
-	// Parsing subjects
-	p.parseSubjects(ctx, &r)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 
-	// Parsing teachers
-	p.parseTeachers(ctx, &r)
+		// Parsing subjects
+		p.parseSubjects(ctx, &r)
 
-	// Parsing rooms
-	p.parseRooms(ctx, &r)
+		// Parsing teachers
+		p.parseTeachers(ctx, &r)
 
-	// Parsing locations
-	p.parseLocations(ctx, &r)
+		// Parsing rooms
+		p.parseRooms(ctx, &r)
 
-	// Parsing types
-	p.parseTypes(ctx, &r)
+		// Parsing locations
+		p.parseLocations(ctx, &r)
 
-	// Parsing schedules
-	p.parseSchedules(ctx, group, &r)
+		// Parsing types
+		p.parseTypes(ctx, &r)
+
+		// Parsing schedules
+		p.parseSchedules(ctx, group, &r)
+	}()
 
 	return nil
 }
@@ -335,9 +357,14 @@ func (p *ScheduleParser) parseSubjects(ctx context.Context, r *response) {
 	for _, day := range r.Grid {
 		for _, pair := range day {
 			for _, pairData := range pair {
-				err := p.addSubjectToDB(ctx, sbjUC, pairData.Sbj)
-				if err != nil {
-					p.log.Error(fmt.Sprintf("error adding subject %v to db: %v", pairData.Sbj, err))
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					err := p.addSubjectToDB(ctx, sbjUC, pairData.Sbj)
+					if err != nil {
+						p.log.Error(fmt.Sprintf("error adding subject %v to db: %v", pairData.Sbj, err))
+					}
 				}
 			}
 		}
@@ -371,21 +398,25 @@ func (p *ScheduleParser) parseTeachers(ctx context.Context, r *response) {
 	for _, day := range r.Grid {
 		for _, pair := range day {
 			for _, pairData := range pair {
-				teachers := teachersFromString(pairData.Teacher)
-				for _, fullname := range teachers {
-					// First, Last, Middle
-					flm := strings.Split(fullname, " ")
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					teachers := teachersFromString(pairData.Teacher)
+					for _, fullname := range teachers {
+						// First, Last, Middle
+						flm := strings.Split(fullname, " ")
 
-					// Adding extra strings to correctly add vacancies to db
-					flm = append(flm, []string{"", ""}...)
+						// Adding extra strings to correctly add vacancies to db
+						flm = append(flm, []string{"", ""}...)
 
-					// Adding teacher to db
-					err := p.addTeacherToDB(ctx, teacherUC, flm)
-					if err != nil {
-						p.log.Error(fmt.Sprintf("error adding teacher %v to db: %v", flm, err))
+						// Adding teacher to db
+						err := p.addTeacherToDB(ctx, teacherUC, flm)
+						if err != nil {
+							p.log.Error(fmt.Sprintf("error adding teacher %v to db: %v", flm, err))
+						}
 					}
 				}
-
 			}
 		}
 	}
@@ -426,14 +457,19 @@ func (p *ScheduleParser) parseRooms(ctx context.Context, r *response) {
 	for _, day := range r.Grid {
 		for _, pair := range day {
 			for _, pairData := range pair {
-				for _, room := range pairData.Auditories {
-					// Removing trash from room number
-					roomNum := removeHTML(removeEmojis(room.Title))
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					for _, room := range pairData.Auditories {
+						// Removing trash from room number
+						roomNum := removeHTML(removeEmojis(room.Title))
 
-					// Adding room to db
-					err := p.addRoomToDB(ctx, roomUC, roomNum)
-					if err != nil {
-						p.log.Error(fmt.Sprintf("error adding room %v to db: %v", roomNum, err))
+						// Adding room to db
+						err := p.addRoomToDB(ctx, roomUC, roomNum)
+						if err != nil {
+							p.log.Error(fmt.Sprintf("error adding room %v to db: %v", roomNum, err))
+						}
 					}
 				}
 			}
@@ -482,10 +518,15 @@ func (p *ScheduleParser) parseLocations(ctx context.Context, r *response) {
 	for _, day := range r.Grid {
 		for _, pair := range day {
 			for _, pairData := range pair {
-				// Adding location to db
-				err := p.addLocationToDB(ctx, locationUC, pairData.Location)
-				if err != nil {
-					p.log.Error(fmt.Sprintf("error adding location %v to db: %v", pairData.Location, err))
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					// Adding location to db
+					err := p.addLocationToDB(ctx, locationUC, pairData.Location)
+					if err != nil {
+						p.log.Error(fmt.Sprintf("error adding location %v to db: %v", pairData.Location, err))
+					}
 				}
 			}
 		}
@@ -519,10 +560,15 @@ func (p *ScheduleParser) parseTypes(ctx context.Context, r *response) {
 	for _, day := range r.Grid {
 		for _, pair := range day {
 			for _, pairData := range pair {
-				// Adding type to db
-				err := p.addTypeToDB(ctx, typeUC, pairData.Type)
-				if err != nil {
-					p.log.Error(fmt.Sprintf("error adding type %v to db: %v", pairData.Type, err))
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					// Adding type to db
+					err := p.addTypeToDB(ctx, typeUC, pairData.Type)
+					if err != nil {
+						p.log.Error(fmt.Sprintf("error adding type %v to db: %v", pairData.Type, err))
+					}
 				}
 			}
 		}
@@ -563,61 +609,30 @@ func (p *ScheduleParser) parseSchedules(ctx context.Context, group string, r *re
 	if err != nil && strings.Contains(err.Error(), repository.ErrNotFound.Error()) {
 		week = &dto.Week{}
 	}
+	select {
+	case <-ctx.Done():
+		return
+	default:
+		for dayNum, day := range r.Grid {
+			for pairNum, pair := range day {
+				parsedPairs := pair
 
-	for dayNum, day := range r.Grid {
-		for pairNum, pair := range day {
-			parsedPairs := pair
-
-			var dbPairs []dto.Pair
-			if !r.IsSession {
-				if _, ok := (*week)[numToDay(dayNum)]; !ok {
-					(*week)[numToDay(dayNum)] = &dto.Day{}
-				}
-				dbPairs = getPairs((*week)[numToDay(dayNum)], numToPair(pairNum))
-			} else {
-				if _, ok := (*week)[dayNum]; !ok {
-					(*week)[dayNum] = &dto.Day{}
-				}
-				dbPairs = getPairs((*week)[dayNum], numToPair(pairNum))
-			}
-
-			if len(parsedPairs) == 0 && len(dbPairs) == 0 {
-				continue
-			} else if len(parsedPairs) == 0 && len(dbPairs) > 0 {
-				for _, dbPair := range dbPairs {
-					st, et := pairNumToSTET(pairNum)
-					err = scheduleUC.DeleteByParams(ctx, &dto.DeleteParams{
-						Group:     group,
-						StartTime: st,
-						EndTime:   et,
-						StartDate: dbPair.StartDate,
-						Day:       dayNum,
-						IsSession: r.IsSession,
-					})
-					if err != nil && !strings.Contains(err.Error(), repository.ErrNotFound.Error()) {
-						p.log.Error(fmt.Sprintf(
-							"error deleting schedule for the group %v on %v at %v: %v",
-							group, numToDay(dayNum), pairNum, err,
-						))
+				var dbPairs []dto.Pair
+				if !r.IsSession {
+					if _, ok := (*week)[numToDay(dayNum)]; !ok {
+						(*week)[numToDay(dayNum)] = &dto.Day{}
 					}
-				}
-			} else {
-				// Converting parsed pairs to DTO
-				parsedPairsDTO, errs := parsedPairsToDTO(parsedPairs, r.IsSession)
-				if len(errs) != 0 {
-					p.log.Error(fmt.Sprintf("error convetring parsed pairs to DTO: %v", errs))
-				}
-
-				// Sorting teachers and rooms in pair from db
-				for _, pairData := range dbPairs {
-					sort.Slice(pairData.Teachers, func(i, j int) bool {
-						return strings.ToLower(pairData.Teachers[i]) < strings.ToLower(pairData.Teachers[j])
-					})
-					sort.Slice(pairData.Rooms, func(i, j int) bool { return strings.ToLower(pairData.Rooms[i]) < strings.ToLower(pairData.Rooms[j]) })
+					dbPairs = getPairs((*week)[numToDay(dayNum)], numToPair(pairNum))
+				} else {
+					if _, ok := (*week)[dayNum]; !ok {
+						(*week)[dayNum] = &dto.Day{}
+					}
+					dbPairs = getPairs((*week)[dayNum], numToPair(pairNum))
 				}
 
-				if !cmp.Equal(dbPairs, parsedPairsDTO) {
-					// Deleting pair from db
+				if len(parsedPairs) == 0 && len(dbPairs) == 0 {
+					continue
+				} else if len(parsedPairs) == 0 && len(dbPairs) > 0 {
 					for _, dbPair := range dbPairs {
 						st, et := pairNumToSTET(pairNum)
 						err = scheduleUC.DeleteByParams(ctx, &dto.DeleteParams{
@@ -628,7 +643,6 @@ func (p *ScheduleParser) parseSchedules(ctx context.Context, group string, r *re
 							Day:       dayNum,
 							IsSession: r.IsSession,
 						})
-
 						if err != nil && !strings.Contains(err.Error(), repository.ErrNotFound.Error()) {
 							p.log.Error(fmt.Sprintf(
 								"error deleting schedule for the group %v on %v at %v: %v",
@@ -636,77 +650,113 @@ func (p *ScheduleParser) parseSchedules(ctx context.Context, group string, r *re
 							))
 						}
 					}
+				} else {
+					// Converting parsed pairs to DTO
+					parsedPairsDTO, errs := parsedPairsToDTO(parsedPairs, r.IsSession)
+					if len(errs) != 0 {
+						p.log.Error(fmt.Sprintf("error convetring parsed pairs to DTO: %v", errs))
+					}
 
-					// Adding new pair to db
-					for _, pairData := range parsedPairs {
-						// Removing trash from rooms
-						var rooms []string
-						for _, room := range pairData.Auditories {
-							rooms = append(rooms, removeHTML(removeEmojis(room.Title)))
-						}
+					// Sorting teachers and rooms in pair from db
+					for _, pairData := range dbPairs {
+						sort.Slice(pairData.Teachers, func(i, j int) bool {
+							return strings.ToLower(pairData.Teachers[i]) < strings.ToLower(pairData.Teachers[j])
+						})
+						sort.Slice(pairData.Rooms, func(i, j int) bool { return strings.ToLower(pairData.Rooms[i]) < strings.ToLower(pairData.Rooms[j]) })
+					}
 
-						// Getting start and end times from pair num
-						st, et := pairNumToSTET(pairNum)
+					if !cmp.Equal(dbPairs, parsedPairsDTO) {
+						// Deleting pair from db
+						for _, dbPair := range dbPairs {
+							st, et := pairNumToSTET(pairNum)
+							err = scheduleUC.DeleteByParams(ctx, &dto.DeleteParams{
+								Group:     group,
+								StartTime: st,
+								EndTime:   et,
+								StartDate: dbPair.StartDate,
+								Day:       dayNum,
+								IsSession: r.IsSession,
+							})
 
-						// Getting teachers uuid
-						teacherUC := usecase.NewTeacherUseCase(p.teacherRepo, *p.teacherSVC)
-						var teachersUUID []string
-						if pairData.Teacher != "" {
-							teachersUUID, err = teachersToUUID(ctx, strings.Split(pairData.Teacher, ", "), teacherUC)
-							if err != nil {
-								p.log.Error(fmt.Sprintf("error getting teachers uuid %v: %v", pairData.Teacher, err))
+							if err != nil && !strings.Contains(err.Error(), repository.ErrNotFound.Error()) {
+								p.log.Error(fmt.Sprintf(
+									"error deleting schedule for the group %v on %v at %v: %v",
+									group, numToDay(dayNum), pairNum, err,
+								))
 							}
 						}
 
-						// Getting subject uuid
-						subjUC := usecase.NewSubjectUseCase(p.sbjRepo, *p.sbjSVC)
-						subjUUID, err := subjectToUUID(ctx, pairData.Sbj, subjUC)
-						if err != nil {
-							p.log.Error(fmt.Sprintf("error getting subject %v uuid: %v", pairData.Sbj, err))
-						}
-
-						// Mapping parsed pair to dto
-						pairDataDTO := &dto.ScheduleRequest{
-							Group:        group,
-							TeachersUUID: teachersUUID,
-							Rooms:        rooms,
-							SubjectUUID:  subjUUID,
-							Type:         strings.TrimSpace(pairData.Type),
-							Location:     strings.TrimSpace(pairData.Location),
-							StartTime:    st,
-							EndTime:      et,
-							Link:         getLinkFromHTML(pairData.Auditories[0].Title),
-							IsSession:    r.IsSession,
-						}
-
-						if !r.IsSession {
-							pairDataDTO.StartDate = strings.TrimSpace(pairData.Df)
-							pairDataDTO.EndDate = strings.TrimSpace(pairData.Dt)
-							wd, err := strconv.Atoi(dayNum)
-							if err != nil {
-								p.log.Error(fmt.Sprintf("error converting dayNum %v err: %v", dayNum, err))
+						// Adding new pair to db
+						for _, pairData := range parsedPairs {
+							// Removing trash from rooms
+							var rooms []string
+							for _, room := range pairData.Auditories {
+								rooms = append(rooms, removeHTML(removeEmojis(room.Title)))
 							}
-							pairDataDTO.Weekday = wd
-						} else {
-							date, err := parseDTSTime(pairData.Dts)
-							if err != nil {
-								p.log.Error(fmt.Sprintf("error parsing date %v err: %v", dayNum, err))
-							}
-							pairDataDTO.StartDate = date
-							pairDataDTO.EndDate = date
-							t, err := time.Parse(time.DateOnly, dayNum)
-							if err != nil {
-								p.log.Error(fmt.Sprintf("error parsing date %v err: %v", dayNum, err))
-							}
-							pairDataDTO.Weekday = int(t.Weekday())
-						}
 
-						err = p.addScheduleToDB(ctx, scheduleUC, pairDataDTO)
-						if err != nil {
-							p.log.Error(
-								fmt.Sprintf("error adding pair to db: %v", err),
-								slog.Any("pairDataDTO", pairDataDTO),
-							)
+							// Getting start and end times from pair num
+							st, et := pairNumToSTET(pairNum)
+
+							// Getting teachers uuid
+							teacherUC := usecase.NewTeacherUseCase(p.teacherRepo, *p.teacherSVC)
+							var teachersUUID []string
+							if pairData.Teacher != "" {
+								teachersUUID, err = teachersToUUID(ctx, strings.Split(pairData.Teacher, ", "), teacherUC)
+								if err != nil {
+									p.log.Error(fmt.Sprintf("error getting teachers uuid %v: %v", pairData.Teacher, err))
+								}
+							}
+
+							// Getting subject uuid
+							subjUC := usecase.NewSubjectUseCase(p.sbjRepo, *p.sbjSVC)
+							subjUUID, err := subjectToUUID(ctx, pairData.Sbj, subjUC)
+							if err != nil {
+								p.log.Error(fmt.Sprintf("error getting subject %v uuid: %v", pairData.Sbj, err))
+							}
+
+							// Mapping parsed pair to dto
+							pairDataDTO := &dto.ScheduleRequest{
+								Group:        group,
+								TeachersUUID: teachersUUID,
+								Rooms:        rooms,
+								SubjectUUID:  subjUUID,
+								Type:         strings.TrimSpace(pairData.Type),
+								Location:     strings.TrimSpace(pairData.Location),
+								StartTime:    st,
+								EndTime:      et,
+								Link:         getLinkFromHTML(pairData.Auditories[0].Title),
+								IsSession:    r.IsSession,
+							}
+
+							if !r.IsSession {
+								pairDataDTO.StartDate = strings.TrimSpace(pairData.Df)
+								pairDataDTO.EndDate = strings.TrimSpace(pairData.Dt)
+								wd, err := strconv.Atoi(dayNum)
+								if err != nil {
+									p.log.Error(fmt.Sprintf("error converting dayNum %v err: %v", dayNum, err))
+								}
+								pairDataDTO.Weekday = wd
+							} else {
+								date, err := parseDTSTime(pairData.Dts)
+								if err != nil {
+									p.log.Error(fmt.Sprintf("error parsing date %v err: %v", dayNum, err))
+								}
+								pairDataDTO.StartDate = date
+								pairDataDTO.EndDate = date
+								t, err := time.Parse(time.DateOnly, dayNum)
+								if err != nil {
+									p.log.Error(fmt.Sprintf("error parsing date %v err: %v", dayNum, err))
+								}
+								pairDataDTO.Weekday = int(t.Weekday())
+							}
+
+							err = p.addScheduleToDB(ctx, scheduleUC, pairDataDTO)
+							if err != nil {
+								p.log.Error(
+									fmt.Sprintf("error adding pair to db: %v", err),
+									slog.Any("pairDataDTO", pairDataDTO),
+								)
+							}
 						}
 					}
 				}
