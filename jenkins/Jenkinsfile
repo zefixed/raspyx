@@ -84,6 +84,18 @@ pipeline {
             }
         }
 
+        stage('Restart nginx') {
+            steps {
+                script {
+                    dir(WORKSPACE) {
+                        sh """
+                        docker restart nginx
+                        """
+                    }
+                }
+            }
+        }
+
         stage('Clean') {
             steps {
                 script {
