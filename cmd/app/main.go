@@ -14,7 +14,7 @@ import (
 // @host      localhost:8080
 // @BasePath  /raspyx
 
-// @securityDefinitions.apikey ApiKeyAuth
+// @security Definitions.apikey ApiKeyAuth
 // @in header
 // @name Authorization
 func main() {
