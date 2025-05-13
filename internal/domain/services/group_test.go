@@ -28,7 +28,7 @@ func TestGroupService_Validate(t *testing.T) {
 		},
 		{
 			name:      "invalid format with extra number",
-			group:     &models.Group{Number: "123-3453"},
+			group:     &models.Group{Number: "123-34531"},
 			wantValid: false,
 		},
 		{
