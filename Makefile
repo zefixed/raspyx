@@ -13,9 +13,9 @@ migrate-down: ### migration down
 .PHONY: migrate-down
 
 db-create: ### Creation postgres db docker instance
-	docker run -p $(PG_PORT):$(PG_PORT) --restart unless-stopped --name $(APP_NAME)db -e POSTGRES_PASSWORD=$(PG_PASSWORD) -d postgres:17-alpine
+	docker run -p $(PG_PORT):$(PG_PORT) --restart unless-stopped --name $(APP_NAME)db -e POSTGRES_PASSWORD=$(PG_PASSWORD) -v $(APP_NAME)_postgres_data:/var/lib/postgresql/data -d postgres:17-alpine
 	docker exec $(APP_NAME)db sh -c 'until pg_isready -U postgres; do sleep 0.5; done'
-	docker exec -it $(APP_NAME)db psql -U $(PG_USER) -c "CREATE DATABASE $(APP_NAME)db;"
+	docker exec $(APP_NAME)db psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$(APP_NAME)db'" | grep -q 1 || docker exec $(APP_NAME)db psql -U postgres -c "CREATE DATABASE $(APP_NAME)db"
 .PHONY: db-create
 
 db-delete: ### Deletion postgres db docker instance
@@ -47,8 +47,8 @@ clear: ### Cleaning up
 .PHONY: clear
 
 db-admin: ### Creation admin user in db
-	ADMIN_PASSWORD_HASH = $(shell sh -c 'htpasswd -nbB admin admin | cut -d: -f2 | sed -e "s/\\$$/\\\\$$/g"')
-	docker exec -it $(APP_NAME)db psql -U $(PG_USER) -d $(APP_NAME)db -c "INSERT INTO users (uuid, username, password_hash, access_level) VALUES ('00000000-0000-0000-0000-000000000000', 'admin', '$(ADMIN_PASSWORD_HASH)', 99)"
+	ADMIN_PASSWORD_HASH=$$(htpasswd -nbB admin admin | cut -d: -f2 | sed 's/$$/\\$$/g'); \
+	docker exec -it $(APP_NAME)db psql -U $(PG_USER) -d $(APP_NAME)db -c "INSERT INTO users (uuid, username, password_hash, access_level) VALUES ('00000000-0000-0000-0000-000000000000', 'admin', '$$ADMIN_PASSWORD_HASH', 99) ON CONFLICT DO NOTHING"
 .PHONY: db-admin
 
 swag: ### Generation swagger documentation
