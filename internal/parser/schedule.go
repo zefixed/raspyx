@@ -229,7 +229,7 @@ func (p *ScheduleParser) parseGroups(ctx context.Context) ([]string, error) {
 	}
 
 	// Collect groups from response
-	re := regexp.MustCompile(`\d{2}[0-9a-zA-Zа-яА-Я]-\d{3}(\s[a-zA-Zа-яА-я]{3})?`)
+	re := regexp.MustCompile(`\d{2}[0-9a-zA-Zа-яА-Я]-\d{3,4}(\s[a-zA-Zа-яА-Я]{3})?`)
 	matches := re.FindAll(raw, -1)
 
 	// Deleting repeats from groups
