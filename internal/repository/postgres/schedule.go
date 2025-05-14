@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -26,18 +27,9 @@ func parseSchedule(rows *pgx.Rows) ([]*models.ScheduleData, error) {
 	const op = "repository.postgres.ScheduleRepository.parseSchedule"
 
 	var schedules []*models.ScheduleData
-	for (*rows).Next() {
-		var schedule models.ScheduleData
-		err := (*rows).Scan(
-			&schedule.UUID, &schedule.Group, &schedule.Teachers,
-			&schedule.Rooms, &schedule.Subject, &schedule.Type,
-			&schedule.Location, &schedule.StartTime, &schedule.EndTime,
-			&schedule.StartDate, &schedule.EndDate, &schedule.Weekday, &schedule.Link,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("%s: %w", op, err)
-		}
-		schedules = append(schedules, &schedule)
+	err := pgxscan.ScanAll(&schedules, *rows)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return schedules, nil
@@ -57,7 +49,8 @@ var (
 			schedule.start_date AS "start_date",
 			schedule.end_date AS "end_date",
 			schedule.weekday AS "weekday",
-			COALESCE(schedule.link, '') AS "link"
+			COALESCE(schedule.link, '') AS "link",
+			schedule.is_session AS "is_session"
 		FROM schedule
 			LEFT JOIN groups ON schedule.group_uuid = groups.uuid
 			LEFT JOIN subjects ON schedule.subject_uuid = subjects.uuid
@@ -103,6 +96,9 @@ func (r *ScheduleRepository) Get(ctx context.Context) ([]*models.ScheduleData, e
 	}
 
 	schedules, err := parseSchedule(&rows)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
 
 	if len(schedules) == 0 {
 		return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
@@ -206,6 +202,9 @@ func (r *ScheduleRepository) GetByTeacherUUID(ctx context.Context, teacherUUID u
 	}
 
 	schedules, err := parseSchedule(&rows)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
 
 	if len(schedules) == 0 {
 		return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
@@ -243,13 +242,22 @@ func (r *ScheduleRepository) GetByGroup(ctx context.Context, groupNumber string,
 func (r *ScheduleRepository) GetByGroupUUID(ctx context.Context, groupUUID uuid.UUID, isSession bool) ([]*models.ScheduleData, error) {
 	const op = "repository.postgres.ScheduleRepository.GetByGroupUUID"
 
-	query := baseSelectStatement + ` WHERE groups.uuid = $1 AND is_session = $2 ` + baseGroupByStatement
+	query := `SELECT uuid, teachers,
+			   rooms, subject_name, subject_type,
+			   location, start_time, end_time,
+			   start_date, end_date, weekday,
+			   link, is_session
+			  FROM (` + baseSelectStatement + ` WHERE groups.uuid = $1 AND is_session = $2 ` + baseGroupByStatement + ")"
 	rows, err := r.db.Query(ctx, query, groupUUID, isSession)
 	defer rows.Close()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
+
 	schedules, err := parseSchedule(&rows)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
 
 	if len(schedules) == 0 {
 		return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
@@ -298,7 +306,11 @@ func (r *ScheduleRepository) GetByRoomUUID(ctx context.Context, roomUUID uuid.UU
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
+
 	schedules, err := parseSchedule(&rows)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
 
 	if len(schedules) == 0 {
 		return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
@@ -342,7 +354,11 @@ func (r *ScheduleRepository) GetBySubjectUUID(ctx context.Context, subjectUUID u
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
+
 	schedules, err := parseSchedule(&rows)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
 
 	if len(schedules) == 0 {
 		return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
@@ -386,7 +402,11 @@ func (r *ScheduleRepository) GetByLocationUUID(ctx context.Context, locationUUID
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
+
 	schedules, err := parseSchedule(&rows)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
 
 	if len(schedules) == 0 {
 		return nil, fmt.Errorf("%s: %w", op, repository.ErrNotFound)
