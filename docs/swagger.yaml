@@ -178,6 +178,9 @@ definitions:
       end_date:
         example: "2025-06-01"
         type: string
+      group:
+        example: 221-352
+        type: string
       link:
         example: https://online.mospolytech.ru/
         type: string
@@ -438,7 +441,7 @@ info:
   contact: {}
   description: API for schedules
   title: Raspyx
-  version: 1.3.1
+  version: 1.3.2
 paths:
   /api/v1/groups:
     post:
