@@ -55,6 +55,7 @@ type Day struct {
 }
 
 type Pair struct {
+	Group     string   `json:"group,omitempty" example:"221-352"`
 	Subject   string   `json:"subject" example:"Иностранный язык"`
 	Teachers  []string `json:"teachers" example:"Фамилия Имя Отчество,Фамилия Имя"`
 	StartDate string   `json:"start_date" example:"2025-02-01"`

@@ -141,91 +141,57 @@ func (uc *ScheduleUseCase) scheduleDTOToScheduleModel(ctx context.Context, sched
 func makeWeek(schedules []*models.ScheduleData) *dto.Week {
 	week := &dto.Week{}
 
-	(*week)["monday"] = &dto.Day{}
-	(*week)["tuesday"] = &dto.Day{}
-	(*week)["wednesday"] = &dto.Day{}
-	(*week)["thursday"] = &dto.Day{}
-	(*week)["friday"] = &dto.Day{}
-	(*week)["saturday"] = &dto.Day{}
-
 	for _, schedule := range schedules {
-		pair := dto.Pair{
-			Subject:   schedule.Subject,
-			Teachers:  schedule.Teachers,
-			StartDate: schedule.StartDate.Format(time.DateOnly),
-			EndDate:   schedule.EndDate.Format(time.DateOnly),
-			Rooms:     schedule.Rooms,
-			Location:  schedule.Location,
-			Type:      schedule.Type,
-			Link:      schedule.Link,
+		pair := mapScheduleToPair(schedule)
+
+		var day string
+		if !schedule.IsSession {
+			day = numToDay(schedule.Weekday)
+		} else {
+			day = schedule.StartDate.Format(time.DateOnly)
 		}
 
-		wd := numToDay(schedule.Weekday)
-
-		if (*week)[wd] == nil {
-			(*week)[wd] = &dto.Day{}
+		if (*week)[day] == nil {
+			(*week)[day] = &dto.Day{}
 		}
 
-		switch schedule.StartTime.Format("15:04") {
-		case "09:00":
-			(*week)[wd].First = append((*week)[wd].First, pair)
-		case "10:40":
-			(*week)[wd].Second = append((*week)[wd].Second, pair)
-		case "12:20":
-			(*week)[wd].Third = append((*week)[wd].Third, pair)
-		case "14:30":
-			(*week)[wd].Fourth = append((*week)[wd].Fourth, pair)
-		case "16:10":
-			(*week)[wd].Fifth = append((*week)[wd].Fifth, pair)
-		case "17:50":
-			(*week)[wd].Sixth = append((*week)[wd].Sixth, pair)
-		case "19:30":
-			(*week)[wd].Seventh = append((*week)[wd].Seventh, pair)
-		}
+		appendToWeek(week, pair, day, schedule.StartTime)
 	}
 
 	return week
 }
 
-func makeSessionWeek(schedules []*models.ScheduleData) *dto.Week {
-	week := &dto.Week{}
-
-	for _, schedule := range schedules {
-		pair := dto.Pair{
-			Subject:   schedule.Subject,
-			Teachers:  schedule.Teachers,
-			StartDate: schedule.StartDate.Format(time.DateOnly),
-			EndDate:   schedule.EndDate.Format(time.DateOnly),
-			Rooms:     schedule.Rooms,
-			Location:  schedule.Location,
-			Type:      schedule.Type,
-			Link:      schedule.Link,
-		}
-
-		sd := schedule.StartDate.Format(time.DateOnly)
-		if (*week)[sd] == nil {
-			(*week)[sd] = &dto.Day{}
-		}
-
-		switch schedule.StartTime.Format("15:04") {
-		case "09:00":
-			(*week)[sd].First = append((*week)[sd].First, pair)
-		case "10:40":
-			(*week)[sd].Second = append((*week)[sd].Second, pair)
-		case "12:20":
-			(*week)[sd].Third = append((*week)[sd].Third, pair)
-		case "14:30":
-			(*week)[sd].Fourth = append((*week)[sd].Fourth, pair)
-		case "16:10":
-			(*week)[sd].Fifth = append((*week)[sd].Fifth, pair)
-		case "17:50":
-			(*week)[sd].Sixth = append((*week)[sd].Sixth, pair)
-		case "19:30":
-			(*week)[sd].Seventh = append((*week)[sd].Seventh, pair)
-		}
+func appendToWeek(week *dto.Week, pair *dto.Pair, day string, time time.Time) {
+	switch time.Format("15:04") {
+	case "09:00":
+		(*week)[day].First = append((*week)[day].First, *pair)
+	case "10:40":
+		(*week)[day].Second = append((*week)[day].Second, *pair)
+	case "12:20":
+		(*week)[day].Third = append((*week)[day].Third, *pair)
+	case "14:30":
+		(*week)[day].Fourth = append((*week)[day].Fourth, *pair)
+	case "16:10":
+		(*week)[day].Fifth = append((*week)[day].Fifth, *pair)
+	case "17:50":
+		(*week)[day].Sixth = append((*week)[day].Sixth, *pair)
+	case "19:30":
+		(*week)[day].Seventh = append((*week)[day].Seventh, *pair)
 	}
+}
 
-	return week
+func mapScheduleToPair(schedule *models.ScheduleData) *dto.Pair {
+	return &dto.Pair{
+		Group:     schedule.Group,
+		Subject:   schedule.Subject,
+		Teachers:  schedule.Teachers,
+		StartDate: schedule.StartDate.Format(time.DateOnly),
+		EndDate:   schedule.EndDate.Format(time.DateOnly),
+		Rooms:     schedule.Rooms,
+		Location:  schedule.Location,
+		Type:      schedule.Type,
+		Link:      schedule.Link,
+	}
 }
 
 func numToDay(num int) string {
@@ -399,12 +365,7 @@ func (uc *ScheduleUseCase) GetByGroup(ctx context.Context, groupNumber string, i
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	var week *dto.Week
-	if !isSession {
-		week = makeWeek(schedules)
-	} else {
-		week = makeSessionWeek(schedules)
-	}
+	week := makeWeek(schedules)
 
 	data, _ := json.Marshal(week)
 	_ = uc.cache.Set(ctx, cacheKey, string(data), 10*time.Second)

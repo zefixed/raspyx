@@ -4618,6 +4618,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2025-06-01"
                 },
+                "group": {
+                    "type": "string",
+                    "example": "221-352"
+                },
                 "link": {
                     "type": "string",
                     "example": "https://online.mospolytech.ru/"
@@ -4995,7 +4999,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.3.1",
+	Version:          "1.3.2",
 	Host:             "localhost:8080",
 	BasePath:         "/raspyx",
 	Schemes:          []string{},
