@@ -23,6 +23,12 @@ pipeline {
                     withCredentials([file(credentialsId: "${params.ENV_FILE_ID}", variable: 'ENV_FILE')]) {
                         sh('cp ${ENV_FILE} ${WORKSPACE}/.env')
                     }
+
+                    sh """
+                    export APP_NAME=\$(grep '^APP_NAME=' .env | cut -d '=' -f2)
+                    export HTTP_PORT=\$(grep '^HTTP_PORT=' .env | cut -d '=' -f2)
+                    envsubst < ./prometheus/prometheus.template.yml > ./prometheus/prometheus.yml
+                    """
                 }
             }
         }
