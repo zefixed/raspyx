@@ -61,6 +61,7 @@ func Run(cfg *config.Config) {
 
 	// Middlewares
 	r.Use(mw.Logger(log))
+	r.Use(mw.PrometheusMiddleware())
 	r.Use(mw.RequestIDMiddleware())
 	RLStorage := mw.NewRateLimiterStorage()
 	r.Use(mw.RateLimiter(ctx, cfg.RL, RLStorage))
@@ -68,6 +69,9 @@ func Run(cfg *config.Config) {
 
 	// All routes
 	httpv1.NewRouter(r, log, conn, redisClient, cfg)
+
+	// Prometheus metrics
+	r.GET("/metrics", mw.PrometheusHandler())
 
 	// Pinger
 	r.GET("/raspyx/ping", func(c *gin.Context) {
