@@ -33,3 +33,6 @@ raspyx
 
 # unnecessary Jenkinsfile
 jenkins/LocalJenkinsfile
+
+# prometheus files
+prometheus.yml

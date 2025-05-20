@@ -54,8 +54,32 @@ services:
     restart: always
     command: redis-server --requirepass ${REDIS_PASSWORD}
 
+  prometheus:
+    build:
+      context: ./prometheus
+      dockerfile: Dockerfile.prometheus
+    container_name: ${APP_NAME}prometheus
+    networks:
+      - raspyx-network
+    restart: always
+    volumes:
+      - prometheus_data:/prometheus
+
+  grafana:
+    image: grafana/grafana
+    container_name: ${APP_NAME}grafana
+    networks:
+      - raspyx-network
+    restart: always
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+
 volumes:
   postgres_data:
+  grafana_data:
+  prometheus_data:
 
 networks:
   raspyx-network:
