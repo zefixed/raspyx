@@ -4,7 +4,7 @@
         "description": "API for schedules",
         "title": "Raspyx",
         "contact": {},
-        "version": "1.4.0"
+        "version": "1.4.1"
     },
     "host": "localhost:8080",
     "basePath": "/raspyx",

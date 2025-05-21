@@ -441,7 +441,7 @@ info:
   contact: {}
   description: API for schedules
   title: Raspyx
-  version: 1.4.0
+  version: 1.4.1
 paths:
   /api/v1/groups:
     post:
