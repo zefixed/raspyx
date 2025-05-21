@@ -6,9 +6,9 @@ This is a REST API built using the Go programming language, leveraging the [Gin]
 
 - [📄 Description](#-description)
 - [✨ Features](#-features)
-- [🛠️ Technologies](#-technologies)
+- [🛠️ Technologies](#%EF%B8%8F-technologies)
 - [📥 Installation and Setup](#-installation-and-setup)
-  - [🖥️ Local Setup](#-local-setup)
+  - [🖥️ Local Setup](#%EF%B8%8F-local-setup)
   - [📦 Docker Setup](#-docker-setup)
 - [🌐 Base endpoints](#-base-endpoints)
 - [✅ Testing](#-testing)
