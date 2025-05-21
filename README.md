@@ -4,15 +4,15 @@ This is a REST API built using the Go programming language, leveraging the [Gin]
 
 ## 📖 Table of Contents
 
-- [📄 Description](#description)
-- [✨ Features](#features)
-- [🛠️ Technologies](#technologies)
-- [📥 Installation and Setup](#installation-and-setup)
-  - [🖥️ Local Setup](#local-setup)
-  - [📦 Docker Setup](#docker-setup)
-- [🌐 Base endpoints](#base-endpoints)
-- [✅ Testing](#testing)
-- [📜 License](#license)
+- [📄 Description](#-description)
+- [✨ Features](#-features)
+- [🛠️ Technologies](#-technologies)
+- [📥 Installation and Setup](#-installation-and-setup)
+  - [🖥️ Local Setup](#-local-setup)
+  - [📦 Docker Setup](#-docker-setup)
+- [🌐 Base endpoints](#-base-endpoints)
+- [✅ Testing](#-testing)
+- [📜 License](#-license)
 
 ## 📄 Description
 
@@ -112,13 +112,13 @@ After starting the service, the following endpoints will be available:
    [API Documentation](http://localhost:8080/raspyx/swagger/index.html)
 
 2. **Monitoring**
-   - Prometheus metrics: `http://localhost:9090`  
+   - Prometheus metrics: http://localhost:9090  
      *(Available only on local installations. To enable it in a Docker setup, uncomment the `ports` section in `docker-compose.yaml`.)*
-   - Grafana dashboard: `http://localhost:3000`  
+   - Grafana dashboard: http://localhost:3000  
      *Default username and password: admin/admin*
 
 3. **Health Checks**
-   - `http://localhost:8080/raspyx/ping`
+   - http://localhost:8080/raspyx/ping
 
 
 ## ✅ Testing
