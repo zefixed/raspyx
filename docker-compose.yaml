@@ -62,6 +62,8 @@ services:
     networks:
       - raspyx-network
     restart: always
+#    ports:
+#      - "${PROMETHEUS_PORT}:9090"
     volumes:
       - prometheus_data:/prometheus
 
