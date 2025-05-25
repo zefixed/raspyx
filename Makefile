@@ -3,6 +3,7 @@ export
 
 RED="\\033[31m"
 GREEN="\\033[32m"
+YELLOW="\\033[33m"
 RESET="\\033[0m"
 
 define delete-docker-service
@@ -15,7 +16,7 @@ define delete-docker-service
 	fi
 endef
 
-all: clear network-create redis-create db-create migrate-up db-admin-create prometheus-create grafana-create build run
+all: clear network-create redis-create db-create migrate-up db-admin-create prometheus-create grafana-create kafka-create build run
 .PHONY: all
 
 migrate-up: ### migration up
@@ -120,7 +121,7 @@ grafana-create: ### Creating grafana docker instance
 	@if docker inspect ${APP_NAME}grafana >/dev/null 2>&1; then \
   		echo -e "${RED}${APP_NAME}grafana already exists${RESET}"; \
   	else \
-  	  	docker run -d --name=$(APP_NAME)grafana -p $(GRAFANA_PORT):3000 --network=${APP_NAME}-network -v $(APP_NAME)_grafana_data:/var/lib/grafana grafana/grafana >/dev/null 2>&1; \
+  	  	docker run -d --name=$(APP_NAME)grafana -p $(GRAFANA_PORT):3000 --network=${APP_NAME}-network --restart unless-stopped -v $(APP_NAME)_grafana_data:/var/lib/grafana grafana/grafana >/dev/null 2>&1; \
 		echo -e "${GREEN}${APP_NAME}grafana created${RESET}"; \
 	fi
 .PHONY: grafana-create
@@ -133,7 +134,7 @@ prometheus-create: ### Creating prometheus docker instance
 	@if docker inspect ${APP_NAME}prometheus >/dev/null 2>&1; then \
   		echo -e "${RED}${APP_NAME}prometheus already exists${RESET}"; \
   	else \
-		docker run -d --name=$(APP_NAME)prometheus -p $(PROMETHEUS_PORT):9090 --network=${APP_NAME}-network --add-host=host.docker.internal:host-gateway -v $(APP_NAME)_prometheus_data:/prometheus -v ./prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus:v3.4.0 >/dev/null 2>&1; \
+		docker run -d --name=$(APP_NAME)prometheus -p $(PROMETHEUS_PORT):9090 --network=${APP_NAME}-network --restart unless-stopped --add-host=host.docker.internal:host-gateway -v $(APP_NAME)_prometheus_data:/prometheus -v ./prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus:v3.4.0 >/dev/null 2>&1; \
 		echo -e "${GREEN}${APP_NAME}prometheus created${RESET}"; \
 	fi
 .PHONY: prometheus-create
@@ -160,5 +161,38 @@ network-delete:
   	fi
 .PHONY: network-delete
 
-clear: db-delete redis-delete grafana-delete prometheus-delete network-delete ### Cleaning up
+kafka-create: ### Creating kafka docker instance
+	@if docker inspect ${APP_NAME}kafka >/dev/null 2>&1; then \
+  		echo -e "${RED}${APP_NAME}kafka already exists${RESET}"; \
+  	else \
+		docker run -d --name ${APP_NAME}kafka \
+          -p ${KAFKA_PORT}:9092 \
+          -v ${APP_NAME}_kafka_data:/bitnami/kafka/data \
+          --network=${APP_NAME}-network \
+          --restart unless-stopped \
+          -e KAFKA_KRAFT_CLUSTER_ID=kraft-cluster \
+          -e KAFKA_CFG_NODE_ID=1 \
+          -e KAFKA_CFG_PROCESS_ROLES=broker,controller \
+          -e KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER \
+          -e KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093 \
+          -e KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:${KAFKA_PORT} \
+          -e KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@localhost:9093 \
+          -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT \
+          -e KAFKA_CFG_LOG_DIRS=/bitnami/kafka/data \
+          -e ALLOW_PLAINTEXT_LISTENER=yes \
+          bitnami/kafka:latest >/dev/null 2>&1; \
+        echo -e "${YELLOW}${APP_NAME}kafka is starting, please wait...${RESET}"; \
+        until docker exec ${APP_NAME}kafka \
+          kafka-topics.sh --bootstrap-server localhost:${KAFKA_PORT} --list >/dev/null 2>&1; do \
+          sleep 1; \
+        done; \
+		echo -e "${GREEN}${APP_NAME}kafka created${RESET}"; \
+	fi
+.PHONY: kafka-create
+
+kafka-delete: ### Deleting kafka docker instance
+	$(call delete-docker-service,kafka)
+.PHONY: kafka-delete
+
+clear: db-delete redis-delete grafana-delete prometheus-delete kafka-delete network-delete ### Cleaning up
 .PHONY: clear

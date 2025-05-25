@@ -16,6 +16,7 @@ type (
 		Redis  Redis
 		Parser Parser
 		RL     RateLimiter
+		Kafka  Kafka
 	}
 	App struct {
 		Name    string `env:"APP_NAME,required"`
@@ -51,6 +52,14 @@ type (
 	RateLimiter struct {
 		Limit float64 `env:"RL_LIMIT,required"`
 		Burst int     `env:"RL_BURST,required"`
+	}
+
+	Kafka struct {
+		Port                   string `env:"KAFKA_PORT,required"`
+		URL                    string `env:"KAFKA_URL,required"`
+		TopicName              string `env:"KAFKA_TOPIC_NAME,required"`
+		TopicPartitions        int    `env:"KAFKA_TOPIC_PARTITIONS,required"`
+		TopicReplicationFactor int    `env:"KAFKA_TOPIC_REPLICATION_FACTOR,required"`
 	}
 )
 

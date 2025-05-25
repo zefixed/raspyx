@@ -23,6 +23,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      kafka:
+        condition: service_healthy
     command: >
       sh -c "make migrate-up; ./${APP_NAME}"
     restart: always
@@ -42,7 +44,7 @@ services:
       - ./init_db.sh:/docker-entrypoint-initdb.d/init_db.sh
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "postgres" ]
-      interval: 0.5s
+      interval: 2s
       timeout: 5s
       retries: 10
 
@@ -78,10 +80,37 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
 
+  kafka:
+    container_name: ${APP_NAME}kafka
+    image: bitnami/kafka:latest
+    restart: unless-stopped
+    volumes:
+      - kafka_data:/bitnami/kafka/data
+    networks:
+      - raspyx-network
+    environment:
+      - KAFKA_KRAFT_CLUSTER_ID=kraft-cluster
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:${KAFKA_PORT}
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@localhost:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_LOG_DIRS=/bitnami/kafka/data
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    healthcheck:
+      test: ["CMD", "/opt/bitnami/kafka/bin/kafka-broker-api-versions.sh", "--bootstrap-server", "kafka:9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
 volumes:
   postgres_data:
   grafana_data:
   prometheus_data:
+  kafka_data:
 
 networks:
   raspyx-network:
