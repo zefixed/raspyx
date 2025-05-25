@@ -17,6 +17,7 @@ import (
 	httpv1 "raspyx/internal/delivery/http"
 	mw "raspyx/internal/delivery/http/middleware"
 	v1 "raspyx/internal/delivery/http/v1"
+	"raspyx/internal/kafka"
 	"raspyx/internal/parser"
 	"strconv"
 	"strings"
@@ -95,8 +96,24 @@ func Run(cfg *config.Config) {
 		}
 	}()
 
+	// Kafka creating topic
+	err = kafka.CreateTopic(&kafka.TopicConfig{
+		Topic:             cfg.Kafka.TopicName,
+		URL:               cfg.Kafka.URL,
+		Partitions:        cfg.Kafka.TopicPartitions,
+		ReplicationFactor: cfg.Kafka.TopicReplicationFactor,
+	})
+	if err != nil {
+		log.Error(fmt.Sprintf("error creating kafka topic %v: %v", cfg.Kafka.TopicName, err))
+		return
+	}
+
+	// Kafka creating producer
+	producer := kafka.NewProducer(&kafka.ProducerConfig{Topic: cfg.Kafka.TopicName, URL: cfg.Kafka.URL})
+	defer producer.Close()
+
 	// Schedule parser
-	parser.NewScheduleParser(10*time.Second, conn, redisClient, log, cfg.Parser).New(ctx)
+	parser.NewScheduleParser(10*time.Second, conn, redisClient, log, cfg.Parser, producer).New(ctx)
 
 	// shutdown
 	<-ctx.Done()

@@ -14,6 +14,7 @@ import (
 	"raspyx/internal/domain/interfaces"
 	"raspyx/internal/domain/services"
 	"raspyx/internal/dto"
+	"raspyx/internal/kafka"
 	"raspyx/internal/repository"
 	"raspyx/internal/repository/postgres"
 	myredis "raspyx/internal/repository/redis"
@@ -28,28 +29,29 @@ import (
 )
 
 type ScheduleParser struct {
-	client       *http.Client
-	conn         *pgxpool.Pool
-	log          *slog.Logger
-	cfg          config.Parser
-	added        *added
-	groupRepo    *postgres.GroupRepository
-	groupSVC     *services.GroupService
-	sbjRepo      *postgres.SubjectRepository
-	sbjSVC       *services.SubjectService
-	teacherRepo  *postgres.TeacherRepository
-	teacherSVC   *services.TeacherService
-	roomRepo     *postgres.RoomRepository
-	roomSVC      *services.RoomService
-	locationRepo *postgres.LocationRepository
-	locationSVC  *services.LocationService
-	typeRepo     *postgres.SubjectTypeRepository
-	typeSVC      *services.SubjectTypeService
-	scheduleRepo *postgres.ScheduleRepository
-	scheduleSVC  *services.ScheduleService
-	repoTToS     interfaces.TeachersToScheduleRepository
-	repoRToS     interfaces.RoomsToScheduleRepository
-	cache        interfaces.Cache
+	client        *http.Client
+	conn          *pgxpool.Pool
+	log           *slog.Logger
+	cfg           config.Parser
+	added         *added
+	groupRepo     *postgres.GroupRepository
+	groupSVC      *services.GroupService
+	sbjRepo       *postgres.SubjectRepository
+	sbjSVC        *services.SubjectService
+	teacherRepo   *postgres.TeacherRepository
+	teacherSVC    *services.TeacherService
+	roomRepo      *postgres.RoomRepository
+	roomSVC       *services.RoomService
+	locationRepo  *postgres.LocationRepository
+	locationSVC   *services.LocationService
+	typeRepo      *postgres.SubjectTypeRepository
+	typeSVC       *services.SubjectTypeService
+	scheduleRepo  *postgres.ScheduleRepository
+	scheduleSVC   *services.ScheduleService
+	repoTToS      interfaces.TeachersToScheduleRepository
+	repoRToS      interfaces.RoomsToScheduleRepository
+	cache         interfaces.Cache
+	kafkaProducer *kafka.Producer
 }
 
 type lesson struct {
@@ -78,22 +80,23 @@ type response struct {
 }
 
 type added struct {
-	groups    int
-	subjects  int
-	teachers  int
-	rooms     int
-	locations int
-	types     int
-	schedule  int
+	Groups    int `json:"groups"`
+	Subjects  int `json:"subject"`
+	Teachers  int `json:"teachers"`
+	Rooms     int `json:"rooms"`
+	Locations int `json:"locations"`
+	Types     int `json:"types"`
+	Schedule  int `json:"schedule"`
 }
 
-func NewScheduleParser(timeout time.Duration, conn *pgxpool.Pool, redisClient *redis.Client, log *slog.Logger, cfg config.Parser) *ScheduleParser {
+func NewScheduleParser(timeout time.Duration, conn *pgxpool.Pool, redisClient *redis.Client, log *slog.Logger, cfg config.Parser, kafkaProducer *kafka.Producer) *ScheduleParser {
 	return &ScheduleParser{
-		client: &http.Client{Timeout: timeout},
-		conn:   conn,
-		log:    log,
-		cache:  myredis.NewRedisCache(redisClient),
-		cfg:    cfg,
+		client:        &http.Client{Timeout: timeout},
+		conn:          conn,
+		log:           log,
+		cache:         myredis.NewRedisCache(redisClient),
+		cfg:           cfg,
+		kafkaProducer: kafkaProducer,
 	}
 }
 
@@ -209,15 +212,25 @@ func (p *ScheduleParser) parse(ctx context.Context) error {
 		"schedule parsed",
 		slog.String("time_taken", time.Since(t).String()),
 		slog.Any("added", map[string]int{
-			"schedules": p.added.schedule,
-			"groups":    p.added.groups,
-			"subjects":  p.added.subjects,
-			"teachers":  p.added.teachers,
-			"rooms":     p.added.rooms,
-			"locations": p.added.locations,
-			"types":     p.added.types,
+			"schedules": p.added.Schedule,
+			"groups":    p.added.Groups,
+			"subjects":  p.added.Subjects,
+			"teachers":  p.added.Teachers,
+			"rooms":     p.added.Rooms,
+			"locations": p.added.Locations,
+			"types":     p.added.Types,
 		}),
 	)
+
+	go func() {
+		data := kafka.Event{Timestamp: time.Now(), Message: map[string]any{"added": p.added}}
+		b, _ := json.Marshal(data)
+		err = p.kafkaProducer.Write(ctx, "key", string(b))
+		if err != nil {
+			p.log.Error(fmt.Sprintf("error producing schedule kafka message: %v", err))
+		}
+		p.log.Info(fmt.Sprintf("produced schedule kafka message: %v", slog.Any("data", data)))
+	}()
 
 	return nil
 }
@@ -278,7 +291,7 @@ func (p *ScheduleParser) addGroupsToDB(ctx context.Context, groups []string) {
 				p.log.Error(fmt.Sprintf("error adding group %v to db: %v", group, err))
 			}
 		} else {
-			p.added.groups++
+			p.added.Groups++
 		}
 	}
 }
@@ -382,7 +395,7 @@ func (p *ScheduleParser) addSubjectToDB(ctx context.Context, sbjUC *usecase.Subj
 			if err != nil {
 				p.log.Error(fmt.Sprintf("error adding subject %v to db: %v", sbj, err))
 			} else {
-				p.added.subjects++
+				p.added.Subjects++
 			}
 		} else {
 			return err
@@ -441,7 +454,7 @@ func (p *ScheduleParser) addTeacherToDB(ctx context.Context, teacherUC *usecase.
 			if err != nil {
 				p.log.Error(fmt.Sprintf("error adding teacher %v to db: %v", strings.TrimSpace(strings.Join(flm, " ")), err))
 			} else {
-				p.added.teachers++
+				p.added.Teachers++
 			}
 		} else {
 			return err
@@ -488,7 +501,7 @@ func (p *ScheduleParser) addRoomToDB(ctx context.Context, roomUC *usecase.RoomUs
 			if err != nil {
 				p.log.Error(fmt.Sprintf("error adding room %v to db: %v", roomNum, err))
 			} else {
-				p.added.rooms++
+				p.added.Rooms++
 			}
 		} else {
 			return err
@@ -544,7 +557,7 @@ func (p *ScheduleParser) addLocationToDB(ctx context.Context, locationUC *usecas
 			if err != nil {
 				p.log.Error(fmt.Sprintf("error adding location %v to db: %v", location, err))
 			} else {
-				p.added.locations++
+				p.added.Locations++
 			}
 		} else {
 			return err
@@ -586,7 +599,7 @@ func (p *ScheduleParser) addTypeToDB(ctx context.Context, typeUC *usecase.Subjec
 			if err != nil {
 				p.log.Error(fmt.Sprintf("error adding type %v to db: %v", sbjType, err))
 			} else {
-				p.added.types++
+				p.added.Types++
 			}
 		} else {
 			return err
@@ -831,7 +844,7 @@ func (p *ScheduleParser) addScheduleToDB(ctx context.Context, scheduleUC *usecas
 	if err != nil {
 		return err
 	}
-	p.added.schedule++
+	p.added.Schedule++
 
 	return nil
 }
