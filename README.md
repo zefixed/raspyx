@@ -25,6 +25,7 @@ This API provides functionality to work with schedule. It includes features for 
 - Database connection with PostgreSQL
 - Database migration with goose
 - Caching with Redis
+- Message streaming with Kafka
 - Request and error logging
 - Swagger documentation
 - Grafana and Prometheus monitoring
@@ -38,6 +39,7 @@ This API provides functionality to work with schedule. It includes features for 
 - PostgreSQL
 - Goose
 - Redis
+- Kafka
 - Docker
 - Grafana
 - Prometheus
