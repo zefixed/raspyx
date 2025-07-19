@@ -82,7 +82,9 @@ services:
 
   kafka:
     container_name: ${APP_NAME}kafka
-    image: bitnami/kafka:latest
+    build:
+      context: ./kafka
+      dockerfile: Dockerfile.kafka
     restart: unless-stopped
     volumes:
       - kafka_data:/bitnami/kafka/data
@@ -100,7 +102,7 @@ services:
       - KAFKA_CFG_LOG_DIRS=/bitnami/kafka/data
       - ALLOW_PLAINTEXT_LISTENER=yes
     healthcheck:
-      test: ["CMD", "/opt/bitnami/kafka/bin/kafka-broker-api-versions.sh", "--bootstrap-server", "kafka:9092"]
+      test: [ "CMD", "nc", "-z", "localhost", "9092" ]
       interval: 10s
       timeout: 5s
       retries: 5
