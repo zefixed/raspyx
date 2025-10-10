@@ -180,7 +180,7 @@ kafka-create: ### Creating kafka docker instance
           -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT \
           -e KAFKA_CFG_LOG_DIRS=/bitnami/kafka/data \
           -e ALLOW_PLAINTEXT_LISTENER=yes \
-          bitnami/kafka:latest >/dev/null 2>&1; \
+          bitnamilegacy/kafka:latest >/dev/null 2>&1; \
         echo -e "${YELLOW}${APP_NAME}kafka is starting, please wait...${RESET}"; \
         until docker exec ${APP_NAME}kafka \
           kafka-topics.sh --bootstrap-server localhost:${KAFKA_PORT} --list >/dev/null 2>&1; do \
